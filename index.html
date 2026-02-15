@@ -890,7 +890,7 @@ const patterns = [
   { id: 'C04', name: 'Text & Rich Text', scale: 'components', conf: 2,
     problem: 'Terminal text needs per-character styling, text transforms, multi-span inline styling, and alignment — all within the pointer-binding reactive model.',
     solution: 'TextC with value-receiver chaining (.Bold().FG(Red)), Span-based RichTextNode for mixed inline styles, and helper functions (Rich, Bold, Dim, FG, BG). Style inheritance cascades through CascadeStyle on containers.',
-    up: [], down: [], peer: ['C01', 'C03'] },
+    up: [], down: ['D04'], peer: ['C01', 'C03'] },
 
   { id: 'C05', name: 'Filtering & Search', scale: 'components', conf: 2,
     problem: 'Interactive lists and logs need real-time fzf-style filtering that maintains index mapping back to the source data for correct item selection.',
@@ -926,7 +926,7 @@ const patterns = [
   { id: 'D04', name: 'Style & Colour System', scale: 'details', conf: 2,
     problem: 'Terminal styling requires managing colours across four modes, text attributes as composable bitmasks, text transforms, alignment, and style inheritance.',
     solution: 'Style struct combines FG/BG/Fill Color, Attribute bitmask, TextTransform, and Align. Color supports Default/16/256/RGB. CascadeStyle *Style on containers enables dynamic theme switching via pointer. effectiveStyle() merges inherited attributes and colours.',
-    up: ['C01'], down: [], peer: [] },
+    up: ['C01', 'C04'], down: [], peer: [] },
 
   { id: 'D05', name: 'Jump Labels', scale: 'details', conf: 2,
     problem: 'Keyboard-driven UIs need a way to target arbitrary screen locations without sequential navigation — the terminal equivalent of clicking.',
