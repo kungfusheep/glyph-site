@@ -6,17 +6,11 @@
 <title>forme — Go TUI Framework</title>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
-
   @font-face {
     font-family: 'Berkeley Mono';
-    src: local('Berkeley Mono'), local('BerkeleyMono-Regular');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Berkeley Mono';
-    src: local('Berkeley Mono'), local('BerkeleyMono-Bold');
-    font-weight: 700;
+    src: url('BerkeleyMonoVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
   }
 
   /* ============================================================
@@ -46,7 +40,7 @@
     --accent:  #c47d3c;
 
     /* fonts */
-    --mono:  'Berkeley Mono', 'DM Mono', monospace;
+    --mono:  'Berkeley Mono', monospace;
     --akz:   'akzidenz-grotesk-next-pro', sans-serif;
     --akz-c: 'akzidenz-grotesk-next-conden', sans-serif;
     --din-r: 'din-2014-rounded-variable', sans-serif;
@@ -112,6 +106,13 @@
     color: var(--fg0);
     text-decoration: none;
     letter-spacing: -0.02em;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  nav.brand-visible .nav-brand {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   nav.in-dark .nav-brand { color: #e8e4d8; }
@@ -247,6 +248,45 @@
   }
 
   .zone-dark .section-desc { color: #666; border-color: #333; }
+
+  .callout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s5);
+    margin: var(--s6) 0;
+    padding: var(--s5) 0;
+    border-top: 1px solid var(--rule-dk);
+    border-bottom: 1px solid var(--rule-dk);
+  }
+  .callout-phase {
+    display: flex;
+    flex-direction: column;
+  }
+  .callout-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: var(--s2);
+  }
+  .callout-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 18px;
+    color: #e8e4d8;
+    margin-bottom: var(--s1);
+  }
+  .callout-body {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.7;
+  }
+  .callout-body code {
+    font-family: var(--mono);
+    color: #999;
+  }
 
   /* ============================================================
      PATTERN LATTICE
@@ -416,6 +456,8 @@
     margin: var(--s3) 0;
     overflow-x: auto;
     color: #c8c4b8;
+    white-space: pre;
+    tab-size: 4;
   }
 
   .zone-dark .code {
@@ -471,67 +513,247 @@
   .zone-dark .index-row:hover .index-arrow { color: #e8e4d8; }
 
   /* ============================================================
-     API COMPONENT BLOCKS
+     API REFERENCE (dynamic from api.json)
      ============================================================ */
-  .api-block {
+
+  /* category sections */
+  .api-category {
+    margin-bottom: var(--s7);
+  }
+  .api-category-head {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #555;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--rule-dk);
+    margin-bottom: var(--s5);
+  }
+  .zone-dark .api-category-head { color: #666; }
+
+  /* individual type blocks */
+  .api-type {
     margin-bottom: var(--s6);
   }
-
-  .api-name {
+  .api-type-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .api-type-name {
     font-family: var(--akz);
     font-weight: 700;
     font-size: 22px;
     letter-spacing: -0.01em;
-    margin-bottom: 6px;
+    color: #e8e4d8;
   }
-
-  .zone-dark .api-name { color: #e8e4d8; }
-
-  .api-desc {
-    font-size: 12px;
-    color: var(--fg3);
-    line-height: 1.7;
-    max-width: 560px;
-    margin-bottom: var(--s3);
-  }
-
-  .zone-dark .api-desc { color: #777; }
-
-  .api-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin-bottom: var(--s3);
-  }
-
-  .api-table th {
-    text-align: left;
+  .api-type-kind {
+    font-family: var(--mono);
     font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--fg4);
-    padding: 8px 0;
-    border-bottom: 2px solid var(--rule);
-    font-weight: 400;
+    color: #444;
+    letter-spacing: 0.02em;
+  }
+  .api-type-doc {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.7;
+    max-width: 620px;
+    margin-bottom: var(--s2);
+  }
+  .api-type-decl {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #666;
+    margin-bottom: var(--s3);
+    white-space: pre-wrap;
+    line-height: 1.6;
   }
 
-  .zone-dark .api-table th { border-color: var(--rule-dk); color: #444; }
-
-  .api-table td {
-    padding: 8px 16px 8px 0;
-    border-bottom: 1px solid var(--rule);
-    vertical-align: top;
+  /* constructors */
+  .api-constructors {
+    margin-bottom: var(--s3);
   }
-
-  .zone-dark .api-table td { border-color: var(--rule-dk); }
-
-  .api-table code {
+  .api-ctor {
+    margin-bottom: var(--s2);
+  }
+  .api-sig {
     font-family: var(--mono);
     font-size: 12px;
+    color: #c8c4b8;
+    line-height: 1.5;
+  }
+  .api-fn-doc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 2px;
+    max-width: 620px;
   }
 
-  .zone-dark .api-table td { color: #999; }
-  .zone-dark .api-table code { color: #c8c4b8; }
+  /* collapsible methods */
+  .api-methods-toggle {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #555;
+    cursor: pointer;
+    user-select: none;
+    padding: 6px 0;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .api-methods-toggle:hover { color: #999; }
+  .api-methods-toggle .chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 10px;
+  }
+  .api-methods-toggle.open .chevron { transform: rotate(90deg); }
+  .api-methods-list {
+    display: none;
+    padding-top: var(--s1);
+  }
+  .api-methods-list.open { display: block; }
+  .api-method {
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a18;
+  }
+  .api-method:last-child { border-bottom: none; }
+  .api-method-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #c8c4b8;
+  }
+  .api-method-doc {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+
+  /* consts & vars blocks */
+  .api-vars-section,
+  .api-consts-section {
+    margin-bottom: var(--s6);
+  }
+  .api-vars-section .api-type-name,
+  .api-consts-section .api-type-name {
+    font-size: 18px;
+    margin-bottom: var(--s2);
+  }
+  .api-var-group {
+    margin-bottom: var(--s3);
+  }
+  .api-var-names {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #c8c4b8;
+    margin-bottom: 2px;
+  }
+  .api-var-doc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .api-var-decl {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #444;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  /* free functions section */
+  .api-free-fn {
+    margin-bottom: var(--s3);
+  }
+
+  /* internals collapsed by default */
+  .api-category.collapsed .api-category-types { display: none; }
+  .api-category-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
+  .api-category-toggle .cat-chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+    margin-left: 8px;
+    font-size: 11px;
+  }
+  .api-category.collapsed .cat-chevron { transform: rotate(0deg); }
+  .api-category:not(.collapsed) .cat-chevron { transform: rotate(90deg); }
+
+  /* template syntax showcase */
+  .api-showcase {
+    margin-bottom: var(--s7);
+    padding: var(--s5) 0;
+    border-bottom: 1px solid var(--rule-dk);
+  }
+  .api-showcase-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: var(--s3);
+  }
+  .api-showcase .code {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: var(--s3);
+  }
+  .api-showcase-note {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+    max-width: 560px;
+  }
+
+  /* example blocks — stripped back, no border */
+  .api-example {
+    margin: var(--s2) 0 var(--s3);
+    padding: var(--s3);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .api-example pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #999;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    tab-size: 4;
+    margin: 0;
+  }
+  .api-example .cm  { color: #444; }
+  .api-example .kw  { color: #9abf8a; }
+  .api-example .fn  { color: #eeeee4; }
+  .api-example .str { color: #c4a06a; }
+  .api-example .tp  { color: #7a9aba; }
+  .api-example .nr  { color: #c4a06a; }
+
+  /* struct annotation */
+  .api-type-struct {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #444;
+    margin-left: 10px;
+  }
+
+  /* loading state */
+  .api-loading {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #555;
+    padding: var(--s5) 0;
+  }
 
   /* ============================================================
      FOOTER
@@ -555,6 +777,11 @@
     justify-content: space-between;
     align-items: center;
   }
+
+  @media (max-width: 1024px) {
+    .code,
+    .api-example pre { font-stretch: 87%; }
+  }
 </style>
 </head>
 <body>
@@ -568,7 +795,7 @@
     <li><a href="#lattice">Patterns</a></li>
     <li><a href="#start">Start</a></li>
     <li><a href="#api">API</a></li>
-    <li><a href="https://github.com/petegriffiths/forme">GitHub</a></li>
+    <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
   </ul>
 </nav>
 
@@ -587,7 +814,7 @@
       </div>
       <div class="hero-install">
         <span class="prompt">$</span>
-        go get github.com/petegriffiths/forme@latest
+        go get github.com/kungfusheep/forme@latest
       </div>
     </div>
   </div>
@@ -650,26 +877,45 @@
       A minimal forme application. Create an app, set a view, run.
     </div>
 
-    <div class="code"><span class="kw">package</span> main
+    <div class="code code-raw">package main
 
-<span class="kw">import</span> <span class="str">"github.com/petegriffiths/forme"</span>
+import . "github.com/kungfusheep/forme"
 
-<span class="kw">func</span> <span class="fn">main</span>() {
-    app, _ := forme.<span class="fn">NewApp</span>()
+func main() {
+    app, _ := NewApp()
 
-    app.<span class="fn">SetView</span>(
-        forme.<span class="fn">VBox</span>(
-            forme.<span class="fn">Text</span>(<span class="str">"Hello, forme"</span>),
-            forme.<span class="fn">Text</span>(<span class="str">"Press q to quit"</span>),
+    app.SetView(
+        VBox(
+            Text("Hello, forme"),
+            Text("Press q to quit"),
         ),
     )
+    app.Handle("q", app.Stop)
 
-    app.<span class="fn">Handle</span>(<span class="str">"q"</span>, <span class="kw">func</span>() {
-        app.<span class="fn">Quit</span>()
-    })
-
-    app.<span class="fn">Run</span>()
+    app.Run()
 }</div>
+
+    <div class="callout">
+      <div class="callout-phase">
+        <div class="callout-label">Once</div>
+        <div class="callout-title">Build</div>
+        <div class="callout-body">
+          When you call <code>SetView()</code>, the declarative tree is compiled into a flat array of operations.
+          All reflection, type switches, and allocation happen here. The composable API surface —
+          <code>VBox.Gap(2).Border(...)</code> — is purely a build-time convenience.
+        </div>
+      </div>
+      <div class="callout-phase">
+        <div class="callout-label">Each update</div>
+        <div class="callout-title">Execute</div>
+        <div class="callout-body">
+          Rendering walks the compiled ops and dereferences pointers to read current state.
+          No tree rebuilds, no diffing, no allocation. Just pointer reads into a cell buffer,
+          then a
+          diff-based flush to the terminal.
+        </div>
+      </div>
+    </div>
 
     <div class="section-head">
       <div class="section-num">03</div>
@@ -680,23 +926,21 @@
     </div>
 
     <div class="section-desc">
-      Pass pointers to values. The view tree is built once.
-      At render time, pointers are dereferenced to get current state.
-      No rebuilds, no diffing.
+      This is why state is bound through pointers. The compiled template doesn't know your
+      variable names — it knows addresses. Mutate the value, and the next frame reads it.
     </div>
 
-    <div class="code">count := 0
+    <div class="code code-raw">count := 0
 
-app.<span class="fn">SetView</span>(
-    forme.<span class="fn">VBox</span>(
-        forme.<span class="fn">Text</span>(&count),  <span class="cm">// reads current value at render time</span>
-        forme.<span class="fn">Text</span>(<span class="str">"Press + to increment"</span>),
+app.SetView(
+    VBox(
+        Text(&count),  // reads current value at render time
+        Text("Press + to increment"),
     ),
 )
 
-app.<span class="fn">Handle</span>(<span class="str">"+"</span>, <span class="kw">func</span>() {
+app.Handle("+", func() {
     count++
-    app.<span class="fn">RequestRender</span>()
 })</div>
   </div>
 </div>
@@ -715,91 +959,27 @@ app.<span class="fn">Handle</span>(<span class="str">"+"</span>, <span class="kw
     </div>
 
     <div class="section-desc">
-      Components, layout, input handling, and state management.
+      The complete API surface, generated from source.
     </div>
 
-    <!-- App -->
-    <div class="api-block">
-      <div class="api-name">App</div>
-      <div class="api-desc">The root container. Creates the terminal session, manages views, routes input.</div>
-      <div class="code">app, err := forme.<span class="fn">NewApp</span>()</div>
-      <table class="api-table">
-        <thead><tr><th>Method</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>SetView(view)</code></td><td>Set the root view for single-view apps</td></tr>
-          <tr><td><code>View(name, view)</code></td><td>Register a named view for multi-view routing</td></tr>
-          <tr><td><code>Handle(pattern, fn)</code></td><td>Register a key handler</td></tr>
-          <tr><td><code>Go(name)</code></td><td>Navigate to a named view</td></tr>
-          <tr><td><code>Run()</code></td><td>Start the application</td></tr>
-          <tr><td><code>Quit()</code></td><td>Exit cleanly</td></tr>
-          <tr><td><code>RequestRender()</code></td><td>Schedule a re-render on next frame</td></tr>
-        </tbody>
-      </table>
+    <div class="api-showcase">
+      <div class="api-showcase-label">The template syntax</div>
+      <div class="code code-raw">VBox.Gap(2).Border(BorderRounded).CascadeStyle(&theme)(
+    Text(&title).Bold().FG(Cyan),
+    HBox.Gap(1)(
+        Text(&count),
+        Space(),
+        Text("items"),
+    ),
+    List(&items).Render(func(item *string) any {
+        return Text(item)
+    }).BindNav("j", "k"),
+)</div>
+      <div class="api-showcase-note">Configure with chained methods, then call as a function with children. Values behind pointers are dereferenced every render pass — no subscriptions, no signals.</div>
     </div>
 
-    <!-- Layout -->
-    <div class="api-block">
-      <div class="api-name">Layout</div>
-      <div class="api-desc">Compose views spatially. Flex-like model — grow, shrink, fixed, percentage.</div>
-      <table class="api-table">
-        <thead><tr><th>Function</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>VBox(children...)</code></td><td>Vertical stack</td></tr>
-          <tr><td><code>HBox(children...)</code></td><td>Horizontal stack</td></tr>
-          <tr><td><code>Grow(child)</code></td><td>Fill remaining space</td></tr>
-          <tr><td><code>WidthPct(n, child)</code></td><td>Percentage width</td></tr>
-          <tr><td><code>Gap(n)</code></td><td>Fixed spacing</td></tr>
-          <tr><td><code>Arrange(children...)</code></td><td>Manual positioning</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Components index -->
-    <div class="api-block">
-      <div class="api-name">Components</div>
-      <div class="api-desc">The building blocks. Each is a function that returns a node.</div>
-      <div style="margin-top: var(--s2);">
-        <div class="index-row"><div class="index-id">text</div><div class="index-name">Text</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">input</div><div class="index-name">Input</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">list</div><div class="index-name">List / FilterList</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">tabs</div><div class="index-name">Tabs</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">jump</div><div class="index-name">Jump</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">layer</div><div class="index-name">Layer / LayerView</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">overlay</div><div class="index-name">Overlay</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">progress</div><div class="index-name">Progress / Spinner</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">spark</div><div class="index-name">Sparkline</div><div class="index-arrow">↗</div></div>
-        <div class="index-row"><div class="index-id">widget</div><div class="index-name">Widget (Custom)</div><div class="index-arrow">↗</div></div>
-      </div>
-    </div>
-
-    <!-- Conditionals -->
-    <div class="api-block">
-      <div class="api-name">Conditionals</div>
-      <div class="api-desc">Show and hide nodes based on pointer values. Evaluated at render time.</div>
-      <table class="api-table">
-        <thead><tr><th>Function</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>If(&bool).Then(node)</code></td><td>Conditional render</td></tr>
-          <tr><td><code>If(&bool).Then(a).Else(b)</code></td><td>Conditional with fallback</td></tr>
-          <tr><td><code>Switch(&val).Case(v, node)</code></td><td>Multi-value conditional</td></tr>
-          <tr><td><code>ForEach(&slice, fn)</code></td><td>Dynamic list from pointer to slice</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Style -->
-    <div class="api-block">
-      <div class="api-name">Style</div>
-      <div class="api-desc">Visual properties. Applied directly or cascaded from parent.</div>
-      <div class="code">s := forme.<span class="fn">Style</span>{
-    <span class="tp">Bold</span>:       <span class="kw">true</span>,
-    <span class="tp">FG</span>:         forme.<span class="fn">RGB</span>(200, 180, 160),
-    <span class="tp">Border</span>:     forme.<span class="fn">BorderRounded</span>,
-    <span class="tp">PaddingX</span>:   2,
-    <span class="tp">PaddingY</span>:   1,
-}
-
-forme.<span class="fn">CascadeStyle</span>(&s, child)</div>
+    <div id="api-content">
+      <div class="api-loading">Loading API reference...</div>
     </div>
   </div>
 </div>
@@ -812,7 +992,7 @@ forme.<span class="fn">CascadeStyle</span>(&s, child)</div>
     <footer>
       <div class="footer-inner">
         <span>forme — built by <a href="#">Pete Griffiths</a></span>
-        <span><a href="https://github.com/petegriffiths/forme">source</a></span>
+        <span><a href="https://github.com/kungfusheep/forme">source</a></span>
       </div>
     </footer>
   </div>
@@ -1036,15 +1216,23 @@ function selectPattern(id) {
 // nav scroll behavior
 const navEl = document.getElementById('nav');
 const darkZone = document.getElementById('start');
+const heroTitle = document.querySelector('.hero-title');
 
 function updateNav() {
   const scrollY = window.scrollY;
   const darkTop = darkZone.offsetTop - 48;
+  const heroBottom = heroTitle.offsetTop + heroTitle.offsetHeight;
 
   if (scrollY > 20) {
     navEl.classList.add('scrolled');
   } else {
     navEl.classList.remove('scrolled');
+  }
+
+  if (scrollY >= heroBottom) {
+    navEl.classList.add('brand-visible');
+  } else {
+    navEl.classList.remove('brand-visible');
   }
 
   if (scrollY >= darkTop) {
@@ -1056,6 +1244,493 @@ function updateNav() {
 
 window.addEventListener('scroll', updateNav, { passive: true });
 updateNav();
+
+// ============================================================
+// API REFERENCE — fetch api.json + render (function-first)
+// ============================================================
+(function() {
+
+  // user-facing display names — how people actually use them
+  const displayNames = {
+    VBoxFn: 'VBox', HBoxFn: 'HBox', OverlayFn: 'Overlay',
+    TextC: 'Text', InputC: 'Input', ListC: 'List',
+    CheckListC: 'CheckList', TabsC: 'Tabs',
+    FilterListC: 'FilterList', FilterLogC: 'FilterLog', LogC: 'Log',
+    LayerViewC: 'LayerView', JumpC: 'Jump',
+    RadioC: 'Radio', CheckboxC: 'Checkbox',
+    FormC: 'Form', ScrollbarC: 'Scroll',
+    HRuleC: 'HRule', VRuleC: 'VRule', LeaderC: 'Leader',
+    SpacerC: 'Spacer', AutoTableC: 'AutoTable',
+    SparklineC: 'Sparkline', ProgressC: 'Progress', SpinnerC: 'Spinner',
+    ForEachC: 'ForEach', Condition: 'If', OrdCondition: 'IfOrd',
+    SwitchBuilder: 'Switch', RichTextNode: 'Rich',
+    Custom: 'Widget', ThemeEx: 'Theme',
+  };
+
+  // types to hide (internal/node types that add noise — their methods
+  // belong to the parent function-type and shouldn't appear standalone)
+  const hidden = new Set([
+    'VBoxC', 'HBoxC', 'OverlayC',
+    'VBoxNode', 'HBoxNode', 'OverlayNode', 'SpacerNode',
+    'TextNode', 'TabsNode', 'HRuleNode', 'VRuleNode', 'LeaderNode',
+    'JumpNode', 'ScrollbarNode', 'SparklineNode', 'ProgressNode', 'SpinnerNode',
+    'IfNode', 'ElseNode', 'SwitchNode', 'ForEachNode', 'LayerViewNode',
+    'ChildSize', 'Size', 'Rect', 'Component', 'TextInput', 'Renderer',
+    'LayoutFunc', 'Layout', 'FocusGroup',
+  ]);
+
+  const categoryMap = {
+    // app & lifecycle
+    App: 'App & Lifecycle', ViewBuilder: 'App & Lifecycle',
+    // layout — only what users compose with
+    VBoxFn: 'Layout', HBoxFn: 'Layout', OverlayFn: 'Layout',
+    SpacerC: 'Layout', Box: 'Layout', Flex: 'Layout',
+    // components
+    TextC: 'Components', InputC: 'Components', InputState: 'Components',
+    ListC: 'Components', CheckListC: 'Components',
+    TabsC: 'Components', TabsStyle: 'Components',
+    FilterListC: 'Components', FilterLogC: 'Components', LogC: 'Components',
+    LayerViewC: 'Components',
+    JumpC: 'Components', JumpMode: 'Components',
+    JumpStyle: 'Components', JumpTarget: 'Components',
+    RadioC: 'Components', CheckboxC: 'Components',
+    FormC: 'Components', FormField: 'Components',
+    ScrollbarC: 'Components', HRuleC: 'Components', VRuleC: 'Components',
+    LeaderC: 'Components', Custom: 'Components',
+    // data display
+    AutoTableC: 'Data Display', Table: 'Data Display', TableColumn: 'Data Display',
+    SparklineC: 'Data Display', ProgressC: 'Data Display', SpinnerC: 'Data Display',
+    TreeNode: 'Data Display', TreeView: 'Data Display',
+    ColumnOption: 'Data Display', ColumnConfig: 'Data Display',
+    // control flow
+    Condition: 'Control Flow', ConditionEval: 'Control Flow',
+    OrdCondition: 'Control Flow', OrdConditionEval: 'Control Flow',
+    SwitchBuilder: 'Control Flow', ForEachC: 'Control Flow',
+    // style & theme
+    Style: 'Style & Theme', Color: 'Style & Theme', ColorMode: 'Style & Theme',
+    Attribute: 'Style & Theme', BorderStyle: 'Style & Theme',
+    ThemeEx: 'Style & Theme', TextTransform: 'Style & Theme',
+    Align: 'Style & Theme', CursorShape: 'Style & Theme', Cursor: 'Style & Theme',
+    // rich text
+    RichTextNode: 'Rich Text', Span: 'Rich Text',
+    // internals
+    Template: 'Internals', Op: 'Internals', OpKind: 'Internals',
+    Geom: 'Internals', Buffer: 'Internals', BufferPool: 'Internals',
+    Screen: 'Internals', Cell: 'Internals', Region: 'Internals',
+    Layer: 'Internals', Filter: 'Internals', FzfQuery: 'Internals',
+    FocusManager: 'Internals', SelectionList: 'Internals',
+    FlushStats: 'Internals', Timings: 'Internals',
+    FlexNode: 'Internals', FlexNodeKind: 'Internals', FlexTree: 'Internals',
+    HorizontalLayout: 'Internals', VerticalLayout: 'Internals',
+  };
+
+  const categoryOrder = [
+    'App & Lifecycle', 'Layout', 'Components', 'Data Display',
+    'Control Flow', 'Style & Theme', 'Rich Text', 'Internals'
+  ];
+
+  const collapsedByDefault = new Set(['Internals']);
+
+  // examples come from api.json (generated from _test.go Example functions)
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function trimDoc(s) {
+    return (s || '').replace(/\n$/, '');
+  }
+
+  function highlightGo(raw) {
+    const s = esc(raw);
+    // tokenize to avoid highlighting inside strings/comments
+    const tokens = [];
+    let i = 0;
+    while (i < s.length) {
+      // strings
+      if (s[i] === '"' || s[i] === '`') {
+        const q = s[i];
+        let j = i + 1;
+        while (j < s.length && s[j] !== q) { if (s[j] === '\\' && q === '"') j++; j++; }
+        tokens.push({ type: 'str', text: s.slice(i, j + 1) });
+        i = j + 1;
+      // html entity (from esc) — treat as text
+      } else if (s.slice(i, i + 4) === '&amp' || s.slice(i, i + 3) === '&lt' || s.slice(i, i + 3) === '&gt') {
+        let j = s.indexOf(';', i);
+        if (j === -1) j = i;
+        tokens.push({ type: 'text', text: s.slice(i, j + 1) });
+        i = j + 1;
+      // line comments
+      } else if (s.slice(i, i + 2) === '//') {
+        let j = s.indexOf('\n', i);
+        if (j === -1) j = s.length;
+        tokens.push({ type: 'cm', text: s.slice(i, j) });
+        i = j;
+      // words
+      } else if (/[a-zA-Z_]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[a-zA-Z0-9_]/.test(s[j])) j++;
+        tokens.push({ type: 'word', text: s.slice(i, j) });
+        i = j;
+      // numbers
+      } else if (/[0-9]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[0-9.x]/.test(s[j])) j++;
+        tokens.push({ type: 'nr', text: s.slice(i, j) });
+        i = j;
+      } else {
+        tokens.push({ type: 'text', text: s[i] });
+        i++;
+      }
+    }
+
+    const kws = new Set(['package','import','func','return','var','const','type','struct',
+      'interface','if','else','for','range','switch','case','default','break','continue',
+      'go','defer','select','chan','map','true','false','nil','any','error']);
+    const types = new Set(['string','int','int8','int16','int32','int64',
+      'uint','uint8','uint16','uint32','uint64','float32','float64','bool','byte','rune']);
+
+    return tokens.map((t, idx) => {
+      if (t.type === 'str') return `<span class="str">${t.text}</span>`;
+      if (t.type === 'cm') return `<span class="cm">${t.text}</span>`;
+      if (t.type === 'nr') return `<span class="nr">${t.text}</span>`;
+      if (t.type === 'word') {
+        if (kws.has(t.text)) return `<span class="kw">${t.text}</span>`;
+        if (types.has(t.text)) return `<span class="tp">${t.text}</span>`;
+        // function call: word followed by ( or . , or word preceded by .
+        const next = tokens[idx + 1];
+        if (next && (next.text === '(' || next.text === '.')) return `<span class="fn">${t.text}</span>`;
+        const prev = tokens[idx - 1];
+        if (prev && prev.text === '.') return `<span class="fn">${t.text}</span>`;
+      }
+      return t.text;
+    }).join('');
+  }
+
+  function getDisplayName(type) {
+    if (displayNames[type.name]) return displayNames[type.name];
+    // for types with a single constructor, use that name
+    if (type.constructors?.length === 1) return type.constructors[0].name;
+    // for types with vars, use first var name
+    if (type.vars?.length) return type.vars[0].names[0];
+    return type.name;
+  }
+
+  function renderType(type) {
+    const el = document.createElement('div');
+    el.className = 'api-type';
+    const dname = getDisplayName(type);
+
+    // header: function name + struct annotation
+    const head = document.createElement('div');
+    head.className = 'api-type-head';
+    const name = document.createElement('div');
+    name.className = 'api-type-name';
+    name.textContent = dname;
+    head.appendChild(name);
+
+    if (dname !== type.name) {
+      const struct = document.createElement('span');
+      struct.className = 'api-type-struct';
+      struct.textContent = type.name;
+      head.appendChild(struct);
+    }
+
+    // kind hint for simple types (uint8, interface, etc.)
+    const declMatch = type.decl.match(/^type \w+(?:\[.*?\])? (.+)/);
+    if (declMatch) {
+      const raw = declMatch[1].replace(/\{[\s\S]*\}/, '').trim();
+      if (raw && raw !== 'struct' && raw.length < 40) {
+        const kind = document.createElement('div');
+        kind.className = 'api-type-kind';
+        kind.textContent = raw;
+        head.appendChild(kind);
+      }
+    }
+    el.appendChild(head);
+
+    // doc
+    if (type.doc) {
+      const doc = document.createElement('div');
+      doc.className = 'api-type-doc';
+      doc.textContent = trimDoc(type.doc);
+      el.appendChild(doc);
+    }
+
+    // examples — collected from type, constructors, and methods
+    const allExamples = [
+      ...(type.examples || []),
+      ...(type.constructors || []).flatMap(c => c.examples || []),
+      ...(type.methods || []).flatMap(m => m.examples || []),
+    ];
+    if (allExamples.length) {
+      allExamples.forEach(ex => {
+        const exEl = document.createElement('div');
+        exEl.className = 'api-example';
+        const pre = document.createElement('pre');
+        pre.innerHTML = highlightGo(ex.code);
+        exEl.appendChild(pre);
+        el.appendChild(exEl);
+      });
+    }
+
+    // consts for this type
+    if (type.consts?.length) {
+      type.consts.forEach(c => {
+        const g = document.createElement('div');
+        g.className = 'api-var-group';
+        const names = document.createElement('div');
+        names.className = 'api-var-names';
+        names.textContent = c.names.join(', ');
+        g.appendChild(names);
+        if (c.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-var-doc';
+          d.textContent = trimDoc(c.doc);
+          g.appendChild(d);
+        }
+        el.appendChild(g);
+      });
+    }
+
+    // constructors (skip if display name already IS the constructor)
+    if (type.constructors?.length) {
+      const ctors = document.createElement('div');
+      ctors.className = 'api-constructors';
+      type.constructors.forEach(c => {
+        const ct = document.createElement('div');
+        ct.className = 'api-ctor';
+        const sig = document.createElement('div');
+        sig.className = 'api-sig';
+        sig.textContent = c.signature;
+        ct.appendChild(sig);
+        if (c.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-fn-doc';
+          d.textContent = trimDoc(c.doc);
+          ct.appendChild(d);
+        }
+        ctors.appendChild(ct);
+      });
+      el.appendChild(ctors);
+    }
+
+    // vars for this type
+    if (type.vars?.length) {
+      type.vars.forEach(v => {
+        const g = document.createElement('div');
+        g.className = 'api-var-group';
+        const names = document.createElement('div');
+        names.className = 'api-var-names';
+        names.textContent = v.names.join(', ');
+        g.appendChild(names);
+        if (v.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-var-doc';
+          d.textContent = trimDoc(v.doc);
+          g.appendChild(d);
+        }
+        el.appendChild(g);
+      });
+    }
+
+    // methods (collapsible)
+    if (type.methods?.length) {
+      const toggle = document.createElement('button');
+      toggle.className = 'api-methods-toggle';
+      toggle.innerHTML = `<span class="chevron">▶</span> ${type.methods.length} method${type.methods.length === 1 ? '' : 's'}`;
+
+      const list = document.createElement('div');
+      list.className = 'api-methods-list';
+
+      type.methods.forEach(m => {
+        const me = document.createElement('div');
+        me.className = 'api-method';
+        const sig = document.createElement('div');
+        sig.className = 'api-method-name';
+        sig.textContent = m.signature;
+        me.appendChild(sig);
+        if (m.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-method-doc';
+          d.textContent = trimDoc(m.doc);
+          me.appendChild(d);
+        }
+        list.appendChild(me);
+      });
+
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('open');
+        list.classList.toggle('open');
+      });
+
+      el.appendChild(toggle);
+      el.appendChild(list);
+    }
+
+    return el;
+  }
+
+  function renderFreeFunctions(funcs) {
+    const cat = document.createElement('div');
+    cat.className = 'api-category';
+
+    const head = document.createElement('div');
+    head.className = 'api-category-head api-category-toggle';
+    head.innerHTML = `Functions <span class="cat-chevron">▶</span>`;
+    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+    cat.appendChild(head);
+
+    const types = document.createElement('div');
+    types.className = 'api-category-types';
+
+    funcs.forEach(fn => {
+      const el = document.createElement('div');
+      el.className = 'api-free-fn';
+      const sig = document.createElement('div');
+      sig.className = 'api-sig';
+      sig.textContent = fn.signature;
+      el.appendChild(sig);
+      if (fn.doc) {
+        const d = document.createElement('div');
+        d.className = 'api-fn-doc';
+        d.textContent = trimDoc(fn.doc);
+        el.appendChild(d);
+      }
+      types.appendChild(el);
+    });
+
+    cat.appendChild(types);
+    return cat;
+  }
+
+  function renderVarsConsts(items, title) {
+    if (!items?.length) return null;
+    const cat = document.createElement('div');
+    cat.className = 'api-category';
+
+    const head = document.createElement('div');
+    head.className = 'api-category-head api-category-toggle';
+    head.innerHTML = `${esc(title)} <span class="cat-chevron">▶</span>`;
+    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+    cat.appendChild(head);
+
+    const types = document.createElement('div');
+    types.className = 'api-category-types';
+
+    items.forEach(v => {
+      const g = document.createElement('div');
+      g.className = 'api-var-group';
+      const names = document.createElement('div');
+      names.className = 'api-var-names';
+      names.textContent = v.names.join(', ');
+      g.appendChild(names);
+      if (v.doc) {
+        const d = document.createElement('div');
+        d.className = 'api-var-doc';
+        d.textContent = trimDoc(v.doc);
+        g.appendChild(d);
+      }
+      const decl = document.createElement('div');
+      decl.className = 'api-var-decl';
+      decl.textContent = v.decl;
+      g.appendChild(decl);
+      types.appendChild(g);
+    });
+
+    cat.appendChild(types);
+    return cat;
+  }
+
+  function renderAPI(data) {
+    const container = document.getElementById('api-content');
+    container.innerHTML = '';
+
+    // group types by category, skipping hidden types
+    const groups = {};
+    categoryOrder.forEach(c => groups[c] = []);
+
+    data.types.forEach(type => {
+      if (hidden.has(type.name)) return;
+      const cat = categoryMap[type.name] || 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(type);
+    });
+
+    // render each category
+    const orderedCats = [...categoryOrder];
+    if (groups['Other']?.length) orderedCats.push('Other');
+
+    orderedCats.forEach(catName => {
+      const typeList = groups[catName];
+      if (!typeList?.length) return;
+
+      const cat = document.createElement('div');
+      cat.className = 'api-category';
+      if (collapsedByDefault.has(catName)) cat.classList.add('collapsed');
+
+      const head = document.createElement('div');
+      head.className = 'api-category-head api-category-toggle';
+      head.innerHTML = `${esc(catName)} <span class="cat-chevron">▶</span>`;
+      head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+      cat.appendChild(head);
+
+      const typesEl = document.createElement('div');
+      typesEl.className = 'api-category-types';
+
+      // sort: types with examples first, then those with constructors/methods, then alpha
+      typeList.sort((a, b) => {
+        const hasEx = t => (t.examples?.length || 0)
+          + (t.constructors || []).reduce((n, c) => n + (c.examples?.length || 0), 0)
+          + (t.methods || []).reduce((n, m) => n + (m.examples?.length || 0), 0);
+        const aEx = hasEx(a) ? 1 : 0;
+        const bEx = hasEx(b) ? 1 : 0;
+        if (aEx !== bEx) return bEx - aEx;
+        const aw = (a.constructors?.length || 0) + (a.methods?.length || 0);
+        const bw = (b.constructors?.length || 0) + (b.methods?.length || 0);
+        if (aw && !bw) return -1;
+        if (!aw && bw) return 1;
+        return getDisplayName(a).localeCompare(getDisplayName(b));
+      });
+
+      typeList.forEach(type => {
+        typesEl.appendChild(renderType(type));
+      });
+
+      cat.appendChild(typesEl);
+      container.appendChild(cat);
+    });
+
+    // free functions
+    if (data.funcs?.length) {
+      container.appendChild(renderFreeFunctions(data.funcs));
+    }
+
+    // package vars
+    const vars = renderVarsConsts(data.vars, 'Package Variables');
+    if (vars) container.appendChild(vars);
+
+    // package consts
+    const consts = renderVarsConsts(data.consts, 'Package Constants');
+    if (consts) container.appendChild(consts);
+  }
+
+  // highlight static code blocks (getting started, showcase)
+  document.querySelectorAll('.code-raw').forEach(el => {
+    el.innerHTML = highlightGo(el.textContent);
+    el.classList.remove('code-raw');
+  });
+
+  fetch('api.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(renderAPI)
+    .catch(err => {
+      document.getElementById('api-content').innerHTML =
+        `<div class="api-loading">Failed to load API reference: ${esc(err.message)}</div>`;
+    });
+})();
 </script>
 </body>
 </html>

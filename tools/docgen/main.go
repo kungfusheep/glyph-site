@@ -17,30 +17,40 @@ import (
 )
 
 type PackageDoc struct {
-	Name       string     `json:"name"`
-	ImportPath string     `json:"import_path"`
-	Doc        string     `json:"doc"`
-	Types      []TypeDoc  `json:"types"`
-	Funcs      []FuncDoc  `json:"funcs"`
-	Consts     []ValueDoc `json:"consts,omitempty"`
-	Vars       []ValueDoc `json:"vars,omitempty"`
+	Name       string       `json:"name"`
+	ImportPath string       `json:"import_path"`
+	Doc        string       `json:"doc"`
+	Types      []TypeDoc    `json:"types"`
+	Funcs      []FuncDoc    `json:"funcs"`
+	Consts     []ValueDoc   `json:"consts,omitempty"`
+	Vars       []ValueDoc   `json:"vars,omitempty"`
+	Examples   []ExampleDoc `json:"examples,omitempty"`
 }
 
 type TypeDoc struct {
-	Name         string     `json:"name"`
-	Doc          string     `json:"doc"`
-	Decl         string     `json:"decl"`
-	Constructors []FuncDoc  `json:"constructors,omitempty"`
-	Methods      []FuncDoc  `json:"methods,omitempty"`
-	Consts       []ValueDoc `json:"consts,omitempty"`
-	Vars         []ValueDoc `json:"vars,omitempty"`
+	Name         string       `json:"name"`
+	Doc          string       `json:"doc"`
+	Decl         string       `json:"decl"`
+	Constructors []FuncDoc    `json:"constructors,omitempty"`
+	Methods      []FuncDoc    `json:"methods,omitempty"`
+	Consts       []ValueDoc   `json:"consts,omitempty"`
+	Vars         []ValueDoc   `json:"vars,omitempty"`
+	Examples     []ExampleDoc `json:"examples,omitempty"`
 }
 
 type FuncDoc struct {
-	Name      string `json:"name"`
-	Doc       string `json:"doc"`
-	Signature string `json:"signature"`
-	Recv      string `json:"recv,omitempty"`
+	Name      string       `json:"name"`
+	Doc       string       `json:"doc"`
+	Signature string       `json:"signature"`
+	Recv      string       `json:"recv,omitempty"`
+	Examples  []ExampleDoc `json:"examples,omitempty"`
+}
+
+type ExampleDoc struct {
+	Name   string `json:"name,omitempty"`
+	Doc    string `json:"doc,omitempty"`
+	Code   string `json:"code"`
+	Output string `json:"output,omitempty"`
 }
 
 type ValueDoc struct {
@@ -66,6 +76,8 @@ func main() {
 	}
 
 	fset := token.NewFileSet()
+
+	// parse source files (no tests)
 	pkgs, err := parser.ParseDir(fset, dir, goFileFilter, parser.ParseComments)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error parsing: %v\n", err)
@@ -85,10 +97,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	// flatten files for doc.NewFromFiles
+	// flatten source files
 	var files []*ast.File
 	for _, f := range pkg.Files {
 		files = append(files, f)
+	}
+
+	// also parse _test.go files for examples
+	testPkgs, err := parser.ParseDir(fset, dir, testFileFilter, parser.ParseComments)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error parsing test files: %v\n", err)
+		os.Exit(1)
+	}
+	for _, tp := range testPkgs {
+		for _, f := range tp.Files {
+			files = append(files, f)
+		}
 	}
 
 	dpkg, err := doc.NewFromFiles(fset, files, *importPath, doc.PreserveAST)
@@ -122,12 +146,20 @@ func main() {
 		for _, v := range t.Vars {
 			td.Vars = append(td.Vars, valueDoc(fset, v))
 		}
+		for _, e := range t.Examples {
+			td.Examples = append(td.Examples, exampleDoc(fset, e))
+		}
 		out.Types = append(out.Types, td)
 	}
 
 	// free functions
 	for _, f := range dpkg.Funcs {
 		out.Funcs = append(out.Funcs, funcDoc(fset, f))
+	}
+
+	// package-level examples
+	for _, e := range dpkg.Examples {
+		out.Examples = append(out.Examples, exampleDoc(fset, e))
 	}
 
 	// package-level constants
@@ -154,12 +186,41 @@ func main() {
 }
 
 func funcDoc(fset *token.FileSet, f *doc.Func) FuncDoc {
-	return FuncDoc{
+	fd := FuncDoc{
 		Name:      f.Name,
 		Doc:       f.Doc,
 		Signature: funcSignature(fset, f.Decl),
 		Recv:      f.Recv,
 	}
+	for _, e := range f.Examples {
+		fd.Examples = append(fd.Examples, exampleDoc(fset, e))
+	}
+	return fd
+}
+
+func exampleDoc(fset *token.FileSet, e *doc.Example) ExampleDoc {
+	var buf bytes.Buffer
+	if e.Code != nil {
+		if err := format.Node(&buf, fset, e.Code); err == nil {
+			// format.Node on a BlockStmt gives "{\n...\n}" — strip the braces
+			code := buf.String()
+			code = strings.TrimPrefix(code, "{\n")
+			code = strings.TrimSuffix(code, "\n}")
+			// dedent one tab level (go/format indents the body)
+			lines := strings.Split(code, "\n")
+			for i, line := range lines {
+				lines[i] = strings.TrimPrefix(line, "\t")
+			}
+			code = strings.Join(lines, "\n")
+			return ExampleDoc{
+				Name:   e.Suffix,
+				Doc:    e.Doc,
+				Code:   code,
+				Output: e.Output,
+			}
+		}
+	}
+	return ExampleDoc{Name: e.Suffix, Doc: e.Doc}
 }
 
 func funcSignature(fset *token.FileSet, decl *ast.FuncDecl) string {
@@ -207,7 +268,12 @@ func valueDoc(fset *token.FileSet, v *doc.Value) ValueDoc {
 	}
 }
 
-// goFileFilter excludes test files and lets through both platform variants
+// goFileFilter excludes test files
 func goFileFilter(info os.FileInfo) bool {
 	return !strings.HasSuffix(info.Name(), "_test.go")
+}
+
+// testFileFilter includes only test files
+func testFileFilter(info os.FileInfo) bool {
+	return strings.HasSuffix(info.Name(), "_test.go")
 }
