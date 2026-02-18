@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>forme — Concepts</title>
+<link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
+<style>
+  @font-face {
+    font-family: 'Berkeley Mono';
+    src: url('BerkeleyMonoVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  :root {
+    --bg-dark:  #131311;
+    --bg-dark2: #1a1a18;
+    --bg-dark3: #0e0e0c;
+    --rule-dk:  #262624;
+    --accent:   #c47d3c;
+    --mono:  'Berkeley Mono', monospace;
+    --akz:   'akzidenz-grotesk-next-pro', sans-serif;
+    --din-r: 'din-2014-rounded-variable', sans-serif;
+    --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px;
+    --s5: 48px; --s6: 64px; --s7: 80px; --s8: 120px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-dark);
+    color: #c8c4b8;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: #c8c4b8; color: var(--bg-dark); }
+
+  .page { max-width: 1060px; margin: 0 auto; padding: 0 var(--s5); }
+
+  /* ============================================================
+     SECTION
+     ============================================================ */
+  .concept {
+    padding: var(--s7) 0;
+    border-bottom: 1px solid var(--rule-dk);
+  }
+  .concept:last-child { border-bottom: none; }
+
+  .concept-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #444;
+    margin-bottom: var(--s1);
+  }
+  .concept-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 28px;
+    color: #e8e4d8;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: var(--s3);
+  }
+  .concept-prose {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.8;
+    max-width: 640px;
+    margin-bottom: var(--s4);
+  }
+  .concept-prose strong {
+    color: #c8c4b8;
+    font-weight: 400;
+  }
+  .concept-prose code {
+    font-family: var(--mono);
+    color: #999;
+    font-size: 12px;
+  }
+
+  /* ============================================================
+     FLOW DIAGRAMS — CSS grid pipeline
+     ============================================================ */
+
+  /* horizontal pipeline — use flexbox with forced equal widths via percentage */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: var(--s4);
+  }
+  .flow-node {
+    flex: 1 1 0%;
+    width: 0;
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .flow-node-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+  .flow-node-name {
+    font-size: 13px;
+    color: #c8c4b8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .flow-node-detail {
+    font-size: 11px;
+    color: #444;
+    line-height: 1.5;
+  }
+  .flow-node.accent {
+    border-color: var(--accent);
+  }
+  .flow-node.accent .flow-node-label {
+    color: var(--accent);
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: #333;
+    font-size: 16px;
+    padding: 0 6px;
+  }
+
+  /* vertical cascade */
+  .cascade {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: var(--s4);
+    max-width: 520px;
+  }
+  .cascade-step {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .cascade-phase {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.015);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cascade-phase-dir {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+  .cascade-phase-name {
+    font-size: 12px;
+    color: #c8c4b8;
+  }
+  .cascade-body {
+    padding: 12px 16px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    border-left: 1px solid #1e1e1c;
+  }
+  .cascade-arrow {
+    text-align: center;
+    color: #333;
+    font-size: 14px;
+    padding: 2px 0;
+  }
+
+  /* stack diagram */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: var(--s4);
+    max-width: 400px;
+  }
+  .stack-frame {
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -1px;
+  }
+  .stack-frame:first-child {
+    border-color: var(--accent);
+  }
+  .stack-frame-name {
+    font-size: 12px;
+    color: #c8c4b8;
+  }
+  .stack-frame:first-child .stack-frame-name {
+    color: #e8e4d8;
+  }
+  .stack-frame-hint {
+    font-size: 10px;
+    color: #444;
+  }
+  .stack-frame:first-child .stack-frame-hint {
+    color: var(--accent);
+  }
+
+  /* buffer/viewport diagram */
+  .viewport-diagram {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s3);
+    align-items: start;
+    margin-bottom: var(--s4);
+    max-width: 520px;
+  }
+  .buffer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .buffer-row {
+    font-size: 11px;
+    padding: 3px 12px;
+    border: 1px solid #1e1e1c;
+    margin-bottom: -1px;
+    color: #444;
+    white-space: nowrap;
+  }
+  .buffer-row.visible {
+    border-color: var(--accent);
+    color: #c8c4b8;
+    background: rgba(196, 125, 60, 0.04);
+  }
+  .buffer-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #444;
+    padding: 4px 0;
+  }
+  .buffer-label.accent { color: var(--accent); }
+
+  /* code blocks */
+  .code {
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
+    padding: var(--s3);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: var(--s3) 0;
+    overflow-x: auto;
+    color: #999;
+    white-space: pre;
+    tab-size: 4;
+    border-radius: 8px;
+  }
+  .code .kw  { color: #9abf8a; }
+  .code .fn  { color: #eeeee4; }
+  .code .str { color: #c4a06a; }
+  .code .cm  { color: #444; }
+  .code .tp  { color: #7a9aba; }
+  .code .nr  { color: #c4a06a; }
+
+  /* key path diagram — horizontal flow with key labels */
+  .keypath {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: var(--s4);
+    flex-wrap: wrap;
+  }
+  .keypath-key {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #c8c4b8;
+    background: rgba(255,255,255,0.02);
+    white-space: nowrap;
+  }
+  .keypath-arrow {
+    color: #333;
+    font-size: 14px;
+  }
+  .keypath-label {
+    font-size: 10px;
+    color: #555;
+  }
+
+  /* ============================================================
+     BOX MODEL DIAGRAM
+     ============================================================ */
+  .boxmodel {
+    margin-bottom: var(--s4);
+    max-width: 560px;
+  }
+  .boxmodel-container {
+    border: 1px dashed #333;
+    border-radius: 6px;
+    padding: 12px;
+    position: relative;
+  }
+  .boxmodel-margin-label {
+    position: absolute;
+    top: -18px;
+    left: 12px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+  .boxmodel-margin {
+    background: rgba(196, 125, 60, 0.06);
+    border: 1px solid rgba(196, 125, 60, 0.15);
+    border-radius: 4px;
+    padding: 16px;
+    position: relative;
+  }
+  .boxmodel-margin > .bm-label {
+    position: absolute;
+    top: 3px;
+    left: 8px;
+    font-size: 9px;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+  .boxmodel-border {
+    border: 2px solid #444;
+    border-radius: 4px;
+    padding: 0;
+    position: relative;
+  }
+  .boxmodel-border > .bm-label {
+    position: absolute;
+    top: -9px;
+    left: 10px;
+    font-size: 9px;
+    color: #666;
+    background: var(--bg-dark);
+    padding: 0 4px;
+  }
+  .boxmodel-border-title {
+    font-size: 10px;
+    color: #888;
+    padding: 2px 8px;
+    border-bottom: 1px solid #333;
+    background: rgba(255,255,255,0.02);
+  }
+  .boxmodel-content {
+    padding: 8px;
+  }
+  .boxmodel-child {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1e1e1c;
+    border-radius: 3px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #888;
+  }
+  .boxmodel-child + .boxmodel-child {
+    margin-top: 0;
+  }
+  .boxmodel-gap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+  }
+  .boxmodel-gap-line {
+    font-size: 9px;
+    color: #9abf8a;
+    letter-spacing: 0.04em;
+  }
+
+  /* grow diagram */
+  .grow-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: var(--s4);
+    max-width: 560px;
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .grow-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #1e1e1c;
+  }
+  .grow-row:last-child { border-bottom: none; }
+  .grow-bar {
+    padding: 8px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .grow-bar.fixed {
+    background: rgba(255,255,255,0.03);
+    color: #888;
+    border-right: 1px solid #1e1e1c;
+  }
+  .grow-bar.flex {
+    background: rgba(196, 125, 60, 0.06);
+    color: var(--accent);
+    flex: 1;
+  }
+  .grow-label {
+    font-size: 9px;
+    color: #444;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+
+  /* hbox vs vbox side-by-side */
+  .layout-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+    max-width: 560px;
+  }
+  .layout-compare-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .layout-compare-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+  }
+  .lc-vbox {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .lc-hbox {
+    display: flex;
+    gap: 4px;
+    border: 1px solid #1e1e1c;
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .lc-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #2a2a28;
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+  }
+  .lc-hbox .lc-item { flex: 1; }
+
+  /* ============================================================
+     SIDE NAV — desktop
+     ============================================================ */
+  .sidenav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    padding: var(--s7) var(--s3) var(--s3) var(--s3);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 100;
+  }
+  .sidenav-link {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #333;
+    text-decoration: none;
+    padding: 8px 0 8px 14px;
+    border-left: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    line-height: 1.3;
+  }
+  .sidenav-link:hover {
+    color: #666;
+  }
+  .sidenav-link.active {
+    color: #c8c4b8;
+    border-left-color: var(--accent);
+  }
+
+  /* offset page content for sidenav */
+  .page {
+    margin-left: 200px;
+  }
+
+  /* ============================================================
+     TOP NAV — mobile
+     ============================================================ */
+  .topnav {
+    display: none;
+  }
+
+  @media (max-width: 960px) {
+    .sidenav { display: none; }
+    .page { margin-left: 0; }
+
+    .topnav {
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--rule-dk);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 0;
+      padding: 0 var(--s2);
+    }
+    .topnav::-webkit-scrollbar { display: none; }
+    .topnav-link {
+      font-family: var(--akz);
+      font-weight: 700;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #444;
+      text-decoration: none;
+      padding: 12px 12px;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .topnav-link:hover { color: #888; }
+    .topnav-link.active {
+      color: #c8c4b8;
+      border-bottom-color: var(--accent);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .flow { flex-direction: column; }
+    .flow-node { width: auto; }
+    .flow-arrow { transform: rotate(90deg); padding: 4px 0; justify-content: center; }
+    .cascade-step { grid-template-columns: 1fr; }
+    .cascade-body { border-left: none; border-top: 1px solid #1e1e1c; }
+    .viewport-diagram { grid-template-columns: 1fr; }
+    .layout-compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidenav">
+  <a href="#build" class="sidenav-link">Build & Execute</a>
+  <a href="#pointers" class="sidenav-link">Pointer Semantics</a>
+  <a href="#layout" class="sidenav-link">Layout Cycle</a>
+  <a href="#dynamic" class="sidenav-link">Dynamic Children</a>
+  <a href="#properties" class="sidenav-link">Layout Properties</a>
+  <a href="#input" class="sidenav-link">Input Handling</a>
+  <a href="#jump" class="sidenav-link">Jump Labels</a>
+  <a href="#routing" class="sidenav-link">Routing & Views</a>
+  <a href="#layers" class="sidenav-link">Layers & Scrolling</a>
+</nav>
+
+<nav class="topnav">
+  <a href="#build" class="topnav-link">Build</a>
+  <a href="#pointers" class="topnav-link">Pointers</a>
+  <a href="#layout" class="topnav-link">Layout</a>
+  <a href="#dynamic" class="topnav-link">Dynamic</a>
+  <a href="#properties" class="topnav-link">Properties</a>
+  <a href="#input" class="topnav-link">Input</a>
+  <a href="#jump" class="topnav-link">Jump</a>
+  <a href="#routing" class="topnav-link">Routing</a>
+  <a href="#layers" class="topnav-link">Layers</a>
+</nav>
+
+<div class="page">
+
+<!-- ============================================================
+     1. BUILD & EXECUTE
+     ============================================================ -->
+<div class="concept" id="build">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Build & Execute</div>
+
+  <div class="concept-prose">
+    Every forme view goes through two distinct phases. <strong>Build</strong> happens once
+    when you call <code>SetView()</code> — the declarative tree is compiled into a flat array
+    of operations via reflection and type switches. <strong>Execute</strong> happens every frame —
+    it walks the compiled ops and dereferences pointers to read current state. No tree rebuilds,
+    no diffing, no allocation in steady state.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node accent">
+      <div class="flow-node-label">Once</div>
+      <div class="flow-node-name">SetView()</div>
+      <div class="flow-node-detail">declarative tree in</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node accent">
+      <div class="flow-node-label">Compile</div>
+      <div class="flow-node-name">compile()</div>
+      <div class="flow-node-detail">~50 type switch, reflection</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Store</div>
+      <div class="flow-node-name">[]Op + []Geom</div>
+      <div class="flow-node-detail">flat arrays, pointer offsets</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Each frame</div>
+      <div class="flow-node-name">Execute()</div>
+      <div class="flow-node-detail">deref pointers → buffer</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Flush</div>
+      <div class="flow-node-name">Screen.Flush()</div>
+      <div class="flow-node-detail">diff → single syscall</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    The composable API surface — <code>VBox.Gap(2).Border(BorderRounded)</code> — is purely
+    a build-time convenience. At runtime, the template is just a flat array walk with pointer reads.
+    Values exist in three variants: <strong>static</strong> (embedded literal),
+    <strong>pointer</strong> (dereferenced each frame), and <strong>offset</strong>
+    (ForEach element base + unsafe.Pointer arithmetic).
+  </div>
+
+  <div class="code"><span class="fn">SetView</span>(                        <span class="cm">// build: compiled once</span>
+    <span class="fn">VBox</span>.<span class="fn">Gap</span>(<span class="nr">2</span>).<span class="fn">Border</span>(<span class="fn">BorderRounded</span>)(
+        <span class="fn">Text</span>(&amp;title),              <span class="cm">// pointer: read each frame</span>
+        <span class="fn">Text</span>(<span class="str">"static label"</span>),       <span class="cm">// static: embedded in op</span>
+    ),
+)</div>
+</div>
+
+<!-- ============================================================
+     1b. POINTER SEMANTICS
+     ============================================================ -->
+<div class="concept" id="pointers">
+  <div class="concept-label">Core</div>
+  <div class="concept-title">Pointer Semantics</div>
+
+  <div class="concept-prose">
+    There's no reactivity in forme. No subscriptions, no signals, no observers, no change detection.
+    When the framework renders, it dereferences your pointers and reads whatever value is there right now.
+    That's it.
+  </div>
+
+  <div class="code">title := <span class="str">"Hello"</span>
+
+<span class="fn">app</span>.<span class="fn">SetView</span>(<span class="fn">Text</span>(&amp;title))    <span class="cm">// captures the pointer, not the value</span>
+
+title = <span class="str">"World"</span>               <span class="cm">// next render shows "World"</span></div>
+
+  <div class="concept-prose">
+    Pass a <code>*string</code> and the text updates when the string changes. Pass a <code>string</code>
+    literal and it's static forever. Same pattern for <code>*int</code>, <code>*bool</code>,
+    <code>*[]T</code> — anything behind a pointer is live, anything without one is baked in at compile.
+  </div>
+
+  <div class="concept-prose">
+    Render happens when you tell it to: after a key handler completes (automatic), or when you call
+    <code>RequestRender()</code> from a goroutine (explicit). The framework never decides on its own
+    that something changed. You mutate your state, the next render reads it.
+  </div>
+
+  <div class="concept-prose">
+    This sidesteps an entire category of bugs that reactive frameworks invite — render thrashing,
+    cascading updates, glitchy intermediate states from identity-change confusion. None of that can
+    happen here because there's no propagation mechanism to misfire. You update state, you decide
+    when to render. The render reads current values. No surprises.
+  </div>
+
+  <div class="concept-prose">
+    Nothing stops you building reactive patterns on top of this — an observer that calls
+    <code>RequestRender()</code> when a channel fires is a few lines of code. forme just doesn't
+    ship that complexity by default.
+  </div>
+</div>
+
+<!-- ============================================================
+     2. LAYOUT CYCLE
+     ============================================================ -->
+<div class="concept" id="layout">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Layout Cycle</div>
+
+  <div class="concept-prose">
+    Layout is a four-phase pipeline that runs on every frame. Each phase operates directly on
+    the compiled <strong>Op</strong> and <strong>Geom</strong> arrays — no tree traversal, no node
+    allocation. Shared scratch buffers keep allocation near zero across the entire cycle.
+  </div>
+
+  <div class="cascade">
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-name">Width Distribution</div>
+      </div>
+      <div class="cascade-body">
+        Parent distributes available width to children. Fixed widths and percentages first,
+        then remaining space split by flex grow. HBox horizontal flex is fully resolved here.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↑ bottom-up</div>
+        <div class="cascade-phase-name">Height Computation</div>
+      </div>
+      <div class="cascade-body">
+        Deepest nodes first. Leaf nodes measure content height; containers sum children
+        plus gaps, borders, margin. Each node saves its natural <code>ContentH</code> before
+        any flex expansion.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-name">Flex Grow</div>
+      </div>
+      <div class="cascade-body">
+        VBox children with <code>Grow()</code> expand vertically to fill remaining space,
+        using <code>ContentH</code> as their baseline. HBox children stretch on the cross-axis.
+        Children are repositioned with new coordinates.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-name">Render</div>
+      </div>
+      <div class="cascade-body">
+        Walk the ops from root, write cells to the buffer at computed absolute positions.
+        Borders, text, fills — one pass with final x/y/w/h coordinates.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    The key insight is that vertical flex <em>cannot</em> be resolved during the bottom-up pass —
+    you need the parent's final height first, and that flows top-down from the screen dimensions.
+    This is why it's a separate phase between height computation and render.
+  </div>
+
+  <div class="concept-prose">
+    <strong>Flex grow does not re-run layout.</strong> <code>layout()</code> executes exactly once.
+    The flex grow phase is a surgical pass that only mutates two things: <code>geom.H</code>
+    on flex children, and <code>LocalY</code> on their siblings (to account for the new heights).
+    It never recomputes content sizes.
+  </div>
+
+  <div class="concept-prose">
+    This works because the height computation phase saves each node's natural size as
+    <code>ContentH</code> before any expansion. The flex grow phase uses this as the baseline:
+    <code>remaining = parentH - sum(ContentH) - gaps</code>, then distributes
+    <code>remaining</code> proportionally to children by their <code>Grow()</code> factors.
+  </div>
+
+  <div class="cascade">
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↑ phase 2</div>
+        <div class="cascade-phase-name">layout()</div>
+      </div>
+      <div class="cascade-body">
+        Bottom-up. Every node gets <code>ContentH</code> — its natural height.
+        A VBox with three 1-row children and gap=1 gets ContentH=5. Runs once, never repeated.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">↓ phase 2b</div>
+        <div class="cascade-phase-name">distributeFlexGrow()</div>
+      </div>
+      <div class="cascade-body">
+        Top-down, depth-by-depth. For each VBox: compute <code>remaining = H - usedH</code>,
+        distribute to <code>Grow()</code> children, then reposition <em>all</em> siblings' <code>LocalY</code>.
+        For each HBox: stretch children on the cross-axis (<code>childH = parentH</code>).
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    Nested flex works naturally: the depth-by-depth iteration means a parent VBox distributes at
+    depth N (setting its child's <code>H</code>), and the child VBox distributes at depth N+1
+    (reading the <code>H</code> that was just set). No recursion needed — the flat iteration order
+    guarantees parents resolve before children.
+  </div>
+
+  <div class="concept-prose">
+    <strong>What flex does NOT touch:</strong> leaf node heights (Text, Progress, Sparkline),
+    non-flex container heights, ForEach iteration templates, and Switch branch templates.
+    Only containers and layers with an explicit <code>Grow()</code> factor participate.
+  </div>
+
+  <div class="concept-prose">
+    <strong>Storage and iteration.</strong> The compiled template is a flat <code>[]Op</code> array
+    with a parallel <code>[]Geom</code> array for runtime geometry. Parent-child relationships
+    are encoded bidirectionally: each op stores its <code>Parent</code> index, and each container
+    stores a <code>ChildStart..ChildEnd</code> range into the same flat array.
+  </div>
+
+  <div class="concept-prose">
+    At compile time, <code>addOp()</code> populates <code>byDepth [][]int16</code> — a pre-built
+    index that groups op indices by tree depth. This is what makes depth-ordered traversal cheap:
+    both the bottom-up height pass and the top-down flex pass iterate <code>byDepth</code> levels
+    instead of scanning the full array.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node accent">
+      <div class="flow-node-label">Compile</div>
+      <div class="flow-node-name">addOp()</div>
+      <div class="flow-node-detail">builds byDepth index</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Phase 2</div>
+      <div class="flow-node-name">layout()</div>
+      <div class="flow-node-detail">byDepth[max] → byDepth[0]</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Phase 2b</div>
+      <div class="flow-node-name">flexGrow()</div>
+      <div class="flow-node-detail">byDepth[0] → byDepth[max]</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    Finding children of a specific container uses the <code>ChildStart..ChildEnd</code> range —
+    but since this spans <em>all</em> descendants (not just direct children), every scan guards
+    with <code>if childOp.Parent != idx { continue }</code>. Flex children are identified during
+    this scan by checking <code>FlexGrow > 0</code> — they're not pre-catalogued, because the scan
+    is already touching every direct child and the check is a single float comparison.
+  </div>
+</div>
+
+<!-- ============================================================
+     2b. DYNAMIC CHILDREN
+     ============================================================ -->
+<div class="concept" id="dynamic">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Dynamic Children</div>
+
+  <div class="concept-prose">
+    ForEach, If, and Switch each compile to <strong>exactly one Op</strong> in the parent's flat array.
+    Their content lives in separate sub-templates — self-contained <code>*Template</code> instances
+    with their own <code>ops</code>, <code>geom</code>, and <code>byDepth</code> arrays.
+    From the parent's perspective, they're opaque single-slot ops.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node accent">
+      <div class="flow-node-label">Parent ops[]</div>
+      <div class="flow-node-name">... OpText OpForEach OpText ...</div>
+      <div class="flow-node-detail">one slot per dynamic node</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Sub-template</div>
+      <div class="flow-node-name">own ops[] + geom[] + byDepth</div>
+      <div class="flow-node-detail">self-contained mini-template</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    <strong>ForEach</strong> is the most interesting. The render function is called once at compile time
+    against a <strong>dummy element</strong>. Any pointers into that dummy get converted to offset-based
+    ops via <code>unsafe.Pointer</code> arithmetic — the offset from the element base address to the
+    field pointer is stored instead of the pointer itself.
+  </div>
+
+  <div class="cascade">
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">compile</div>
+        <div class="cascade-phase-name">Dummy element</div>
+      </div>
+      <div class="cascade-body">
+        Create a temp <code>T</code>, call render function once. Pointers within the dummy's
+        memory range become <code>OpTextOff</code> with offset = <code>ptr - dummyBase</code>.
+        One sub-template compiled, shared across all items.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">each frame</div>
+        <div class="cascade-phase-name">Layout per item</div>
+      </div>
+      <div class="cascade-body">
+        Read live slice header (<code>Data</code>, <code>Len</code>) via <code>unsafe.Pointer</code>.
+        For each item: swap <code>elemBase</code> to the real element, run
+        <code>distributeWidths</code> + <code>layout</code> on the sub-template.
+        Store position in <code>iterGeoms[i]</code> — the sub-template's geom is scratch.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">render</div>
+        <div class="cascade-phase-name">Offset resolve</div>
+      </div>
+      <div class="cascade-body">
+        <code>OpTextOff</code> resolves to <code>(*string)(elemBase + offset)</code>
+        for each element. Same compiled template, different data. Per-item positions
+        read from <code>iterGeoms</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    <strong>If</strong> compiles both branches into separate sub-templates at build time. At runtime
+    the condition is evaluated and only the active branch is laid out and rendered. The inactive branch
+    costs nothing — it's not even visited.
+  </div>
+
+  <div class="concept-prose">
+    <strong>Switch</strong> creates N+1 sub-templates (one per case + default).
+    <code>getMatchIndex()</code> linear-scans to find the matching case. Only the winner
+    is laid out.
+  </div>
+
+  <div class="concept-prose">
+    None of these participate in the parent's <code>byDepth</code> layout pass directly.
+    They're measured inline by their parent container when it encounters them during the child scan
+    in <code>layoutContainer</code>. The sub-templates run their own complete layout pipeline
+    internally — <code>distributeWidths</code> + <code>layout</code> — but this is scoped
+    to the sub-template's own ops array, not the parent's.
+  </div>
+
+  <div class="code"><span class="fn">ForEach</span>(&amp;items, <span class="kw">func</span>(item <span class="tp">*Item</span>) <span class="tp">any</span> {
+    <span class="kw">return</span> <span class="fn">HBox</span>.<span class="fn">Gap</span>(<span class="nr">2</span>)(
+        <span class="fn">Text</span>(&amp;item.Name),     <span class="cm">// → OpTextOff (offset from element base)</span>
+        <span class="fn">Text</span>(&amp;item.Status),   <span class="cm">// → OpTextOff</span>
+    )
+})</div>
+</div>
+
+<!-- ============================================================
+     2c. LAYOUT PROPERTIES
+     ============================================================ -->
+<div class="concept" id="properties">
+  <div class="concept-label">Visual</div>
+  <div class="concept-title">Layout Properties</div>
+
+  <div class="concept-prose">
+    The spatial properties that control how components are sized and positioned.
+  </div>
+
+  <!-- VBox vs HBox -->
+  <div class="layout-compare">
+    <div class="layout-compare-col">
+      <div class="layout-compare-label">VBox — vertical</div>
+      <div class="lc-vbox">
+        <div class="lc-item">Child A</div>
+        <div class="lc-item">Child B</div>
+        <div class="lc-item">Child C</div>
+      </div>
+    </div>
+    <div class="layout-compare-col">
+      <div class="layout-compare-label">HBox — horizontal</div>
+      <div class="lc-hbox">
+        <div class="lc-item">A</div>
+        <div class="lc-item">B</div>
+        <div class="lc-item">C</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Box model: Margin → Border → Content -->
+  <div class="concept-prose">
+    <strong>Margin</strong> is outside the border — the space between this component and its siblings.
+    <strong>Border</strong> wraps the content area. <strong>Gap</strong> is the spacing a container
+    inserts between its children.
+  </div>
+
+  <div class="boxmodel">
+    <div class="boxmodel-container">
+      <div class="boxmodel-margin-label">parent container</div>
+      <div class="boxmodel-margin">
+        <span class="bm-label">margin</span>
+        <div class="boxmodel-border">
+          <span class="bm-label">border</span>
+          <div class="boxmodel-border-title">Title</div>
+          <div class="boxmodel-content">
+            <div class="boxmodel-child">Text("hello")</div>
+            <div class="boxmodel-gap"><span class="boxmodel-gap-line">↕ gap</span></div>
+            <div class="boxmodel-child">Text("world")</div>
+            <div class="boxmodel-gap"><span class="boxmodel-gap-line">↕ gap</span></div>
+            <div class="boxmodel-child">Text("!")</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">VBox</span>.<span class="fn">Margin</span>(<span class="nr">1</span>).<span class="fn">Border</span>(<span class="fn">BorderRounded</span>).<span class="fn">Title</span>(<span class="str">"Title"</span>).<span class="fn">Gap</span>(<span class="nr">1</span>)(
+    <span class="fn">Text</span>(<span class="str">"hello"</span>),
+    <span class="fn">Text</span>(<span class="str">"world"</span>),
+    <span class="fn">Text</span>(<span class="str">"!"</span>),
+)</div>
+
+  <!-- Grow -->
+  <div class="concept-prose">
+    <strong>Grow</strong> controls how remaining space is distributed after fixed-size children
+    are measured. Without <code>Grow()</code>, a component takes exactly its content size.
+    With it, the component expands into whatever space is left over. The number you pass is
+    a <strong>ratio</strong>, not a pixel value.
+  </div>
+
+  <div class="concept-prose">
+    <strong>One child with Grow(1)</strong> — it gets all the remaining space:
+  </div>
+
+  <div class="grow-diagram">
+    <div class="grow-row">
+      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
+      <div class="grow-label">1 row</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar flex">List(&amp;items).Grow(1)</div>
+      <div class="grow-label">← all remaining space</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar fixed" style="width: 100px;">Text("footer")</div>
+      <div class="grow-label">1 row</div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">VBox</span>(
+    <span class="fn">Text</span>(<span class="str">"header"</span>),
+    <span class="fn">List</span>(&amp;items).<span class="fn">Grow</span>(<span class="nr">1</span>),
+    <span class="fn">Text</span>(<span class="str">"footer"</span>),
+)</div>
+
+  <div class="concept-prose">
+    <strong>Two children with equal Grow(1)</strong> — they split the remaining space 50/50:
+  </div>
+
+  <div class="grow-diagram">
+    <div class="grow-row">
+      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
+      <div class="grow-label">1 row</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar flex" style="flex: 1;">List(&amp;items).Grow(1)</div>
+      <div class="grow-label">← 50%</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar flex" style="flex: 1;">LayerView(&amp;log).Grow(1)</div>
+      <div class="grow-label">← 50%</div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">VBox</span>(
+    <span class="fn">Text</span>(<span class="str">"header"</span>),
+    <span class="fn">List</span>(&amp;items).<span class="fn">Grow</span>(<span class="nr">1</span>),
+    <span class="fn">LayerView</span>(&amp;log).<span class="fn">Grow</span>(<span class="nr">1</span>),
+)</div>
+
+  <div class="concept-prose">
+    <strong>Unequal ratios — Grow(1) vs Grow(2)</strong> — the space is split proportionally.
+    Grow(2) gets twice as much of the remaining space as Grow(1):
+  </div>
+
+  <div class="grow-diagram">
+    <div class="grow-row">
+      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
+      <div class="grow-label">1 row</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar flex" style="flex: 1;">sidebar.Grow(1)</div>
+      <div class="grow-label">← ⅓ remaining</div>
+    </div>
+    <div class="grow-row">
+      <div class="grow-bar flex" style="flex: 2;">content.Grow(2)</div>
+      <div class="grow-label">← ⅔ remaining</div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">VBox</span>(
+    <span class="fn">Text</span>(<span class="str">"header"</span>),
+    <span class="fn">HBox</span>(
+        sidebar.<span class="fn">Grow</span>(<span class="nr">1</span>),            <span class="cm">// 1 part</span>
+        content.<span class="fn">Grow</span>(<span class="nr">2</span>),            <span class="cm">// 2 parts</span>
+    ).<span class="fn">Grow</span>(<span class="nr">1</span>),
+)</div>
+
+  <div class="concept-prose">
+    The number doesn't mean anything on its own — <code>Grow(1)</code> and <code>Grow(1)</code>
+    is the same split as <code>Grow(100)</code> and <code>Grow(100)</code>. It's the ratio between
+    siblings that matters. Think of it as "parts of the remaining pie."
+  </div>
+
+  <div class="concept-prose">
+    <code>FitContent()</code> is the inverse — it tells a container to shrink to its
+    children's measured size instead of filling available space.
+    <code>WidthPct(0.5)</code> sets width as a fraction of the parent.
+    <code>Size(w, h)</code> sets both dimensions explicitly.
+  </div>
+</div>
+
+<!-- ============================================================
+     3. INPUT HANDLING
+     ============================================================ -->
+<div class="concept" id="input">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Input Handling</div>
+
+  <div class="concept-prose">
+    Input is managed by <strong>riffkey</strong>, a router stack that supports vim-style multi-key
+    sequences, modal layers, and count prefixes. Components declare their bindings as data via
+    <code>BindNav()</code>, <code>BindToggle()</code>, etc. — these are wired at compile time,
+    not at runtime.
+  </div>
+
+  <div class="concept-prose">
+    A keypress follows this path:
+  </div>
+
+  <div class="keypath">
+    <div class="keypath-key">keystroke</div>
+    <div class="keypath-arrow">→</div>
+    <div class="keypath-key">Router (top of stack)</div>
+    <div class="keypath-arrow">→</div>
+    <div class="keypath-key">pattern match</div>
+    <div class="keypath-arrow">→</div>
+    <div class="keypath-key">handler()</div>
+    <div class="keypath-arrow">→</div>
+    <div class="keypath-key">render</div>
+  </div>
+
+  <div class="concept-prose">
+    The router stack enables <strong>modal input</strong>. Push a new router for a dialog;
+    it captures all keys. Pop it when done — the previous context resumes exactly where it was.
+    Each named view gets its own router, swapped atomically by <code>Go()</code>.
+  </div>
+
+  <div class="stack">
+    <div class="stack-frame">
+      <div class="stack-frame-name">Dialog router</div>
+      <div class="stack-frame-hint">← active (captures all keys)</div>
+    </div>
+    <div class="stack-frame">
+      <div class="stack-frame-name">View "editor" router</div>
+      <div class="stack-frame-hint">paused</div>
+    </div>
+    <div class="stack-frame">
+      <div class="stack-frame-name">App base router</div>
+      <div class="stack-frame-hint">paused</div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"q"</span>, <span class="fn">app</span>.<span class="fn">Stop</span>)          <span class="cm">// single key</span>
+<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"gg"</span>, goToTop)          <span class="cm">// multi-key sequence</span>
+<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"&lt;C-w&gt;j"</span>, focusDown)    <span class="cm">// chord + key</span>
+<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"dd"</span>, deleteItem)       <span class="cm">// vim-style with count: 3dd</span>
+
+<span class="cm">// modal: push router for confirm dialog</span>
+<span class="fn">app</span>.<span class="fn">Push</span>(<span class="fn">confirmRouter</span>)
+<span class="cm">// ...later</span>
+<span class="fn">app</span>.<span class="fn">Pop</span>()</div>
+</div>
+
+<!-- ============================================================
+     3b. JUMP LABELS
+     ============================================================ -->
+<div class="concept" id="jump">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Jump Labels</div>
+
+  <div class="concept-prose">
+    Jump labels bring vim-easymotion to the TUI. Press a trigger key and every jump target
+    in the view gets a short label overlay. Type the label and the target's
+    <code>onSelect</code> fires. It's a first-class feature — any component can be a target.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node accent">
+      <div class="flow-node-label">Trigger</div>
+      <div class="flow-node-name">JumpKey("space")</div>
+      <div class="flow-node-detail">enter jump mode</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Render</div>
+      <div class="flow-node-name">labels appear</div>
+      <div class="flow-node-detail">targets collect, labels assigned</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Select</div>
+      <div class="flow-node-name">type "a" → onSelect()</div>
+      <div class="flow-node-detail">exit jump mode</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    Wrap any component with <code>Jump()</code> to make it a target. The framework handles
+    label assignment and positioning during the render pass.
+  </div>
+
+  <div class="code"><span class="fn">app</span>.<span class="fn">JumpKey</span>(<span class="str">"space"</span>)
+
+<span class="fn">app</span>.<span class="fn">SetView</span>(
+    <span class="fn">VBox</span>.<span class="fn">Gap</span>(<span class="nr">1</span>)(
+        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Inbox"</span>), <span class="kw">func</span>() { section = <span class="str">"inbox"</span> }),
+        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Drafts"</span>), <span class="kw">func</span>() { section = <span class="str">"drafts"</span> }),
+        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Sent"</span>), <span class="kw">func</span>() { section = <span class="str">"sent"</span> }),
+    ),
+)</div>
+
+  <div class="concept-prose">
+    <code>app.SetJumpStyle()</code> controls how labels look. For dynamic targets that aren't
+    wrapped with <code>Jump()</code>, use <code>app.AddJumpTarget(x, y, onSelect, style)</code>
+    during a render callback.
+  </div>
+</div>
+
+<!-- ============================================================
+     4. ROUTING & VIEWS
+     ============================================================ -->
+<div class="concept" id="routing">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Routing & Views</div>
+
+  <div class="concept-prose">
+    Applications with multiple screens use <strong>named views</strong>. Each view has its own
+    compiled template and its own riffkey router — switching views swaps both atomically.
+    No recompilation, no handler cleanup.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node">
+      <div class="flow-node-label">Define</div>
+      <div class="flow-node-name">app.View("list", ...)</div>
+      <div class="flow-node-detail">template + handlers</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Define</div>
+      <div class="flow-node-name">app.View("detail", ...)</div>
+      <div class="flow-node-detail">template + handlers</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node accent">
+      <div class="flow-node-label">Switch</div>
+      <div class="flow-node-name">app.Go("detail")</div>
+      <div class="flow-node-detail">swap template + router</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    For overlays and dialogs, <code>PushView()</code> layers a modal on top of the current view.
+    The modal's handlers take precedence. <code>PopView()</code> peels it off — the previous
+    view and its input context resume immediately.
+  </div>
+
+  <div class="stack">
+    <div class="stack-frame">
+      <div class="stack-frame-name">"confirm" (modal)</div>
+      <div class="stack-frame-hint">← PushView</div>
+    </div>
+    <div class="stack-frame">
+      <div class="stack-frame-name">"detail"</div>
+      <div class="stack-frame-hint">← Go("detail")</div>
+    </div>
+    <div class="stack-frame">
+      <div class="stack-frame-name">"list"</div>
+      <div class="stack-frame-hint">RunFrom("list")</div>
+    </div>
+  </div>
+
+  <div class="code"><span class="fn">app</span>.<span class="fn">View</span>(<span class="str">"list"</span>, <span class="fn">VBox</span>(
+    <span class="fn">Text</span>(<span class="str">"Items"</span>),
+    <span class="fn">List</span>(&amp;items).<span class="fn">BindNav</span>(<span class="str">"j"</span>, <span class="str">"k"</span>),
+)).<span class="fn">Handle</span>(<span class="str">"n"</span>, <span class="kw">func</span>() { <span class="fn">app</span>.<span class="fn">Go</span>(<span class="str">"detail"</span>) })
+
+<span class="fn">app</span>.<span class="fn">View</span>(<span class="str">"detail"</span>, <span class="fn">VBox</span>(
+    <span class="fn">Text</span>(&amp;detail),
+)).<span class="fn">Handle</span>(<span class="str">"b"</span>, <span class="kw">func</span>() { <span class="fn">app</span>.<span class="fn">Go</span>(<span class="str">"list"</span>) })
+
+<span class="fn">app</span>.<span class="fn">RunFrom</span>(<span class="str">"list"</span>)</div>
+</div>
+
+<!-- ============================================================
+     5. LAYERS & SCROLLING
+     ============================================================ -->
+<div class="concept" id="layers">
+  <div class="concept-label">System</div>
+  <div class="concept-title">Layers & Scrolling</div>
+
+  <div class="concept-prose">
+    When content is taller than the viewport, <strong>Layer</strong> provides a pre-rendered
+    off-screen buffer with scroll management. Content is rendered into the full-size buffer once,
+    then the visible portion is blitted to the screen each frame. The layer only re-renders
+    when the viewport width changes.
+  </div>
+
+  <div class="viewport-diagram">
+    <div>
+      <div class="buffer-label">Buffer</div>
+      <div class="buffer-col">
+        <div class="buffer-row">line 0: package main</div>
+        <div class="buffer-row">line 1: import . "forme"</div>
+        <div class="buffer-row">line 2:</div>
+        <div class="buffer-row visible">line 3: func main() {</div>
+        <div class="buffer-row visible">line 4:     app, _ := NewApp()</div>
+        <div class="buffer-row visible">line 5:     app.SetView(</div>
+        <div class="buffer-row visible">line 6:         VBox(</div>
+        <div class="buffer-row">line 7:             Text("hello"),</div>
+        <div class="buffer-row">line 8:         ),</div>
+        <div class="buffer-row">line 9:     )</div>
+        <div class="buffer-row">line 10: }</div>
+      </div>
+    </div>
+    <div>
+      <div class="buffer-label accent">Viewport (scroll=3, height=4)</div>
+      <div class="buffer-col">
+        <div class="buffer-row visible">func main() {</div>
+        <div class="buffer-row visible">    app, _ := NewApp()</div>
+        <div class="buffer-row visible">    app.SetView(</div>
+        <div class="buffer-row visible">        VBox(</div>
+      </div>
+      <div style="margin-top: var(--s3);">
+        <div class="concept-prose" style="margin:0; max-width: none;">
+          <code>ScrollDown(n)</code> / <code>ScrollUp(n)</code> shift the window.
+          <code>ScreenCursor()</code> translates buffer coordinates to screen position.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    <strong>LogC</strong> extends Layer with an <code>io.Reader</code> that ingests lines in the
+    background. Auto-scroll follows new content by default. <strong>FilterLogC</strong> adds
+    live fzf-style filtering on top. Both re-render lazily — only when content changes or
+    the viewport width changes.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node">
+      <div class="flow-node-label">Write</div>
+      <div class="flow-node-name">io.Reader → LogC</div>
+      <div class="flow-node-detail">background line ingestion</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Store</div>
+      <div class="flow-node-name">Layer buffer</div>
+      <div class="flow-node-detail">full content, off-screen</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node accent">
+      <div class="flow-node-label">Blit</div>
+      <div class="flow-node-name">viewport slice</div>
+      <div class="flow-node-detail">visible rows → screen buffer</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Flush</div>
+      <div class="flow-node-name">diff + write</div>
+      <div class="flow-node-detail">only changed cells</div>
+    </div>
+  </div>
+
+  <div class="code">log := <span class="fn">NewLogReader</span>(reader, <span class="nr">1000</span>)  <span class="cm">// max 1000 lines</span>
+
+<span class="fn">app</span>.<span class="fn">SetView</span>(
+    <span class="fn">VBox</span>(
+        <span class="fn">LayerView</span>(&amp;log.<span class="fn">Layer</span>).<span class="fn">Grow</span>(<span class="nr">1</span>),
+    ),
+)
+
+log.<span class="fn">OnUpdate</span>(<span class="kw">func</span>() {
+    <span class="fn">app</span>.<span class="fn">RequestRender</span>()          <span class="cm">// goroutine → needs explicit render</span>
+})</div>
+</div>
+
+</div><!-- .page -->
+
+<script>
+(function() {
+  const sections = Array.from(document.querySelectorAll('.concept[id]'));
+  const sideLinks = document.querySelectorAll('.sidenav-link');
+  const topLinks = document.querySelectorAll('.topnav-link');
+  const topnav = document.querySelector('.topnav');
+  const topnavH = topnav ? topnav.offsetHeight : 0;
+
+  let jumping = false;
+
+  function setActive(id) {
+    sideLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    topLinks.forEach(a => {
+      const isActive = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', isActive);
+      if (isActive && topnav) {
+        a.scrollIntoView({ inline: 'center', block: 'nearest' });
+      }
+    });
+  }
+
+  // intersection observer — suppressed during programmatic scrolls
+  const observer = new IntersectionObserver(entries => {
+    if (jumping) return;
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        setActive(entry.target.id);
+      }
+    }
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // click: jump instantly, suppress observer until settled
+  [...sideLinks, ...topLinks].forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        jumping = true;
+        setActive(id);
+        const y = target.getBoundingClientRect().top + window.scrollY - topnavH - 8;
+        window.scrollTo({ top: y, behavior: 'instant' });
+        history.replaceState(null, '', '#' + id);
+        // re-enable observer after scroll settles
+        setTimeout(() => { jumping = false; }, 100);
+      }
+    });
+  });
+
+  // activate first on load
+  setActive(sections[0]?.id || '');
+})();
+</script>
+</body>
+</html>
