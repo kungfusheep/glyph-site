@@ -574,6 +574,7 @@
 
   /* constructors */
   .api-constructors {
+    margin-top: var(--s3);
     margin-bottom: var(--s3);
   }
   .api-ctor {
@@ -593,48 +594,51 @@
     max-width: 620px;
   }
 
-  /* collapsible methods */
-  .api-methods-toggle {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: #555;
+  /* methods — stacked list, collapsible */
+  .api-methods-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #444;
+    padding-bottom: var(--s2);
+    border-bottom: 1px solid #1e1e1c;
+    margin-top: var(--s5);
     cursor: pointer;
     user-select: none;
-    padding: 6px 0;
-    border: none;
-    background: none;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     transition: color 0.15s;
   }
-  .api-methods-toggle:hover { color: #999; }
-  .api-methods-toggle .chevron {
+  .api-methods-label:hover { color: #666; }
+  .api-methods-label .chevron {
     display: inline-block;
     transition: transform 0.2s;
-    font-size: 10px;
+    font-size: 9px;
   }
-  .api-methods-toggle.open .chevron { transform: rotate(90deg); }
+  .api-methods-label.open .chevron { transform: rotate(90deg); }
   .api-methods-list {
     display: none;
-    padding-top: var(--s1);
   }
   .api-methods-list.open { display: block; }
   .api-method {
-    padding: 6px 0;
-    border-bottom: 1px solid #1a1a18;
+    padding: var(--s3) var(--s2);
+    border-bottom: 1px solid #1e1e1c;
   }
   .api-method:last-child { border-bottom: none; }
   .api-method-name {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     color: #c8c4b8;
+    margin-bottom: 4px;
   }
   .api-method-doc {
-    font-size: 11px;
+    font-family: var(--mono);
+    font-size: 12px;
     color: #555;
-    line-height: 1.5;
-    margin-top: 2px;
+    line-height: 1.6;
   }
 
   /* consts & vars blocks */
@@ -717,27 +721,67 @@
     max-width: 560px;
   }
 
-  /* example blocks — stripped back, no border */
-  .api-example {
-    margin: var(--s2) 0 var(--s3);
+  /* examples — rounded cards, split pane on desktop, stacked on mobile */
+  .api-examples {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    margin-top: var(--s3);
+  }
+  .api-example-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 35%) 1fr;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e1e1c;
+  }
+  .api-example-prose {
+    padding: var(--s3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .api-example-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 13px;
+    color: #c8c4b8;
+    line-height: 1.3;
+  }
+  .api-example-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .api-example-code {
     padding: var(--s3);
     background: rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
   }
-  .api-example pre {
+  .api-example-code pre {
     font-family: var(--mono);
     font-size: 12px;
     color: #999;
     line-height: 1.6;
-    white-space: pre-wrap;
+    white-space: pre;
     tab-size: 4;
     margin: 0;
   }
-  .api-example .cm  { color: #444; }
-  .api-example .kw  { color: #9abf8a; }
-  .api-example .fn  { color: #eeeee4; }
-  .api-example .str { color: #c4a06a; }
-  .api-example .tp  { color: #7a9aba; }
-  .api-example .nr  { color: #c4a06a; }
+  .api-example-code .cm  { color: #444; }
+  .api-example-code .kw  { color: #9abf8a; }
+  .api-example-code .fn  { color: #eeeee4; }
+  .api-example-code .str { color: #c4a06a; }
+  .api-example-code .tp  { color: #7a9aba; }
+  .api-example-code .nr  { color: #c4a06a; }
+
+  @media (max-width: 768px) {
+    .api-example-row {
+      grid-template-columns: 1fr;
+    }
+  }
 
   /* struct annotation */
   .api-type-struct {
@@ -780,7 +824,7 @@
 
   @media (max-width: 1024px) {
     .code,
-    .api-example pre { font-stretch: 87%; }
+    .api-example-code pre { font-stretch: 87%; }
   }
 </style>
 </head>
@@ -1011,13 +1055,13 @@ const patterns = [
     up: [], down: ['S01', 'S02', 'S05', 'S06'], peer: ['P02'] },
 
   { id: 'P02', name: 'Pointer Semantics', scale: 'philosophy', conf: 2,
-    problem: 'Reactive UI frameworks require subscription systems, diffing algorithms, or signals to detect state changes — adding complexity and indirection.',
+    problem: 'Many UI frameworks require subscription systems, diffing algorithms, or signals to detect state changes — adding complexity and indirection.',
     solution: 'State is updated by mutating values behind pointers (*string, *int, *bool, *[]T). The compiled template dereferences these pointers every frame. No subscriptions, no diffing of state — just pointer reads.',
     up: [], down: ['S02'], peer: ['P01'] },
 
   { id: 'P03', name: 'Declarative Composition', scale: 'philosophy', conf: 2,
     problem: 'Imperative UI code tangles layout, styling, event handling, and state management into unreadable spaghetti.',
-    solution: 'Views are declared as composable trees using function-type-with-methods constructors (VBox.Fill(Red).Gap(2)(children...)). Components declare their key bindings as data via the bindable interface, wired automatically at compile time.',
+    solution: 'Views are declared as composable trees using function-type-with-methods constructors (VBox.Fill(Red).Gap(2)(children...)). Components declare their key bindings as data via the bindable interface, wired at compile time.',
     up: [], down: ['S01', 'S04'], peer: [] },
 
   // systems
@@ -1038,7 +1082,7 @@ const patterns = [
 
   { id: 'S04', name: 'Event System', scale: 'systems', conf: 2,
     problem: 'Terminal UIs need modal key handling, vim-style multi-key sequences, text input routing, and focus management — wiring this manually per component is error-prone.',
-    solution: 'riffkey provides a Router stack with push/pop for modal input. Components declare bindings as data (bindable interface), auto-wired at compile time. FocusManager coordinates Tab/Shift-Tab cycling and routes unmatched keys to the focused component.',
+    solution: 'riffkey provides a Router stack with push/pop for modal input. Components declare bindings as data (bindable interface), wired at compile time. FocusManager coordinates Tab/Shift-Tab cycling and routes unmatched keys to the focused component.',
     up: ['P03'], down: ['C06', 'D05'], peer: ['S06'] },
 
   { id: 'S05', name: 'Render Pipeline', scale: 'systems', conf: 2,
@@ -1068,7 +1112,7 @@ const patterns = [
     up: [], down: [], peer: ['C04'] },
 
   { id: 'C04', name: 'Text & Rich Text', scale: 'components', conf: 2,
-    problem: 'Terminal text needs per-character styling, text transforms, multi-span inline styling, and alignment — all within the pointer-binding reactive model.',
+    problem: 'Terminal text needs per-character styling, text transforms, multi-span inline styling, and alignment — all within the pointer-binding declarative model.',
     solution: 'TextC with value-receiver chaining (.Bold().FG(Red)), Span-based RichTextNode for mixed inline styles, and helper functions (Rich, Bold, Dim, FG, BG). Style inheritance cascades through CascadeStyle on containers.',
     up: [], down: ['D04'], peer: ['C01', 'C03'] },
 
@@ -1343,6 +1387,15 @@ updateNav();
     return (s || '').replace(/\n$/, '');
   }
 
+  // for type-level docs: first paragraph only
+  function briefDoc(s) {
+    if (!s) return '';
+    const para = s.split(/\n\n/)[0].trim();
+    // if still long, take first two sentences
+    const m = para.match(/^(.+?\.\s+.+?\.)\s/);
+    return m ? m[1] : para;
+  }
+
   function highlightGo(raw) {
     const s = esc(raw);
     // tokenize to avoid highlighting inside strings/comments
@@ -1439,9 +1492,9 @@ updateNav();
     }
 
     // kind hint for simple types (uint8, interface, etc.)
-    const declMatch = type.decl.match(/^type \w+(?:\[.*?\])? (.+)/);
+    const declMatch = type.decl.match(/^type \w+(?:\[.*?\])? ([\s\S]+)/);
     if (declMatch) {
-      const raw = declMatch[1].replace(/\{[\s\S]*\}/, '').trim();
+      const raw = declMatch[1].replace(/\{[\s\S]*\}/, '').replace(/struct\s*$/, '').trim();
       if (raw && raw !== 'struct' && raw.length < 40) {
         const kind = document.createElement('div');
         kind.className = 'api-type-kind';
@@ -1451,11 +1504,11 @@ updateNav();
     }
     el.appendChild(head);
 
-    // doc
+    // doc — first paragraph only
     if (type.doc) {
       const doc = document.createElement('div');
       doc.className = 'api-type-doc';
-      doc.textContent = trimDoc(type.doc);
+      doc.textContent = briefDoc(type.doc);
       el.appendChild(doc);
     }
 
@@ -1466,14 +1519,45 @@ updateNav();
       ...(type.methods || []).flatMap(m => m.examples || []),
     ];
     if (allExamples.length) {
+      const exContainer = document.createElement('div');
+      exContainer.className = 'api-examples';
       allExamples.forEach(ex => {
-        const exEl = document.createElement('div');
-        exEl.className = 'api-example';
+        const row = document.createElement('div');
+        row.className = 'api-example-row';
+
+        // left: prose pane
+        const prose = document.createElement('div');
+        prose.className = 'api-example-prose';
+        if (ex.doc) {
+          const raw = ex.doc.trim();
+          // split on first sentence: ". " or ".\n"
+          const m = raw.match(/^(.+?\.)\s*\n([\s\S]*)$/);
+          const title = (m ? m[1] : raw).replace(/\.$/, '');
+          const desc = m ? m[2].trim() : '';
+          const titleEl = document.createElement('div');
+          titleEl.className = 'api-example-title';
+          titleEl.textContent = title;
+          prose.appendChild(titleEl);
+          if (desc) {
+            const descEl = document.createElement('div');
+            descEl.className = 'api-example-desc';
+            descEl.textContent = desc;
+            prose.appendChild(descEl);
+          }
+        }
+        row.appendChild(prose);
+
+        // right: code pane
+        const code = document.createElement('div');
+        code.className = 'api-example-code';
         const pre = document.createElement('pre');
         pre.innerHTML = highlightGo(ex.code);
-        exEl.appendChild(pre);
-        el.appendChild(exEl);
+        code.appendChild(pre);
+        row.appendChild(code);
+
+        exContainer.appendChild(row);
       });
+      el.appendChild(exContainer);
     }
 
     // consts for this type
@@ -1536,21 +1620,41 @@ updateNav();
       });
     }
 
-    // methods (collapsible)
+    // methods — always visible, stacked list
     if (type.methods?.length) {
-      const toggle = document.createElement('button');
-      toggle.className = 'api-methods-toggle';
-      toggle.innerHTML = `<span class="chevron">▶</span> ${type.methods.length} method${type.methods.length === 1 ? '' : 's'}`;
+      const label = document.createElement('div');
+      label.className = 'api-methods-label';
+      label.innerHTML = `<span class="chevron">▶</span> Methods`;
+      el.appendChild(label);
 
       const list = document.createElement('div');
       list.className = 'api-methods-list';
 
+      label.addEventListener('click', () => {
+        label.classList.toggle('open');
+        list.classList.toggle('open');
+      });
+
       type.methods.forEach(m => {
         const me = document.createElement('div');
         me.className = 'api-method';
+        // short form: .Name(params)
         const sig = document.createElement('div');
         sig.className = 'api-method-name';
-        sig.textContent = m.signature;
+        // extract params: find "MethodName(" then grab to its balanced closing ")"
+        const mIdx = m.signature.indexOf(') ' + m.name + '(');
+        let params = '';
+        if (mIdx >= 0) {
+          const start = mIdx + 2 + m.name.length + 1;
+          let depth = 1, j = start;
+          while (j < m.signature.length && depth > 0) {
+            if (m.signature[j] === '(') depth++;
+            if (m.signature[j] === ')') depth--;
+            j++;
+          }
+          params = m.signature.slice(start, j - 1);
+        }
+        sig.textContent = `.${m.name}(${params})`;
         me.appendChild(sig);
         if (m.doc) {
           const d = document.createElement('div');
@@ -1561,12 +1665,6 @@ updateNav();
         list.appendChild(me);
       });
 
-      toggle.addEventListener('click', () => {
-        toggle.classList.toggle('open');
-        list.classList.toggle('open');
-      });
-
-      el.appendChild(toggle);
       el.appendChild(list);
     }
 

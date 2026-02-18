@@ -17,6 +17,12 @@
           ],
           "decl": "const (\n\tAlignLeft Align = iota\n\tAlignRight\n\tAlignCenter\n)"
         }
+      ],
+      "examples": [
+        {
+          "doc": "Text alignment.\nAlign is set via the Style struct — AlignLeft, AlignCenter, or AlignRight within a fixed width.\n",
+          "code": "VBox(\n\tText(\"left-aligned\"),\n\tText(\"centered\").Style(Style{Align: AlignCenter}).Width(40),\n\tText(\"right-aligned\").Style(Style{Align: AlignRight}).Width(40),\n)"
+        }
       ]
     },
     {
@@ -30,6 +36,7 @@
           "signature": "func NewApp() (*App, error)",
           "examples": [
             {
+              "doc": "Full-screen app.\nSetView compiles the tree once, Handle binds keys, Run blocks until Stop is called.\n",
               "code": "app, _ := NewApp()\n\ncounter := 0\napp.SetView(\n\tVBox(\n\t\tText(\u0026counter),\n\t\tText(\"press q to quit\"),\n\t),\n)\napp.Handle(\"q\", func() { app.Stop() })\napp.Run()"
             }
           ]
@@ -40,6 +47,7 @@
           "signature": "func NewInlineApp() (*App, error)",
           "examples": [
             {
+              "doc": "Inline app.\nRenders within the terminal flow instead of taking over the screen. Height sets the visible rows.\n",
               "code": "app, _ := NewInlineApp()\n\nstatus := \"loading...\"\napp.SetView(Text(\u0026status))\napp.Height(3).ClearOnExit(true)\napp.Run()"
             }
           ]
@@ -61,7 +69,7 @@
         {
           "name": "BindField",
           "doc": "BindField routes unmatched keys to a text input field.\n",
-          "signature": "func (a *App) BindField(f *InputState) *App",
+          "signature": "func (a *App) BindField(f *Field) *App",
           "recv": "*App"
         },
         {
@@ -198,7 +206,7 @@
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (a *App) Ref(f func(*App)) *App",
           "recv": "*App"
         },
@@ -331,7 +339,13 @@
       ],
       "examples": [
         {
+          "name": "goroutine",
+          "doc": "Goroutine updates.\nMutate the value behind the pointer from any goroutine, then call RequestRender to trigger a redraw.\n",
+          "code": "app, _ := NewApp()\n\nstatus := \"waiting...\"\napp.SetView(Text(\u0026status))\napp.Handle(\"q\", func() { app.Stop() })\n\ntime.AfterFunc(2*time.Second, func() {\n\tstatus = \"done!\"\n\tapp.RequestRender()\n})\n\napp.Run()"
+        },
+        {
           "name": "multiView",
+          "doc": "Multi-view routing.\nNamed views with per-view key bindings. Go switches between views; each view is compiled independently.\n",
           "code": "app, _ := NewApp()\n\napp.View(\"home\", VBox(\n\tText(\"Welcome\"),\n\tText(\"press n for next\"),\n)).Handle(\"n\", func() { app.Go(\"detail\") })\n\napp.View(\"detail\", VBox(\n\tText(\"Detail view\"),\n\tText(\"press b for back\"),\n)).Handle(\"b\", func() { app.Go(\"home\") })\n\napp.Run()"
         }
       ]
@@ -388,10 +402,12 @@
           "signature": "func AutoTable(data any) AutoTableC",
           "examples": [
             {
+              "doc": "Struct table.\nGenerate a table from a struct slice. Column options control formatting.\n",
               "code": "type Row struct {\n\tName string\n\tCPU  float64\n}\nrows := []Row{{Name: \"api\", CPU: 42.5}}\n\nAutoTable(\u0026rows).Column(\"CPU\", Number(1))"
             },
             {
               "name": "columns",
+              "doc": "Column formatters.\nMix formatters: percentages, byte sizes, booleans, and colour-coded changes.\n",
               "code": "type Service struct {\n\tName   string\n\tCPU    float64\n\tMemory uint64\n\tActive bool\n\tGrowth float64\n}\nrows := []Service{\n\t{Name: \"api\", CPU: 82.3, Memory: 1073741824, Active: true, Growth: 0.12},\n}\n\nAutoTable(\u0026rows).\n\tColumn(\"CPU\", Percent(1)).\n\tColumn(\"Memory\", Bytes()).\n\tColumn(\"Active\", Bool(\"Yes\", \"No\")).\n\tColumn(\"Growth\", PercentChange(1))"
             }
           ]
@@ -400,7 +416,7 @@
       "methods": [
         {
           "name": "AltRowStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t AutoTableC) AltRowStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -424,7 +440,7 @@
         },
         {
           "name": "Border",
-          "doc": "",
+          "doc": "Border sets the border style.\n",
           "signature": "func (t AutoTableC) Border(b BorderStyle) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -442,13 +458,13 @@
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (t AutoTableC) Gap(g int8) AutoTableC",
           "recv": "AutoTableC"
         },
         {
           "name": "HeaderStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t AutoTableC) HeaderStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -460,25 +476,25 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (t AutoTableC) Margin(all int16) AutoTableC",
           "recv": "AutoTableC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (t AutoTableC) MarginTRBL(a, b, c, d int16) AutoTableC",
           "recv": "AutoTableC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (t AutoTableC) MarginVH(v, h int16) AutoTableC",
           "recv": "AutoTableC"
         },
         {
           "name": "RowStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t AutoTableC) RowStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -499,7 +515,18 @@
     {
       "name": "BorderStyle",
       "doc": "BorderStyle defines the characters used for drawing borders.\n",
-      "decl": "type BorderStyle struct {\n\tHorizontal  rune\n\tVertical    rune\n\tTopLeft     rune\n\tTopRight    rune\n\tBottomLeft  rune\n\tBottomRight rune\n}"
+      "decl": "type BorderStyle struct {\n\tHorizontal  rune\n\tVertical    rune\n\tTopLeft     rune\n\tTopRight    rune\n\tBottomLeft  rune\n\tBottomRight rune\n}",
+      "examples": [
+        {
+          "doc": "Built-in borders.\nChoose from BorderSingle, BorderRounded, or BorderDouble.\n",
+          "code": "VBox.Border(BorderDouble).BorderFG(Cyan)(\n\tText(\"double-bordered\"),\n)"
+        },
+        {
+          "name": "custom",
+          "doc": "Custom borders.\nDefine custom borders with any rune for each edge and corner.\n",
+          "code": "ascii := BorderStyle{\n\tHorizontal:  '-',\n\tVertical:    '|',\n\tTopLeft:     '+',\n\tTopRight:    '+',\n\tBottomLeft:  '+',\n\tBottomRight: '+',\n}\n\nVBox.Border(ascii)(Text(\"ascii box\"))"
+        }
+      ]
     },
     {
       "name": "Box",
@@ -555,12 +582,6 @@
           "recv": "*Buffer"
         },
         {
-          "name": "ContentHeight",
-          "doc": "ContentHeight returns the number of rows that have been written to.\n",
-          "signature": "func (b *Buffer) ContentHeight() int",
-          "recv": "*Buffer"
-        },
-        {
           "name": "CopyFrom",
           "doc": "CopyFrom copies all cells from src to b using a single bulk copy.\nRequires both buffers to have identical dimensions.\nThis is much faster than cell-by-cell copy for full-buffer transfers.\n",
           "signature": "func (b *Buffer) CopyFrom(src *Buffer)",
@@ -592,7 +613,7 @@
         },
         {
           "name": "FillRect",
-          "doc": "FillRect fills a rectangular region with the given cell.\nUses direct slice writes (no border merge) for non-border cells,\nfalls back to Set() only when the cell is a border character.\n",
+          "doc": "FillRect fills a rectangular region with the given cell.\n",
           "signature": "func (b *Buffer) FillRect(x, y, width, height int, c Cell)",
           "recv": "*Buffer"
         },
@@ -768,12 +789,12 @@
     },
     {
       "name": "BufferPool",
-      "doc": "BufferPool manages double-buffered rendering.\nSwap alternates between two buffers, clearing the inactive one\nsynchronously before making it current.\n",
+      "doc": "BufferPool manages double-buffered rendering with async clearing.\nThe clear happens in a background goroutine during app logic time,\nmaking it invisible to the render critical path.\n",
       "decl": "type BufferPool struct {\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "NewBufferPool",
-          "doc": "NewBufferPool creates a double-buffered pool.\n",
+          "doc": "NewBufferPool creates a double-buffered pool with async clearing.\n",
           "signature": "func NewBufferPool(width, height int) *BufferPool"
         }
       ],
@@ -804,7 +825,7 @@
         },
         {
           "name": "Stop",
-          "doc": "Stop is a no-op kept for API compatibility.\n",
+          "doc": "Stop shuts down the clearer goroutine.\n",
           "signature": "func (p *BufferPool) Stop()",
           "recv": "*BufferPool"
         },
@@ -858,6 +879,7 @@
           "signature": "func CheckList[T any](items *[]T) *CheckListC[T]",
           "examples": [
             {
+              "doc": "Toggleable list.\nLike List, but each item has a toggleable checkbox. The Done field is toggled in place through the pointer.\n",
               "code": "type Task struct {\n\tName string\n\tDone bool\n}\ntasks := []Task{{Name: \"Ship it\"}, {Name: \"Test it\"}}\n\nCheckList(\u0026tasks).Render(func(t *Task) any {\n\treturn Text(\u0026t.Name)\n}).BindNav(\"j\", \"k\").BindToggle(\" \")"
             }
           ]
@@ -866,31 +888,31 @@
       "methods": [
         {
           "name": "BindDelete",
-          "doc": "",
+          "doc": "BindDelete registers a key binding to delete the selected item.\n",
           "signature": "func (c *CheckListC[T]) BindDelete(key string) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "BindFirstLast",
-          "doc": "",
+          "doc": "BindFirstLast registers key bindings for jumping to first/last item.\n",
           "signature": "func (c *CheckListC[T]) BindFirstLast(first, last string) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "BindNav",
-          "doc": "",
+          "doc": "BindNav registers key bindings for moving selection down and up.\n",
           "signature": "func (c *CheckListC[T]) BindNav(down, up string) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "BindPageNav",
-          "doc": "",
+          "doc": "BindPageNav registers key bindings for page-sized movement.\n",
           "signature": "func (c *CheckListC[T]) BindPageNav(pageDown, pageUp string) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "BindToggle",
-          "doc": "",
+          "doc": "BindToggle registers a key binding to toggle the checked state.\n",
           "signature": "func (c *CheckListC[T]) BindToggle(key string) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -914,19 +936,19 @@
         },
         {
           "name": "Down",
-          "doc": "",
+          "doc": "Down moves selection down by one.\n",
           "signature": "func (c *CheckListC[T]) Down(m any)",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "First",
-          "doc": "",
+          "doc": "First moves selection to first item.\n",
           "signature": "func (c *CheckListC[T]) First(m any)",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (c *CheckListC[T]) Gap(g int8) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -944,25 +966,25 @@
         },
         {
           "name": "Last",
-          "doc": "",
+          "doc": "Last moves selection to last item.\n",
           "signature": "func (c *CheckListC[T]) Last(m any)",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (c *CheckListC[T]) Margin(all int16) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (c *CheckListC[T]) MarginTRBL(t, r, b, l int16) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (c *CheckListC[T]) MarginVH(v, h int16) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -974,7 +996,7 @@
         },
         {
           "name": "MarkerStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (c *CheckListC[T]) MarkerStyle(s Style) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -986,19 +1008,19 @@
         },
         {
           "name": "PageDown",
-          "doc": "",
+          "doc": "PageDown moves selection down by page size.\n",
           "signature": "func (c *CheckListC[T]) PageDown(m any)",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "PageUp",
-          "doc": "",
+          "doc": "PageUp moves selection up by page size.\n",
           "signature": "func (c *CheckListC[T]) PageUp(m any)",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (c *CheckListC[T]) Ref(f func(*CheckListC[T])) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -1016,19 +1038,19 @@
         },
         {
           "name": "SelectedStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (c *CheckListC[T]) SelectedStyle(s Style) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (c *CheckListC[T]) Style(s Style) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
         {
           "name": "Up",
-          "doc": "",
+          "doc": "Up moves selection up by one.\n",
           "signature": "func (c *CheckListC[T]) Up(m any)",
           "recv": "*CheckListC[T]"
         }
@@ -1045,6 +1067,7 @@
           "signature": "func Checkbox(checked *bool, label string) *CheckboxC",
           "examples": [
             {
+              "doc": "Single checkbox.\nBound to a bool pointer.\n",
               "code": "var agreed bool\n\nCheckbox(\u0026agreed, \"I agree to the terms\")"
             }
           ]
@@ -1058,7 +1081,7 @@
       "methods": [
         {
           "name": "BindToggle",
-          "doc": "",
+          "doc": "BindToggle registers a key binding to toggle the checked state.\n",
           "signature": "func (c *CheckboxC) BindToggle(key string) *CheckboxC",
           "recv": "*CheckboxC"
         },
@@ -1070,37 +1093,37 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (c *CheckboxC) Margin(all int16) *CheckboxC",
           "recv": "*CheckboxC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (c *CheckboxC) MarginTRBL(t, r, b, l int16) *CheckboxC",
           "recv": "*CheckboxC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (c *CheckboxC) MarginVH(v, h int16) *CheckboxC",
           "recv": "*CheckboxC"
         },
         {
           "name": "Marks",
-          "doc": "",
+          "doc": "Marks sets the checked and unchecked display characters.\n",
           "signature": "func (c *CheckboxC) Marks(checked, unchecked string) *CheckboxC",
           "recv": "*CheckboxC"
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (c *CheckboxC) Ref(f func(*CheckboxC)) *CheckboxC",
           "recv": "*CheckboxC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (c *CheckboxC) Style(s Style) *CheckboxC",
           "recv": "*CheckboxC"
         },
@@ -1128,7 +1151,8 @@
           "signature": "func BasicColor(index uint8) Color",
           "examples": [
             {
-              "code": "BasicColor(9)"
+              "doc": "Terminal palette.\nBasicColor uses the terminal's 16-colour palette (0–15). These respect the user's terminal theme.\n",
+              "code": "Text(\"theme-aware\").FG(BasicColor(9))"
             }
           ]
         },
@@ -1143,7 +1167,8 @@
           "signature": "func Hex(hex uint32) Color",
           "examples": [
             {
-              "code": "Hex(0xFF5500)"
+              "doc": "Hex colour.\nTakes a uint32, not a string. Use Go hex literals.\n",
+              "code": "Text(\"branded\").FG(Hex(0xFF5500))"
             }
           ]
         },
@@ -1153,7 +1178,8 @@
           "signature": "func LerpColor(a, b Color, t float64) Color",
           "examples": [
             {
-              "code": "LerpColor(Red, Green, 0.5)"
+              "doc": "Colour blending.\nLerpColor blends two colours. t=0 returns the first, t=1 returns the second, 0.5 is the midpoint.\n",
+              "code": "pct := 0.75\nbar := LerpColor(Red, Green, pct)\nText(\"75%\").FG(bar)"
             }
           ]
         },
@@ -1163,7 +1189,8 @@
           "signature": "func PaletteColor(index uint8) Color",
           "examples": [
             {
-              "code": "PaletteColor(214)"
+              "doc": "Extended palette.\nPaletteColor uses the 256-colour extended palette.\n",
+              "code": "Text(\"orange-ish\").FG(PaletteColor(214))"
             }
           ]
         },
@@ -1173,7 +1200,8 @@
           "signature": "func RGB(r, g, b uint8) Color",
           "examples": [
             {
-              "code": "RGB(255, 85, 0)"
+              "doc": "RGB colour.\nPrecise 24-bit colour from red, green, blue components.\n",
+              "code": "Text(\"vivid\").FG(RGB(255, 85, 0))"
             }
           ]
         }
@@ -1250,6 +1278,7 @@
           "signature": "func Currency(symbol string, decimals int) ColumnOption",
           "examples": [
             {
+              "doc": "Currency formatting.\nFormat a float as a monetary value with the given symbol and decimal places.\n",
               "code": "type Invoice struct {\n\tItem  string\n\tPrice float64\n}\nrows := []Invoice{{Item: \"Widget\", Price: 42.50}}\n\nAutoTable(\u0026rows).Column(\"Price\", Currency(\"$\", 2))"
             }
           ]
@@ -1302,10 +1331,12 @@
           "signature": "func If[T comparable](ptr *T) *Condition[T]",
           "examples": [
             {
+              "doc": "Conditional show.\nShow or hide content based on a bool pointer. The value is checked every frame.\n",
               "code": "show := true\nIf(\u0026show).Then(Text(\"visible\"))"
             },
             {
               "name": "else",
+              "doc": "Toggle views.\nSwitch between two views based on state.\n",
               "code": "loggedIn := false\nIf(\u0026loggedIn).Then(Text(\"dashboard\")).Else(Text(\"login\"))"
             }
           ]
@@ -1329,6 +1360,13 @@
           "doc": "Then is shorthand for checking truthiness (not equal to zero value).\nFor bool: If(\u0026flag).Then(node) renders when flag is true\nFor int: If(\u0026count).Then(node) renders when count is non-zero\nFor string: If(\u0026str).Then(node) renders when str is non-empty\n",
           "signature": "func (c *Condition[T]) Then(node any) *ConditionEval[T]",
           "recv": "*Condition[T]"
+        }
+      ],
+      "examples": [
+        {
+          "name": "eq",
+          "doc": "Value matching.\nMatch against a specific value. Works with strings, ints, or any comparable type.\n",
+          "code": "status := \"active\"\nIf(\u0026status).Eq(\"active\").Then(\n\tText(\"online\").FG(Green),\n).Else(\n\tText(\"offline\").FG(Red),\n)"
         }
       ]
     },
@@ -1394,6 +1432,7 @@
           "signature": "func Widget(\n\tmeasure func(availW int16) (w, h int16),\n\trender func(buf *Buffer, x, y, w, h int16),\n) Custom",
           "examples": [
             {
+              "doc": "Custom rendering.\nEscape hatch for custom rendering. Measure reports size, Render draws directly into the cell buffer.\n",
               "code": "Widget(\n\tfunc(availW int16) (w, h int16) { return availW, 1 },\n\tfunc(buf *Buffer, x, y, w, h int16) {\n\t\tfor i := int16(0); i \u003c w; i++ {\n\t\t\tbuf.Set(int(x+i), int(y), Cell{Rune: '='})\n\t\t}\n\t},\n)"
             }
           ]
@@ -1409,6 +1448,19 @@
           "name": "Else",
           "doc": "Else creates an else branch.\n",
           "signature": "func Else(then any) ElseNode"
+        }
+      ]
+    },
+    {
+      "name": "Field",
+      "doc": "Field bundles the state for a text input field.\nUse with TextInput.Field for cleaner multi-field forms.\n",
+      "decl": "type Field struct {\n\tValue  string\n\tCursor int\n}",
+      "methods": [
+        {
+          "name": "Clear",
+          "doc": "Clear resets the field value and cursor.\n",
+          "signature": "func (f *Field) Clear()",
+          "recv": "*Field"
         }
       ]
     },
@@ -1479,6 +1531,7 @@
           "signature": "func FilterList[T any](source *[]T, extract func(*T) string) *FilterListC[T]",
           "examples": [
             {
+              "doc": "Searchable list.\nThe extract function tells the filter which string to match against for each item.\n",
               "code": "items := []string{\"Alpha\", \"Beta\", \"Gamma\"}\n\nFilterList(\u0026items, func(s *string) string { return *s }).\n\tRender(func(item *string) any {\n\t\treturn Text(item)\n\t})"
             }
           ]
@@ -1529,19 +1582,19 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (fl *FilterListC[T]) Margin(all int16) *FilterListC[T]",
           "recv": "*FilterListC[T]"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (fl *FilterListC[T]) MarginTRBL(t, r, b, l int16) *FilterListC[T]",
           "recv": "*FilterListC[T]"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (fl *FilterListC[T]) MarginVH(v, h int16) *FilterListC[T]",
           "recv": "*FilterListC[T]"
         },
@@ -1681,19 +1734,19 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (fl *FilterLogC) Margin(all int16) *FilterLogC",
           "recv": "*FilterLogC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (fl *FilterLogC) MarginTRBL(t, r, b, l int16) *FilterLogC",
           "recv": "*FilterLogC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (fl *FilterLogC) MarginVH(v, h int16) *FilterLogC",
           "recv": "*FilterLogC"
         },
@@ -1724,6 +1777,7 @@
       ],
       "examples": [
         {
+          "doc": "Filterable log.\nA log view with a built-in fuzzy search input. Lines are filtered as you type; matching is fzf-style.\n",
           "code": "r := strings.NewReader(\"info: started\\nerror: failed\\ninfo: recovered\\n\")\n\nFilterLog(r).Placeholder(\"filter logs...\").MaxLines(5000).BindVimNav()"
         }
       ]
@@ -1792,73 +1846,73 @@
       "methods": [
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (n *FlexNode) Bold() *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Border",
-          "doc": "",
+          "doc": "Border sets the border style.\n",
           "signature": "func (n *FlexNode) Border(b BorderStyle) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (n *FlexNode) Gap(g int8) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Grow",
-          "doc": "",
+          "doc": "Grow sets the flex grow factor.\n",
           "signature": "func (n *FlexNode) Grow(factor float32) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Height",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (n *FlexNode) Height(h int16) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "MinHeight",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (n *FlexNode) MinHeight(h int16) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "MinWidth",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (n *FlexNode) MinWidth(w int16) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Pad",
-          "doc": "",
+          "doc": "Pad sets horizontal and vertical padding.\n",
           "signature": "func (n *FlexNode) Pad(h, v int8) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Percent",
-          "doc": "",
+          "doc": "Percent sets width as a percentage of the parent.\n",
           "signature": "func (n *FlexNode) Percent(p float32) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the node for external references.\n",
           "signature": "func (n *FlexNode) Ref(f func(*FlexNode)) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (n *FlexNode) Style(s Style) *FlexNode",
           "recv": "*FlexNode"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (n *FlexNode) Width(w int16) *FlexNode",
           "recv": "*FlexNode"
         }
@@ -1987,6 +2041,12 @@
           "signature": "func (fm *FocusManager) Register(f focusable) *FocusManager",
           "recv": "*FocusManager"
         }
+      ],
+      "examples": [
+        {
+          "doc": "Focus cycling.\nFocusManager coordinates focus between multiple inputs. Tab/Shift-Tab cycles through ManagedBy components.\n",
+          "code": "fm := NewFocusManager()\n\nVBox(\n\tInput().Placeholder(\"Name\").ManagedBy(fm),\n\tInput().Placeholder(\"Email\").ManagedBy(fm),\n)"
+        }
       ]
     },
     {
@@ -1996,10 +2056,11 @@
       "constructors": [
         {
           "name": "ForEach",
-          "doc": "",
+          "doc": "ForEach renders a template for each item in a slice.\n",
           "signature": "func ForEach[T any](items *[]T, template func(item *T) any) ForEachC[T]",
           "examples": [
             {
+              "doc": "Slice iteration.\nIterate a slice with per-item templates. The callback receives a pointer to each item.\n",
               "code": "type Todo struct {\n\tTitle string\n\tDone  bool\n}\nitems := []Todo{{Title: \"Ship it\"}, {Title: \"Test it\"}}\n\nForEach(\u0026items, func(item *Todo) any {\n\treturn HBox.Gap(2)(\n\t\tCheckbox(\u0026item.Done, \"\"),\n\t\tText(\u0026item.Title),\n\t)\n})"
             }
           ]
@@ -2010,109 +2071,6 @@
       "name": "ForEachNode",
       "doc": "ForEachNode iterates over a slice.\n",
       "decl": "type ForEachNode struct {\n\tItems  any // *[]T\n\tRender any // func(*T) any\n}"
-    },
-    {
-      "name": "FormC",
-      "doc": "FormC is a higher-order form component that arranges labeled fields\nin a vertical layout with aligned labels and automatic focus management.\n\nusage:\n\n\tForm(\n\t    Field(\"Name\", Input().Placeholder(\"Enter your name\")),\n\t    Field(\"Email\", Input().Placeholder(\"you@example.com\")),\n\t    Field(\"Password\", Input().Placeholder(\"password\").Mask('*')),\n\t).Gap(1).LabelFG(BrightWhite)\n",
-      "decl": "type FormC struct {\n\t// contains filtered or unexported fields\n}",
-      "constructors": [
-        {
-          "name": "Form",
-          "doc": "Form creates a form from labeled fields.\nAutomatically creates a FocusManager and wires any focusable controls.\n",
-          "signature": "func Form(fields ...FormField) *FormC",
-          "examples": [
-            {
-              "code": "Form(\n\tField(\"Name\", Input().Placeholder(\"Your name\")),\n\tField(\"Email\", Input().Placeholder(\"you@example.com\")),\n)"
-            }
-          ]
-        }
-      ],
-      "methods": [
-        {
-          "name": "FocusManager",
-          "doc": "FocusManager returns the internal focus manager for external wiring.\n",
-          "signature": "func (f *FormC) FocusManager() *FocusManager",
-          "recv": "*FormC"
-        },
-        {
-          "name": "Gap",
-          "doc": "Gap sets the vertical gap between fields.\n",
-          "signature": "func (f *FormC) Gap(g int8) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "Grow",
-          "doc": "Grow sets the flex grow factor.\n",
-          "signature": "func (f *FormC) Grow(g float32) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "LabelBold",
-          "doc": "LabelBold sets labels to bold.\n",
-          "signature": "func (f *FormC) LabelBold() *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "LabelFG",
-          "doc": "LabelFG sets the foreground color for all labels.\n",
-          "signature": "func (f *FormC) LabelFG(c Color) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "LabelStyle",
-          "doc": "LabelStyle sets the full style for all labels.\n",
-          "signature": "func (f *FormC) LabelStyle(s Style) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "Margin",
-          "doc": "Margin sets equal margin on all sides.\n",
-          "signature": "func (f *FormC) Margin(m int16) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "MarginTRBL",
-          "doc": "MarginTRBL sets top, right, bottom, left margin individually.\n",
-          "signature": "func (f *FormC) MarginTRBL(t, r, b, l int16) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "MarginVH",
-          "doc": "MarginVH sets vertical and horizontal margin.\n",
-          "signature": "func (f *FormC) MarginVH(v, h int16) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "NextKey",
-          "doc": "NextKey sets the key for advancing focus (default: Tab).\n",
-          "signature": "func (f *FormC) NextKey(key string) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "OnFocusChange",
-          "doc": "OnFocusChange sets a callback that fires when focus changes.\n",
-          "signature": "func (f *FormC) OnFocusChange(fn func(index int)) *FormC",
-          "recv": "*FormC"
-        },
-        {
-          "name": "PrevKey",
-          "doc": "PrevKey sets the key for reversing focus (default: Shift-Tab).\n",
-          "signature": "func (f *FormC) PrevKey(key string) *FormC",
-          "recv": "*FormC"
-        }
-      ]
-    },
-    {
-      "name": "FormField",
-      "doc": "FormField pairs a label with an input control.\n",
-      "decl": "type FormField struct {\n\t// contains filtered or unexported fields\n}",
-      "constructors": [
-        {
-          "name": "Field",
-          "doc": "Field creates a form field pairing a label with any control component.\n",
-          "signature": "func Field(label string, control any) FormField"
-        }
-      ]
     },
     {
       "name": "FzfQuery",
@@ -2128,7 +2086,7 @@
       "methods": [
         {
           "name": "Empty",
-          "doc": "",
+          "doc": "Empty reports whether the query has no terms.\n",
           "signature": "func (q *FzfQuery) Empty() bool",
           "recv": "*FzfQuery"
         },
@@ -2157,97 +2115,97 @@
       "methods": [
         {
           "name": "Border",
-          "doc": "",
+          "doc": "Border sets the border style.\n",
           "signature": "func (f HBoxFn) Border(b BorderStyle) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "BorderBG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (f HBoxFn) BorderBG(c Color) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "BorderFG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (f HBoxFn) BorderFG(c Color) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "CascadeStyle",
-          "doc": "",
+          "doc": "CascadeStyle sets a style pointer that children inherit.\n",
           "signature": "func (f HBoxFn) CascadeStyle(s *Style) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Fill",
-          "doc": "",
+          "doc": "Fill sets the background fill color.\n",
           "signature": "func (f HBoxFn) Fill(c Color) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "FitContent",
-          "doc": "",
+          "doc": "FitContent sizes the container to fit its content.\n",
           "signature": "func (f HBoxFn) FitContent() HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (f HBoxFn) Gap(g int8) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Grow",
-          "doc": "",
+          "doc": "Grow sets the flex grow factor.\n",
           "signature": "func (f HBoxFn) Grow(g float32) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Height",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (f HBoxFn) Height(h int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (f HBoxFn) Margin(all int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (f HBoxFn) MarginTRBL(top, right, bottom, left int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (f HBoxFn) MarginVH(vertical, horizontal int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Size",
-          "doc": "",
+          "doc": "Size sets a fixed width and height.\n",
           "signature": "func (f HBoxFn) Size(w, h int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Title",
-          "doc": "",
+          "doc": "Title sets the border title text.\n",
           "signature": "func (f HBoxFn) Title(t string) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (f HBoxFn) Width(w int16) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "WidthPct",
-          "doc": "",
+          "doc": "WidthPct sets width as a percentage of the parent (0.0-1.0).\n",
           "signature": "func (f HBoxFn) WidthPct(pct float32) HBoxFn",
           "recv": "HBoxFn"
         }
@@ -2263,10 +2221,12 @@
       ],
       "examples": [
         {
+          "doc": "Horizontal layout.\nArrange children side by side with a gap between them.\n",
           "code": "HBox.Gap(2)(\n\tText(\"left\"),\n\tText(\"right\"),\n)"
         },
         {
           "name": "widths",
+          "doc": "Sidebar pattern.\nCombine WidthPct and Grow for a fixed sidebar with a flexible main area.\n",
           "code": "HBox(\n\tVBox.WidthPct(30)(Text(\"sidebar\")),\n\tVBox.Grow(1)(Text(\"main content\")),\n)"
         }
       ]
@@ -2345,10 +2305,11 @@
       "constructors": [
         {
           "name": "HRule",
-          "doc": "",
+          "doc": "HRule creates a horizontal rule.\n",
           "signature": "func HRule() HRuleC",
           "examples": [
             {
+              "doc": "Horizontal divider.\nA line that fills the available width.\n",
               "code": "VBox(\n\tText(\"above\"),\n\tHRule(),\n\tText(\"below\"),\n)"
             }
           ]
@@ -2357,49 +2318,49 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (h HRuleC) BG(c Color) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (h HRuleC) Bold() HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "Char",
-          "doc": "",
+          "doc": "Char sets the display character.\n",
           "signature": "func (h HRuleC) Char(c rune) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (h HRuleC) FG(c Color) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (h HRuleC) Margin(all int16) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (h HRuleC) MarginTRBL(a, b, c, d int16) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (h HRuleC) MarginVH(v, hz int16) HRuleC",
           "recv": "HRuleC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (h HRuleC) Style(s Style) HRuleC",
           "recv": "HRuleC"
         }
@@ -2417,13 +2378,13 @@
       "methods": [
         {
           "name": "DistributeWidths",
-          "doc": "",
+          "doc": "DistributeWidths allocates widths to children based on flex grow factors.\n",
           "signature": "func (l HorizontalLayout) DistributeWidths(node *FlexNode)",
           "recv": "HorizontalLayout"
         },
         {
           "name": "LayoutChildren",
-          "doc": "",
+          "doc": "LayoutChildren positions children horizontally within the available space.\n",
           "signature": "func (l HorizontalLayout) LayoutChildren(node *FlexNode)",
           "recv": "HorizontalLayout"
         }
@@ -2445,7 +2406,13 @@
           "signature": "func Input() *InputC",
           "examples": [
             {
+              "doc": "Text input.\nA managed text input with placeholder text shown when empty.\n",
               "code": "Input().Placeholder(\"Type here...\")"
+            },
+            {
+              "name": "mask",
+              "doc": "Password input.\nMask hides input characters for sensitive fields.\n",
+              "code": "Input().Placeholder(\"Password\").Mask('*')"
             }
           ]
         }
@@ -2453,7 +2420,7 @@
       "methods": [
         {
           "name": "Bind",
-          "doc": "",
+          "doc": "Bind routes unmatched key input to this text field.\n",
           "signature": "func (i *InputC) Bind() *InputC",
           "recv": "*InputC"
         },
@@ -2461,6 +2428,12 @@
           "name": "Clear",
           "doc": "Clear resets the input.\n",
           "signature": "func (i *InputC) Clear()",
+          "recv": "*InputC"
+        },
+        {
+          "name": "Field",
+          "doc": "Field returns a pointer to the internal field (for TextInput compatibility).\n",
+          "signature": "func (i *InputC) Field() *Field",
           "recv": "*InputC"
         },
         {
@@ -2477,19 +2450,19 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (i *InputC) Margin(all int16) *InputC",
           "recv": "*InputC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (i *InputC) MarginTRBL(t, r, b, l int16) *InputC",
           "recv": "*InputC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (i *InputC) MarginVH(v, h int16) *InputC",
           "recv": "*InputC"
         },
@@ -2507,7 +2480,7 @@
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (i *InputC) Ref(f func(*InputC)) *InputC",
           "recv": "*InputC"
         },
@@ -2518,14 +2491,8 @@
           "recv": "*InputC"
         },
         {
-          "name": "State",
-          "doc": "State returns a pointer to the internal input state (for TextInput compatibility).\n",
-          "signature": "func (i *InputC) State() *InputState",
-          "recv": "*InputC"
-        },
-        {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (i *InputC) Style(s Style) *InputC",
           "recv": "*InputC"
         },
@@ -2544,58 +2511,51 @@
       ]
     },
     {
-      "name": "InputState",
-      "doc": "InputState bundles the state for a text input field.\nUse with TextInput.Field for cleaner multi-field forms.\n",
-      "decl": "type InputState struct {\n\tValue  string\n\tCursor int\n}",
-      "methods": [
-        {
-          "name": "Clear",
-          "doc": "Clear resets the field value and cursor.\n",
-          "signature": "func (f *InputState) Clear()",
-          "recv": "*InputState"
-        }
-      ]
-    },
-    {
       "name": "JumpC",
       "doc": "",
       "decl": "type JumpC struct {\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "Jump",
-          "doc": "",
+          "doc": "Jump wraps a child component as a jump target.\n",
           "signature": "func Jump(child any, onSelect func()) JumpC"
         }
       ],
       "methods": [
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (j JumpC) Margin(all int16) JumpC",
           "recv": "JumpC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (j JumpC) MarginTRBL(a, b, c, d int16) JumpC",
           "recv": "JumpC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (j JumpC) MarginVH(v, h int16) JumpC",
           "recv": "JumpC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (j JumpC) Style(s Style) JumpC",
           "recv": "JumpC"
         }
       ],
       "examples": [
         {
-          "code": "Jump(Text(\"clickable item\"), func() {\n\n})"
+          "doc": "Jump target.\nWrap any component as a jump target. When jump mode is active, labelled hints appear over each target.\n",
+          "code": "selected := \"none\"\nJump(Text(\"clickable item\"), func() {\n\tselected = \"clicked\"\n\t_ = selected\n})"
+        },
+        {
+          "name": "app",
+          "doc": "App-level jump mode.\nPress the jump key to enter jump mode, then type a target label to select it.\n",
+          "code": "app, _ := NewApp()\n\nitems := []string{\"Save\", \"Load\", \"Quit\"}\napp.SetView(VBox(\n\tJump(Text(\u0026items[0]), func() {}),\n\tJump(Text(\u0026items[1]), func() {}),\n\tJump(Text(\u0026items[2]), func() { app.Stop() }),\n))\n\napp.JumpKey(\"f\")\napp.Run()"
         }
       ]
     },
@@ -2843,6 +2803,12 @@
           "signature": "func (l *Layer) ViewportWidth() int",
           "recv": "*Layer"
         }
+      ],
+      "examples": [
+        {
+          "doc": "Manual content.\nWrite lines directly to a Layer for manual content control. The Render callback fires when the viewport resizes.\n",
+          "code": "layer := NewLayer()\nlayer.Render = func() {\n\tlayer.SetLineString(0, \"redrawn\", DefaultStyle())\n}\nlayer.SetLineString(0, \"first line\", DefaultStyle())\nlayer.SetLineString(1, \"second line\", DefaultStyle().Bold())\n\nLayerView(layer).Grow(1)"
+        }
       ]
     },
     {
@@ -2852,50 +2818,51 @@
       "constructors": [
         {
           "name": "LayerView",
-          "doc": "",
+          "doc": "LayerView displays a pre-rendered layer with scrolling support.\n",
           "signature": "func LayerView(layer *Layer) LayerViewC"
         }
       ],
       "methods": [
         {
           "name": "Grow",
-          "doc": "",
+          "doc": "Grow sets the flex grow factor.\n",
           "signature": "func (l LayerViewC) Grow(g float32) LayerViewC",
           "recv": "LayerViewC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (l LayerViewC) Margin(all int16) LayerViewC",
           "recv": "LayerViewC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (l LayerViewC) MarginTRBL(a, b, c, d int16) LayerViewC",
           "recv": "LayerViewC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (l LayerViewC) MarginVH(v, h int16) LayerViewC",
           "recv": "LayerViewC"
         },
         {
           "name": "ViewHeight",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (l LayerViewC) ViewHeight(h int16) LayerViewC",
           "recv": "LayerViewC"
         },
         {
           "name": "ViewWidth",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (l LayerViewC) ViewWidth(w int16) LayerViewC",
           "recv": "LayerViewC"
         }
       ],
       "examples": [
         {
+          "doc": "Scrollable canvas.\nLayerView displays a Layer — a virtual canvas that can be larger than the viewport.\n",
           "code": "layer := NewLayer()\n\nLayerView(layer).Grow(1)"
         }
       ]
@@ -2930,10 +2897,11 @@
       "constructors": [
         {
           "name": "Leader",
-          "doc": "",
+          "doc": "Leader creates a label.....value display with fill characters.\n",
           "signature": "func Leader(label, value any) LeaderC",
           "examples": [
             {
+              "doc": "Leader line.\nLabel on the left, value on the right, dots filling the gap. Both sides read from pointers each frame.\n",
               "code": "label := \"Total\"\nvalue := \"$42.00\"\n\nLeader(\u0026label, \u0026value)"
             }
           ]
@@ -2942,55 +2910,55 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (l LeaderC) BG(c Color) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (l LeaderC) Bold() LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (l LeaderC) FG(c Color) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "Fill",
-          "doc": "",
+          "doc": "Fill sets the fill character.\n",
           "signature": "func (l LeaderC) Fill(r rune) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (l LeaderC) Margin(all int16) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (l LeaderC) MarginTRBL(a, b, c, d int16) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (l LeaderC) MarginVH(v, h int16) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (l LeaderC) Style(s Style) LeaderC",
           "recv": "LeaderC"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (l LeaderC) Width(w int16) LeaderC",
           "recv": "LeaderC"
         }
@@ -3012,6 +2980,7 @@
           "signature": "func List[T any](items *[]T) *ListC[T]",
           "examples": [
             {
+              "doc": "Navigable list.\nA list over a pointer to a slice. The Render callback receives a pointer to each item for in-place updates.\n",
               "code": "items := []string{\"Alpha\", \"Beta\", \"Gamma\"}\n\nList(\u0026items).Render(func(item *string) any {\n\treturn Text(item)\n}).BindNav(\"j\", \"k\")"
             }
           ]
@@ -3020,25 +2989,25 @@
       "methods": [
         {
           "name": "BindDelete",
-          "doc": "",
+          "doc": "BindDelete registers a key binding to delete the selected item.\n",
           "signature": "func (l *ListC[T]) BindDelete(key string) *ListC[T]",
           "recv": "*ListC[T]"
         },
         {
           "name": "BindFirstLast",
-          "doc": "",
+          "doc": "BindFirstLast registers key bindings for jumping to first/last item.\n",
           "signature": "func (l *ListC[T]) BindFirstLast(first, last string) *ListC[T]",
           "recv": "*ListC[T]"
         },
         {
           "name": "BindNav",
-          "doc": "",
+          "doc": "BindNav registers key bindings for moving selection down and up.\n",
           "signature": "func (l *ListC[T]) BindNav(down, up string) *ListC[T]",
           "recv": "*ListC[T]"
         },
         {
           "name": "BindPageNav",
-          "doc": "",
+          "doc": "BindPageNav registers key bindings for page-sized movement.\n",
           "signature": "func (l *ListC[T]) BindPageNav(pageDown, pageUp string) *ListC[T]",
           "recv": "*ListC[T]"
         },
@@ -3092,19 +3061,19 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (l *ListC[T]) Margin(all int16) *ListC[T]",
           "recv": "*ListC[T]"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (l *ListC[T]) MarginTRBL(t, r, b, li int16) *ListC[T]",
           "recv": "*ListC[T]"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (l *ListC[T]) MarginVH(v, h int16) *ListC[T]",
           "recv": "*ListC[T]"
         },
@@ -3140,7 +3109,7 @@
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (l *ListC[T]) Ref(f func(*ListC[T])) *ListC[T]",
           "recv": "*ListC[T]"
         },
@@ -3287,10 +3256,12 @@
       ],
       "examples": [
         {
+          "doc": "Streaming log.\nStream lines from any io.Reader into a scrollable log view. AutoScroll keeps the view pinned to the bottom.\n",
           "code": "r := strings.NewReader(\"line 1\\nline 2\\nline 3\\n\")\n\nLog(r).MaxLines(1000).AutoScroll(true).BindVimNav()"
         },
         {
-          "name": "fromStdout",
+          "name": "fromStdin",
+          "doc": "Stdin pipe.\nPipe stdout from a subprocess or os.Stdin directly into a log view. The reader is consumed in a background goroutine.\n",
           "code": "Log(os.Stdin).MaxLines(5000).Grow(1)"
         }
       ]
@@ -3298,7 +3269,7 @@
     {
       "name": "Op",
       "doc": "Op represents a single instruction.\n",
-      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span    // for static spans\n\tSpansPtr    *[]Span   // for pointer to spans\n\tSpansOff    uintptr   // for ForEach offset\n\tSpanStrOffs []uintptr // per-span *string offsets for Textf (^0 = static)\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\tMarkerSpaces     string         // pre-computed spaces matching marker width\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *InputState // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\t// contains filtered or unexported fields\n}"
+      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span  // for static spans\n\tSpansPtr    *[]Span // for pointer to spans\n\tSpansOff    uintptr // for ForEach offset\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *Field      // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\t// contains filtered or unexported fields\n}"
     },
     {
       "name": "OpKind",
@@ -3399,6 +3370,7 @@
       ],
       "examples": [
         {
+          "doc": "Numeric comparison.\nIfOrd supports Gt, Lt, Gte, Lte for any ordered type (int, float64, string).\n",
           "code": "count := 5\nIfOrd(\u0026count).Gte(10).Then(Text(\"many\")).Else(Text(\"few\"))"
         }
       ]
@@ -3434,37 +3406,37 @@
       "methods": [
         {
           "name": "At",
-          "doc": "",
+          "doc": "At positions the overlay at fixed coordinates.\n",
           "signature": "func (f OverlayFn) At(x, y int) OverlayFn",
           "recv": "OverlayFn"
         },
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (f OverlayFn) BG(c Color) OverlayFn",
           "recv": "OverlayFn"
         },
         {
           "name": "Backdrop",
-          "doc": "",
+          "doc": "Backdrop renders a backdrop behind the top-most layer that fills the parent.\n",
           "signature": "func (f OverlayFn) Backdrop() OverlayFn",
           "recv": "OverlayFn"
         },
         {
           "name": "BackdropFG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (f OverlayFn) BackdropFG(c Color) OverlayFn",
           "recv": "OverlayFn"
         },
         {
           "name": "Centered",
-          "doc": "",
+          "doc": "Centered centers the overlay content within the parent bounds.\n",
           "signature": "func (f OverlayFn) Centered() OverlayFn",
           "recv": "OverlayFn"
         },
         {
           "name": "Size",
-          "doc": "",
+          "doc": "Size sets a fixed width and height.\n",
           "signature": "func (f OverlayFn) Size(w, h int) OverlayFn",
           "recv": "OverlayFn"
         }
@@ -3480,7 +3452,13 @@
       ],
       "examples": [
         {
+          "doc": "Basic layering.\nLayer children on top of each other. The last child renders on top.\n",
           "code": "Overlay(\n\tText(\"base content\"),\n\tText(\"floating dialog\"),\n)"
+        },
+        {
+          "name": "modal",
+          "doc": "Modal dialog.\nCentered dialog with a dimmed backdrop. Size constrains the dialog; Backdrop dims everything behind it.\n",
+          "code": "Overlay.Centered().Backdrop().BackdropFG(BrightBlack).Size(50, 15).BG(Black)(\n\tVBox.Grow(1)(\n\t\tText(\"main content\"),\n\t),\n\tVBox.Border(BorderRounded)(\n\t\tText(\"confirm delete?\"),\n\t\tHBox.Gap(2)(Text(\"[y]es\"), Text(\"[n]o\")),\n\t),\n)"
         }
       ]
     },
@@ -3496,10 +3474,11 @@
       "constructors": [
         {
           "name": "Progress",
-          "doc": "",
+          "doc": "Progress creates a progress bar bound to a value (0-100).\n",
           "signature": "func Progress(value any) ProgressC",
           "examples": [
             {
+              "doc": "Progress bar.\nBound to a float64 pointer (0.0–1.0). Width sets the bar length in cells.\n",
               "code": "var pct float64\n\nProgress(\u0026pct).Width(30).FG(Green)"
             }
           ]
@@ -3508,49 +3487,49 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (p ProgressC) BG(c Color) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (p ProgressC) Bold() ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (p ProgressC) FG(c Color) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (p ProgressC) Margin(all int16) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (p ProgressC) MarginTRBL(a, b, c, d int16) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (p ProgressC) MarginVH(v, h int16) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (p ProgressC) Style(s Style) ProgressC",
           "recv": "ProgressC"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (p ProgressC) Width(w int16) ProgressC",
           "recv": "ProgressC"
         }
@@ -3572,6 +3551,7 @@
           "signature": "func Radio(selected *int, options ...string) *RadioC",
           "examples": [
             {
+              "doc": "Radio group.\nBound to an int pointer. The selected index updates when the user navigates and presses enter.\n",
               "code": "var selected int\n\nRadio(\u0026selected, \"Small\", \"Medium\", \"Large\").BindNav(\"j\", \"k\")"
             }
           ]
@@ -3585,19 +3565,19 @@
       "methods": [
         {
           "name": "BindNav",
-          "doc": "",
+          "doc": "BindNav registers key bindings for cycling selection.\n",
           "signature": "func (r *RadioC) BindNav(next, prev string) *RadioC",
           "recv": "*RadioC"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (r *RadioC) Gap(g int8) *RadioC",
           "recv": "*RadioC"
         },
         {
           "name": "Horizontal",
-          "doc": "",
+          "doc": "Horizontal renders the scrollbar horizontally instead of vertically.\n",
           "signature": "func (r *RadioC) Horizontal() *RadioC",
           "recv": "*RadioC"
         },
@@ -3609,25 +3589,25 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (r *RadioC) Margin(all int16) *RadioC",
           "recv": "*RadioC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (r *RadioC) MarginTRBL(t, ri, b, l int16) *RadioC",
           "recv": "*RadioC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (r *RadioC) MarginVH(v, h int16) *RadioC",
           "recv": "*RadioC"
         },
         {
           "name": "Marks",
-          "doc": "",
+          "doc": "Marks sets the selected and unselected display characters.\n",
           "signature": "func (r *RadioC) Marks(selected, unselected string) *RadioC",
           "recv": "*RadioC"
         },
@@ -3645,7 +3625,7 @@
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (r *RadioC) Ref(f func(*RadioC)) *RadioC",
           "recv": "*RadioC"
         },
@@ -3657,7 +3637,7 @@
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (r *RadioC) Style(s Style) *RadioC",
           "recv": "*RadioC"
         }
@@ -3743,7 +3723,7 @@
     {
       "name": "RichTextNode",
       "doc": "RichTextNode displays text with mixed inline styles.\nSpans can be []Span (static) or *[]Span (dynamic binding).\n",
-      "decl": "type RichTextNode struct {\n\tFlex\n\tSpans any // []Span or *[]Span\n\t// contains filtered or unexported fields\n}",
+      "decl": "type RichTextNode struct {\n\tFlex\n\tSpans any // []Span or *[]Span\n}",
       "constructors": [
         {
           "name": "Rich",
@@ -3751,14 +3731,10 @@
           "signature": "func Rich(parts ...any) RichTextNode",
           "examples": [
             {
+              "doc": "Inline spans.\nMix Bold, Dim, Italic, FG and plain strings in a single line.\n",
               "code": "Rich(\n\tBold(\"Important: \"),\n\tDim(\"supporting detail\"),\n\tFG(\"error\", Red),\n)"
             }
           ]
-        },
-        {
-          "name": "Textf",
-          "doc": "Textf composes inline formatted text from mixed parts.\nAccepts string, *string, Span, TextC (from Bold/Italic with *string), and styled helpers.\nWorks with ForEach via per-span pointer offset rewriting.\n\nusage:\n\n\tTextf(\"Hello \", Bold(\"world\"), \"!\")\n\tTextf(\"Name: \", Bold(\u0026it.Name), \" Status: \", \u0026it.Status)  // ForEach compatible\n",
-          "signature": "func Textf(parts ...any) RichTextNode"
         }
       ]
     },
@@ -3909,10 +3885,11 @@
       "constructors": [
         {
           "name": "Scroll",
-          "doc": "",
+          "doc": "Scroll creates a scrollbar for tracking position in scrollable content.\n",
           "signature": "func Scroll(contentSize, viewSize int, position *int) ScrollbarC",
           "examples": [
             {
+              "doc": "Scrollbar.\nParameters are total content height, visible viewport height, and a pointer to scroll position.\n",
               "code": "var pos int\nScroll(100, 20, \u0026pos)"
             }
           ]
@@ -3921,55 +3898,55 @@
       "methods": [
         {
           "name": "Horizontal",
-          "doc": "",
+          "doc": "Horizontal renders the scrollbar horizontally instead of vertically.\n",
           "signature": "func (s ScrollbarC) Horizontal() ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "Length",
-          "doc": "",
+          "doc": "Length sets the scrollbar track length.\n",
           "signature": "func (s ScrollbarC) Length(l int16) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (s ScrollbarC) Margin(all int16) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (s ScrollbarC) MarginTRBL(a, b, c, d int16) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (s ScrollbarC) MarginVH(v, h int16) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "ThumbChar",
-          "doc": "",
+          "doc": "Char sets the display character.\n",
           "signature": "func (s ScrollbarC) ThumbChar(c rune) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "ThumbStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (s ScrollbarC) ThumbStyle(st Style) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "TrackChar",
-          "doc": "",
+          "doc": "Char sets the display character.\n",
           "signature": "func (s ScrollbarC) TrackChar(c rune) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "TrackStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (s ScrollbarC) TrackStyle(st Style) ScrollbarC",
           "recv": "ScrollbarC"
         }
@@ -4035,76 +4012,84 @@
       "constructors": [
         {
           "name": "Space",
-          "doc": "",
+          "doc": "Space creates a flexible empty spacer.\n",
           "signature": "func Space() SpacerC",
           "examples": [
             {
+              "doc": "Flexible spacer.\nPushes siblings apart. In a VBox, it pushes content to the top and bottom.\n",
               "code": "VBox(\n\tText(\"header\"),\n\tSpace(),\n\tText(\"footer\"),\n)"
             }
           ]
         },
         {
           "name": "SpaceH",
-          "doc": "",
+          "doc": "SpaceH creates a vertical spacer with a fixed height.\n",
           "signature": "func SpaceH(h int16) SpacerC",
           "examples": [
             {
+              "doc": "Fixed-height gap.\nUse in VBox to add exact spacing between elements.\n",
               "code": "VBox(\n\tText(\"above\"),\n\tSpaceH(2),\n\tText(\"below\"),\n)"
             }
           ]
         },
         {
           "name": "SpaceW",
-          "doc": "",
-          "signature": "func SpaceW(w int16) SpacerC"
+          "doc": "SpaceW creates a horizontal spacer with a fixed width.\n",
+          "signature": "func SpaceW(w int16) SpacerC",
+          "examples": [
+            {
+              "doc": "Fixed-width gap.\nUse in HBox to add exact spacing between elements.\n",
+              "code": "HBox(\n\tText(\"left\"),\n\tSpaceW(4),\n\tText(\"right\"),\n)"
+            }
+          ]
         }
       ],
       "methods": [
         {
           "name": "Char",
-          "doc": "",
+          "doc": "Char sets the display character.\n",
           "signature": "func (s SpacerC) Char(c rune) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "Grow",
-          "doc": "",
+          "doc": "Grow sets the flex grow factor.\n",
           "signature": "func (s SpacerC) Grow(g float32) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "Height",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (s SpacerC) Height(h int16) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (s SpacerC) Margin(all int16) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (s SpacerC) MarginTRBL(a, b, c, d int16) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (s SpacerC) MarginVH(v, h int16) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (s SpacerC) Style(st Style) SpacerC",
           "recv": "SpacerC"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (s SpacerC) Width(w int16) SpacerC",
           "recv": "SpacerC"
         }
@@ -4132,7 +4117,55 @@
     {
       "name": "Span",
       "doc": "Span represents a styled segment of text within RichText.\n",
-      "decl": "type Span struct {\n\tText  string\n\tStyle Style\n}"
+      "decl": "type Span struct {\n\tText  string\n\tStyle Style\n}",
+      "constructors": [
+        {
+          "name": "BG",
+          "doc": "BG creates a span with background color.\n",
+          "signature": "func BG(text string, color Color) Span"
+        },
+        {
+          "name": "Bold",
+          "doc": "Bold creates a bold text span.\n",
+          "signature": "func Bold(text string) Span"
+        },
+        {
+          "name": "Dim",
+          "doc": "Dim creates a dim text span.\n",
+          "signature": "func Dim(text string) Span"
+        },
+        {
+          "name": "FG",
+          "doc": "FG creates a span with foreground color.\n",
+          "signature": "func FG(text string, color Color) Span"
+        },
+        {
+          "name": "Inverse",
+          "doc": "Inverse creates an inverse text span.\n",
+          "signature": "func Inverse(text string) Span"
+        },
+        {
+          "name": "Italic",
+          "doc": "Italic creates an italic text span.\n",
+          "signature": "func Italic(text string) Span"
+        },
+        {
+          "name": "Styled",
+          "doc": "Styled creates a span with the given style.\n",
+          "signature": "func Styled(text string, style Style) Span"
+        },
+        {
+          "name": "Underline",
+          "doc": "Underline creates an underlined text span.\n",
+          "signature": "func Underline(text string) Span"
+        }
+      ],
+      "examples": [
+        {
+          "doc": "Custom span styles.\nStyled creates a span with a full Style struct for fine-grained control.\n",
+          "code": "Rich(\n\tStyled(\"custom\", Style{FG: Hex(0xFF5500), Attr: AttrBold}),\n\t\" mixed with \",\n\tItalic(\"emphasis\"),\n)"
+        }
+      ]
     },
     {
       "name": "SparklineC",
@@ -4141,10 +4174,11 @@
       "constructors": [
         {
           "name": "Sparkline",
-          "doc": "",
+          "doc": "Sparkline creates a mini chart from a slice of values.\n",
           "signature": "func Sparkline(values any) SparklineC",
           "examples": [
             {
+              "doc": "Mini chart.\nA line chart from a float64 slice pointer. Append values and trigger a render to update.\n",
               "code": "values := []float64{1, 3, 5, 2, 8, 4}\n\nSparkline(\u0026values).Width(20).FG(Green)"
             }
           ]
@@ -4153,55 +4187,55 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (s SparklineC) BG(c Color) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (s SparklineC) Bold() SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (s SparklineC) FG(c Color) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (s SparklineC) Margin(all int16) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (s SparklineC) MarginTRBL(a, b, c, d int16) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (s SparklineC) MarginVH(v, h int16) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "Range",
-          "doc": "",
+          "doc": "Range sets the min and max value range for the chart.\n",
           "signature": "func (s SparklineC) Range(min, max float64) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (s SparklineC) Style(st Style) SparklineC",
           "recv": "SparklineC"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (s SparklineC) Width(w int16) SparklineC",
           "recv": "SparklineC"
         }
@@ -4219,10 +4253,11 @@
       "constructors": [
         {
           "name": "Spinner",
-          "doc": "",
+          "doc": "Spinner creates an animated spinner bound to a frame counter.\n",
           "signature": "func Spinner(frame *int) SpinnerC",
           "examples": [
             {
+              "doc": "Animated spinner.\nThe frame pointer is advanced by the framework on each render tick.\n",
               "code": "var frame int\n\nSpinner(\u0026frame).Frames(SpinnerBraille)"
             }
           ]
@@ -4231,49 +4266,49 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (s SpinnerC) BG(c Color) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (s SpinnerC) Bold() SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (s SpinnerC) FG(c Color) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "Frames",
-          "doc": "",
+          "doc": "Frames sets the animation frames.\n",
           "signature": "func (s SpinnerC) Frames(f []string) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (s SpinnerC) Margin(all int16) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (s SpinnerC) MarginTRBL(a, b, c, d int16) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (s SpinnerC) MarginVH(v, h int16) SpinnerC",
           "recv": "SpinnerC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (s SpinnerC) Style(st Style) SpinnerC",
           "recv": "SpinnerC"
         }
@@ -4295,6 +4330,7 @@
           "signature": "func DefaultStyle() Style",
           "examples": [
             {
+              "doc": "Style chaining.\nBuild a style by chaining methods on DefaultStyle. CascadeStyle on a container applies it to all descendants.\n",
               "code": "s := DefaultStyle().Bold().Foreground(Cyan)\n\nVBox.CascadeStyle(\u0026s)(\n\tText(\"all children inherit bold cyan\"),\n)"
             }
           ]
@@ -4363,19 +4399,19 @@
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (s Style) Margin(all int16) Style",
           "recv": "Style"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (s Style) MarginTRBL(t, r, b, l int16) Style",
           "recv": "Style"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (s Style) MarginVH(v, h int16) Style",
           "recv": "Style"
         },
@@ -4400,7 +4436,13 @@
       ],
       "examples": [
         {
-          "code": "highlight := Style{FG: Yellow, Attr: AttrBold}\n\nText(\"warning\").Style(highlight)"
+          "doc": "Struct literal.\nConstruct a Style directly when you know the exact fields. Attr flags combine with bitwise OR.\n",
+          "code": "highlight := Style{FG: Yellow, Attr: AttrBold | AttrUnderline}\n\nText(\"warning\").Style(highlight)"
+        },
+        {
+          "name": "margin",
+          "doc": "Style margin.\nMargin is part of Style. Values are top, right, bottom, left (CSS order).\n",
+          "code": "padded := DefaultStyle().MarginTRBL(1, 2, 1, 2)\n\nText(\"padded text\").Style(padded)"
         }
       ]
     },
@@ -4415,6 +4457,7 @@
           "signature": "func Switch[T comparable](ptr *T) *SwitchBuilder[T]",
           "examples": [
             {
+              "doc": "Multi-way branch.\nBranch on a value with named cases. Default catches unmatched values.\n",
               "code": "mode := \"edit\"\nSwitch(\u0026mode).\n\tCase(\"edit\", Text(\"editing\")).\n\tCase(\"preview\", Text(\"previewing\")).\n\tDefault(Text(\"idle\"))"
             }
           ]
@@ -4463,11 +4506,17 @@
       "constructors": [
         {
           "name": "Tabs",
-          "doc": "",
+          "doc": "Tabs creates a tab header bar.\n",
           "signature": "func Tabs(labels []string, selected *int) TabsC",
           "examples": [
             {
+              "doc": "Tab bar.\nBound to an int pointer. The selected index is written when the user picks a tab.\n",
               "code": "var active int\ntabs := []string{\"General\", \"Advanced\", \"About\"}\n\nTabs(tabs, \u0026active)"
+            },
+            {
+              "name": "styled",
+              "doc": "Custom tab styles.\nCustomize appearance with Kind for the shape and per-state styles for active/inactive tabs.\n",
+              "code": "var active int\ntabs := []string{\"Code\", \"Preview\", \"Settings\"}\n\nTabs(tabs, \u0026active).\n\tKind(TabsStyleBox).\n\tActiveStyle(Style{FG: Cyan, Attr: AttrBold}).\n\tInactiveStyle(Style{FG: BrightBlack})"
             }
           ]
         }
@@ -4475,43 +4524,43 @@
       "methods": [
         {
           "name": "ActiveStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t TabsC) ActiveStyle(s Style) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (t TabsC) Gap(g int8) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "InactiveStyle",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t TabsC) InactiveStyle(s Style) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "Kind",
-          "doc": "",
+          "doc": "Kind sets the tab rendering style.\n",
           "signature": "func (t TabsC) Kind(s TabsStyle) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (t TabsC) Margin(all int16) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (t TabsC) MarginTRBL(a, b, c, d int16) TabsC",
           "recv": "TabsC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (t TabsC) MarginVH(v, h int16) TabsC",
           "recv": "TabsC"
         }
@@ -4536,6 +4585,12 @@
           ],
           "decl": "const (\n\tTabsStyleUnderline TabsStyle = iota // active tab has underline\n\tTabsStyleBox                        // tabs in boxes\n\tTabsStyleBracket                    // tabs with [ ] brackets\n)"
         }
+      ],
+      "examples": [
+        {
+          "doc": "Tab shapes.\nThree tab styles: TabsStyleUnderline (default), TabsStyleBox, and TabsStyleBracket.\n",
+          "code": "var active int\ntabs := []string{\"Files\", \"Search\", \"Git\"}\n\nTabs(tabs, \u0026active).Kind(TabsStyleBracket)"
+        }
       ]
     },
     {
@@ -4549,6 +4604,7 @@
           "signature": "func Build(ui any) *Template",
           "examples": [
             {
+              "doc": "Compile a template.\nBuild compiles a UI tree into a Template — the same step that SetView performs internally. Useful for rendering into a Layer or for headless testing.\n",
               "code": "tmpl := Build(VBox(\n\tText(\"hello\"),\n\tText(\"world\"),\n))\n\nbuf := NewBuffer(80, 24)\ntmpl.Execute(buf, 80, 24)"
             }
           ]
@@ -4588,18 +4644,21 @@
       "constructors": [
         {
           "name": "Text",
-          "doc": "",
+          "doc": "Text creates a text display component.\n",
           "signature": "func Text(content any) TextC",
           "examples": [
             {
+              "doc": "Static text.\nText that never changes. Pass a string literal directly.\n",
               "code": "Text(\"hello world\")"
             },
             {
               "name": "pointer",
+              "doc": "Pointer binding.\nPass a pointer so the rendered text reflects the current value. Mutate the string, then trigger a render to see it.\n",
               "code": "msg := \"dynamic\"\nText(\u0026msg)"
             },
             {
               "name": "styled",
+              "doc": "Inline styling.\nChain style methods. Bold, Dim, Italic, Underline, and FG/BG are all available.\n",
               "code": "msg := \"styled\"\nText(\u0026msg).Bold().FG(Cyan)"
             }
           ]
@@ -4608,79 +4667,79 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (t TextC) BG(c Color) TextC",
           "recv": "TextC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (t TextC) Bold() TextC",
           "recv": "TextC"
         },
         {
           "name": "Dim",
-          "doc": "",
+          "doc": "Dim enables dim text.\n",
           "signature": "func (t TextC) Dim() TextC",
           "recv": "TextC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (t TextC) FG(c Color) TextC",
           "recv": "TextC"
         },
         {
           "name": "Inverse",
-          "doc": "",
+          "doc": "Inverse enables inverse (reverse video) text.\n",
           "signature": "func (t TextC) Inverse() TextC",
           "recv": "TextC"
         },
         {
           "name": "Italic",
-          "doc": "",
+          "doc": "Italic enables italic text.\n",
           "signature": "func (t TextC) Italic() TextC",
           "recv": "TextC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (t TextC) Margin(all int16) TextC",
           "recv": "TextC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (t TextC) MarginTRBL(a, b, c, d int16) TextC",
           "recv": "TextC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (t TextC) MarginVH(v, h int16) TextC",
           "recv": "TextC"
         },
         {
           "name": "Strikethrough",
-          "doc": "",
+          "doc": "Strikethrough enables strikethrough text.\n",
           "signature": "func (t TextC) Strikethrough() TextC",
           "recv": "TextC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (t TextC) Style(s Style) TextC",
           "recv": "TextC"
         },
         {
           "name": "Underline",
-          "doc": "",
+          "doc": "Underline enables underline text.\n",
           "signature": "func (t TextC) Underline() TextC",
           "recv": "TextC"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (t TextC) Width(w int16) TextC",
           "recv": "TextC"
         }
@@ -4688,8 +4747,8 @@
     },
     {
       "name": "TextInput",
-      "doc": "TextInput is a single-line text input field.\nWire up input handling via riffkey.NewTextHandler or riffkey.NewFieldHandler.\n\nExample with InputState + FocusGroup (recommended for forms):\n\n\tname := tui.InputState{}\n\tfocus := tui.FocusGroup{}\n\ttui.TextInput{Field: \u0026name, FocusGroup: \u0026focus, FocusIndex: 0}\n\nExample with separate pointers (for single fields):\n\n\ttui.TextInput{Value: \u0026query, Cursor: \u0026cursor, Placeholder: \"Search...\"}\n",
-      "decl": "type TextInput struct {\n\t// Field-based API (recommended for forms)\n\tField      *InputState // Bundles Value + Cursor in one struct\n\tFocusGroup *FocusGroup // Shared focus tracker - cursor shows when FocusGroup.Current == FocusIndex\n\tFocusIndex int         // This field's index in the focus group\n\n\t// Pointer-based API (for single fields)\n\tValue   *string // Bound text value (ignored if Field is set)\n\tCursor  *int    // Cursor position (ignored if Field is set)\n\tFocused *bool   // Show cursor only when true (ignored if FocusGroup is set)\n\n\t// Common options\n\tPlaceholder      string // Shown when value is empty\n\tWidth            int    // Field width (0 = fill available)\n\tMask             rune   // Password mask character (0 = none)\n\tStyle            Style  // Text style\n\tPlaceholderStyle Style  // Placeholder style (zero = dim text)\n\tCursorStyle      Style  // Cursor style (zero = reverse video)\n}"
+      "doc": "TextInput is a single-line text input field.\nWire up input handling via riffkey.NewTextHandler or riffkey.NewFieldHandler.\n\nExample with Field + FocusGroup (recommended for forms):\n\n\tname := tui.Field{}\n\tfocus := tui.FocusGroup{}\n\ttui.TextInput{Field: \u0026name, FocusGroup: \u0026focus, FocusIndex: 0}\n\nExample with separate pointers (for single fields):\n\n\ttui.TextInput{Value: \u0026query, Cursor: \u0026cursor, Placeholder: \"Search...\"}\n",
+      "decl": "type TextInput struct {\n\t// Field-based API (recommended for forms)\n\tField      *Field      // Bundles Value + Cursor in one struct\n\tFocusGroup *FocusGroup // Shared focus tracker - cursor shows when FocusGroup.Current == FocusIndex\n\tFocusIndex int         // This field's index in the focus group\n\n\t// Pointer-based API (for single fields)\n\tValue   *string // Bound text value (ignored if Field is set)\n\tCursor  *int    // Cursor position (ignored if Field is set)\n\tFocused *bool   // Show cursor only when true (ignored if FocusGroup is set)\n\n\t// Common options\n\tPlaceholder      string // Shown when value is empty\n\tWidth            int    // Field width (0 = fill available)\n\tMask             rune   // Password mask character (0 = none)\n\tStyle            Style  // Text style\n\tPlaceholderStyle Style  // Placeholder style (zero = dim text)\n\tCursorStyle      Style  // Cursor style (zero = reverse video)\n}"
     },
     {
       "name": "TextNode",
@@ -4711,12 +4770,24 @@
           ],
           "decl": "const (\n\tTransformNone TextTransform = iota\n\tTransformUppercase\n\tTransformLowercase\n\tTransformCapitalize // first letter of each word\n)"
         }
+      ],
+      "examples": [
+        {
+          "doc": "Case transform.\nTransform text case via the Style struct. Transforms run at render time without modifying the source string.\n",
+          "code": "Text(\"hello world\").Style(Style{Transform: TransformUppercase})"
+        }
       ]
     },
     {
       "name": "ThemeEx",
       "doc": "ThemeEx provides a set of styles for consistent UI appearance.\nUse CascadeStyle on containers to apply theme styles to children.\n",
-      "decl": "type ThemeEx struct {\n\tBase   Style // default text style\n\tMuted  Style // de-emphasized text\n\tAccent Style // highlighted/important text\n\tError  Style // error messages\n\tBorder Style // border/divider style\n}"
+      "decl": "type ThemeEx struct {\n\tBase   Style // default text style\n\tMuted  Style // de-emphasized text\n\tAccent Style // highlighted/important text\n\tError  Style // error messages\n\tBorder Style // border/divider style\n}",
+      "examples": [
+        {
+          "doc": "Predefined theme.\nCascadeStyle sets the base style for all descendants; individual elements can override with per-element styles.\n",
+          "code": "theme := ThemeDark\n\nVBox.CascadeStyle(\u0026theme.Base).Border(BorderRounded).BorderFG(theme.Border.FG)(\n\tText(\"normal text\"),\n\tText(\"muted\").Style(theme.Muted),\n\tText(\"accent\").Style(theme.Accent),\n\tText(\"error!\").Style(theme.Error),\n)"
+        }
+      ]
     },
     {
       "name": "Timings",
@@ -4738,7 +4809,13 @@
     {
       "name": "TreeView",
       "doc": "TreeView displays a hierarchical tree structure.\n",
-      "decl": "type TreeView struct {\n\tRoot          *TreeNode // root node (can be hidden)\n\tShowRoot      bool      // whether to display the root node\n\tIndent        int       // indentation per level (default: 2)\n\tShowLines     bool      // show connecting lines (├ └ │)\n\tExpandedChar  rune      // character for expanded nodes (default: '▼')\n\tCollapsedChar rune      // character for collapsed nodes (default: '▶')\n\tLeafChar      rune      // character for leaf nodes (default: ' ')\n\tStyle         Style     // styling for labels\n}"
+      "decl": "type TreeView struct {\n\tRoot          *TreeNode // root node (can be hidden)\n\tShowRoot      bool      // whether to display the root node\n\tIndent        int       // indentation per level (default: 2)\n\tShowLines     bool      // show connecting lines (├ └ │)\n\tExpandedChar  rune      // character for expanded nodes (default: '▼')\n\tCollapsedChar rune      // character for collapsed nodes (default: '▶')\n\tLeafChar      rune      // character for leaf nodes (default: ' ')\n\tStyle         Style     // styling for labels\n}",
+      "examples": [
+        {
+          "doc": "Collapsible tree.\nTreeView renders a collapsible tree from TreeNode structs. Set Expanded to control which nodes start open.\n",
+          "code": "root := \u0026TreeNode{\n\tLabel: \"src\",\n\tChildren: []*TreeNode{\n\t\t{Label: \"main.go\"},\n\t\t{Label: \"lib\", Children: []*TreeNode{\n\t\t\t{Label: \"utils.go\"},\n\t\t\t{Label: \"types.go\"},\n\t\t}},\n\t},\n\tExpanded: true,\n}\n\n_ = TreeView{Root: root, ShowRoot: true, Indent: 2, ShowLines: true}"
+        }
+      ]
     },
     {
       "name": "VBoxC",
@@ -4752,97 +4829,97 @@
       "methods": [
         {
           "name": "Border",
-          "doc": "",
+          "doc": "Border sets the border style.\n",
           "signature": "func (f VBoxFn) Border(b BorderStyle) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "BorderBG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (f VBoxFn) BorderBG(c Color) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "BorderFG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (f VBoxFn) BorderFG(c Color) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "CascadeStyle",
-          "doc": "",
+          "doc": "CascadeStyle sets a style pointer that children inherit.\n",
           "signature": "func (f VBoxFn) CascadeStyle(s *Style) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Fill",
-          "doc": "",
+          "doc": "Fill sets the background fill color.\n",
           "signature": "func (f VBoxFn) Fill(c Color) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "FitContent",
-          "doc": "",
+          "doc": "FitContent sizes the container to fit its content.\n",
           "signature": "func (f VBoxFn) FitContent() VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Gap",
-          "doc": "",
+          "doc": "Gap sets the spacing between children.\n",
           "signature": "func (f VBoxFn) Gap(g int8) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Grow",
-          "doc": "",
+          "doc": "Grow sets the flex grow factor.\n",
           "signature": "func (f VBoxFn) Grow(g float32) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Height",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (f VBoxFn) Height(h int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (f VBoxFn) Margin(all int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (f VBoxFn) MarginTRBL(top, right, bottom, left int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (f VBoxFn) MarginVH(vertical, horizontal int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Size",
-          "doc": "",
+          "doc": "Size sets a fixed width and height.\n",
           "signature": "func (f VBoxFn) Size(w, h int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Title",
-          "doc": "",
+          "doc": "Title sets the border title text.\n",
           "signature": "func (f VBoxFn) Title(t string) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "Width",
-          "doc": "",
+          "doc": "Width sets a fixed width.\n",
           "signature": "func (f VBoxFn) Width(w int16) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "WidthPct",
-          "doc": "",
+          "doc": "WidthPct sets width as a percentage of the parent (0.0-1.0).\n",
           "signature": "func (f VBoxFn) WidthPct(pct float32) VBoxFn",
           "recv": "VBoxFn"
         }
@@ -4858,14 +4935,17 @@
       ],
       "examples": [
         {
+          "doc": "Vertical stack.\nCall VBox directly with children to stack them top to bottom.\n",
           "code": "VBox(\n\tText(\"First\"),\n\tText(\"Second\"),\n\tText(\"Third\"),\n)"
         },
         {
           "name": "chained",
+          "doc": "Template syntax.\nChain methods to configure, then call as a function with children. Configure once, render many.\n",
           "code": "VBox.Gap(1).Border(BorderRounded)(\n\tText(\"First\"),\n\tText(\"Second\"),\n)"
         },
         {
           "name": "grow",
+          "doc": "Flex growth.\nGrow fills available space. CascadeStyle passes a style to all descendants.\n",
           "code": "VBox.Grow(1).CascadeStyle(\u0026Style{FG: White})(\n\tText(\"header\"),\n\tText(\"content\"),\n\tText(\"footer\"),\n)"
         }
       ]
@@ -4944,10 +5024,11 @@
       "constructors": [
         {
           "name": "VRule",
-          "doc": "",
+          "doc": "VRule creates a vertical rule.\n",
           "signature": "func VRule() VRuleC",
           "examples": [
             {
+              "doc": "Vertical divider.\nA line that fills the available height.\n",
               "code": "HBox(\n\tText(\"left\"),\n\tVRule(),\n\tText(\"right\"),\n)"
             }
           ]
@@ -4956,55 +5037,55 @@
       "methods": [
         {
           "name": "BG",
-          "doc": "",
+          "doc": "BG sets the background color.\n",
           "signature": "func (v VRuleC) BG(c Color) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "Bold",
-          "doc": "",
+          "doc": "Bold enables bold text.\n",
           "signature": "func (v VRuleC) Bold() VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "Char",
-          "doc": "",
+          "doc": "Char sets the display character.\n",
           "signature": "func (v VRuleC) Char(c rune) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "FG",
-          "doc": "",
+          "doc": "FG sets the foreground color.\n",
           "signature": "func (v VRuleC) FG(c Color) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "Height",
-          "doc": "",
+          "doc": "Height sets a fixed height.\n",
           "signature": "func (v VRuleC) Height(h int16) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "Margin",
-          "doc": "",
+          "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (v VRuleC) Margin(all int16) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "MarginTRBL",
-          "doc": "",
+          "doc": "MarginTRBL sets individual margins for top, right, bottom, left.\n",
           "signature": "func (v VRuleC) MarginTRBL(a, b, c, d int16) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "MarginVH",
-          "doc": "",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
           "signature": "func (v VRuleC) MarginVH(vt, hz int16) VRuleC",
           "recv": "VRuleC"
         },
         {
           "name": "Style",
-          "doc": "",
+          "doc": "Style sets the component style.\n",
           "signature": "func (v VRuleC) Style(s Style) VRuleC",
           "recv": "VRuleC"
         }
@@ -5022,13 +5103,13 @@
       "methods": [
         {
           "name": "DistributeWidths",
-          "doc": "",
+          "doc": "DistributeWidths allocates widths to children based on flex grow factors.\n",
           "signature": "func (l VerticalLayout) DistributeWidths(node *FlexNode)",
           "recv": "VerticalLayout"
         },
         {
           "name": "LayoutChildren",
-          "doc": "",
+          "doc": "LayoutChildren positions children vertically within the available space.\n",
           "signature": "func (l VerticalLayout) LayoutChildren(node *FlexNode)",
           "recv": "VerticalLayout"
         }
@@ -5053,9 +5134,15 @@
         },
         {
           "name": "Ref",
-          "doc": "",
+          "doc": "Ref provides access to the component for external references.\n",
           "signature": "func (vb *ViewBuilder) Ref(f func(*ViewBuilder)) *ViewBuilder",
           "recv": "*ViewBuilder"
+        }
+      ],
+      "examples": [
+        {
+          "doc": "Views with text input.\nNoCounts disables vim-style count prefixes, preventing number keys from being swallowed before reaching an input.\n",
+          "code": "app, _ := NewApp()\n\nvar name string\napp.View(\"editor\",\n\tVBox(\n\t\tText(\"Editor\"),\n\t\tInput().Placeholder(\"type here...\"),\n\t),\n).NoCounts().Handle(\"\u003cC-s\u003e\", func() {\n\tname = name + \" saved\"\n}).Handle(\"escape\", func() {\n\tapp.Go(\"home\")\n})"
         }
       ]
     }
@@ -5064,12 +5151,13 @@
     {
       "name": "Arrange",
       "doc": "Arrange creates a container with a custom layout function.\nThe layout function receives child sizes and available space, returns positions.\n\n\tArrange(Grid(3, 20, 5))(\n\t    Text(\"A\"), Text(\"B\"), Text(\"C\"),\n\t    Text(\"D\"), Text(\"E\"), Text(\"F\"),\n\t)\n",
-      "signature": "func Arrange(layout LayoutFunc) func(children ...any) Box"
-    },
-    {
-      "name": "BG",
-      "doc": "BG creates a background-colored styled part.\nAccepts string or *string as text. Returns Span for string, TextC for *string.\n",
-      "signature": "func BG(text any, color Color) any"
+      "signature": "func Arrange(layout LayoutFunc) func(children ...any) Box",
+      "examples": [
+        {
+          "doc": "Custom layout.\nArrange lets you define a fully custom layout function. It receives child sizes and available space, returns rects.\n",
+          "code": "grid := Arrange(func(children []ChildSize, w, h int) []Rect {\n\tcols := 3\n\tcellW := w / cols\n\trects := make([]Rect, len(children))\n\tfor i := range children {\n\t\trects[i] = Rect{\n\t\t\tX: (i % cols) * cellW,\n\t\t\tY: (i / cols) * 2,\n\t\t\tW: cellW,\n\t\t\tH: 2,\n\t\t}\n\t}\n\treturn rects\n})\n\ngrid(Text(\"a\"), Text(\"b\"), Text(\"c\"))"
+        }
+      ]
     },
     {
       "name": "Bar",
@@ -5082,39 +5170,20 @@
       "signature": "func BarBracket(filled, total int) string"
     },
     {
-      "name": "Bold",
-      "doc": "Bold creates a bold styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Bold(text any) any"
-    },
-    {
       "name": "Define",
       "doc": "Define creates a scoped block for local component helpers and styles.\nThe function runs once at compile time (when SetView is called).\nPointers inside still provide dynamic values at render time.\n\n\tapp.SetView(\n\t    Define(func() any {\n\t        dot := func(ok *bool) any {\n\t            return If(ok).Then(Text(\"●\")).Else(Text(\"○\"))\n\t        }\n\t        return VBox(dot(\u0026a), dot(\u0026b), dot(\u0026c))\n\t    }),\n\t)\n",
-      "signature": "func Define(fn func() any) any"
-    },
-    {
-      "name": "Dim",
-      "doc": "Dim creates a dim styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Dim(text any) any"
-    },
-    {
-      "name": "FG",
-      "doc": "FG creates a foreground-colored styled part.\nAccepts string or *string as text. Returns Span for string, TextC for *string.\n",
-      "signature": "func FG(text any, color Color) any"
+      "signature": "func Define(fn func() any) any",
+      "examples": [
+        {
+          "doc": "Scoped helpers.\nDefine scopes local helper functions inside the view tree. The function runs at build time and returns a component.\n",
+          "code": "a, b, c := true, false, true\n\nDefine(func() any {\n\tdot := func(v *bool) any {\n\t\treturn If(v).Then(Text(\"●\").FG(Green)).Else(Text(\"○\").FG(Red))\n\t}\n\treturn HBox.Gap(1)(dot(\u0026a), dot(\u0026b), dot(\u0026c))\n})"
+        }
+      ]
     },
     {
       "name": "GenerateLabels",
       "doc": "GenerateLabels creates n unique labels for jump targets.\nFor small sets (\u003c=27): single chars (a, s, d, f, ...)\nFor larger sets: two chars (aa, as, ad, ...)\n",
       "signature": "func GenerateLabels(n int) []string"
-    },
-    {
-      "name": "Inverse",
-      "doc": "Inverse creates an inverse styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Inverse(text any) any"
-    },
-    {
-      "name": "Italic",
-      "doc": "Italic creates an italic styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Italic(text any) any"
     },
     {
       "name": "LED",
@@ -5147,19 +5216,9 @@
       "signature": "func Meter(value, max, width int) string"
     },
     {
-      "name": "Styled",
-      "doc": "Styled creates a span with the given style.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Styled(text any, style Style) any"
-    },
-    {
       "name": "TimingString",
       "doc": "TimingString returns a formatted timing string.\n",
       "signature": "func TimingString() string"
-    },
-    {
-      "name": "Underline",
-      "doc": "Underline creates an underlined styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
-      "signature": "func Underline(text any) any"
     }
   ],
   "consts": [
