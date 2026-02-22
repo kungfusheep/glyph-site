@@ -389,8 +389,6 @@
     font-size: 12px;
     color: #666;
     line-height: 1.7;
-    border-left: 1px solid var(--rule-dk);
-    padding-left: var(--s2);
     margin-top: var(--s3);
   }
 
@@ -402,9 +400,7 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--s5);
     margin: var(--s5) 0;
-    padding: var(--s5) 0;
-    border-top: 1px solid var(--rule-dk);
-    border-bottom: 1px solid var(--rule-dk);
+    padding: var(--s3) 0 0;
   }
 
   .callout-phase {
@@ -724,11 +720,7 @@ func main() {
 		Text("CPU"), Progress(&cpuPct).Width(30),
 		Text("Mem"), Progress(&memPct).Width(30),
 	),
-	AutoTable(&procs).
-		Columns("PID", "Command", "CPU", "Mem").
-		Column("CPU", Percent(1)).
-		Column("Mem", Percent(1)).
-		Sortable().Scrollable(20).BindVimNav(),
+	AutoTable(&procs).Sortable().Scrollable(20).BindVimNav(),
 )</div>
         </div>
 
@@ -796,7 +788,7 @@ func main() {
             <div class="feature-title">Registration form</div>
             <div class="feature-desc">
               Form auto-aligns labels, manages focus, and wires
-              validation. Tab between fields, errors appear on blur.
+              validation. Errors appear when you configure them to.
             </div>
           </div>
           <div class="code code-raw">Form(

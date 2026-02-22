@@ -749,10 +749,9 @@ title = "World"               // next render shows "World"</div>
   </div>
 
   <div class="concept-prose">
-    The framework never decides on its own that something changed. You mutate your state, you
-    trigger a render — either by returning from a key handler, or by calling
-    <code>RequestRender()</code> from a goroutine. The render reads current values. That's the
-    whole model.
+    There's no state diffing, no change detection. You mutate your variables directly, and the
+    next render reads current values through pointers. Renders happen when you return from a key
+    handler, or when you call <code>RequestRender()</code> from a goroutine. That's the whole model.
   </div>
 
   <div class="concept-prose">
@@ -1467,7 +1466,7 @@ app.SetView(VBox(LayerView(layer).Grow(1)))</div>
       const isActive = a.getAttribute('href') === '#' + id;
       a.classList.toggle('active', isActive);
       if (isActive && topnav) {
-        a.scrollIntoView({ inline: 'center', block: 'nearest' });
+        topnav.scrollTo({ left: a.offsetLeft - topnav.offsetWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
       }
     });
   }
