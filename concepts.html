@@ -37,7 +37,7 @@
   }
   ::selection { background: #c8c4b8; color: var(--bg-dark); }
 
-  .page { max-width: 1060px; margin: 0 auto; padding: 0 var(--s5); }
+  .page { max-width: 1060px; margin: 0 auto; padding: 48px var(--s5) 0; }
 
   /* ============================================================
      SECTION
@@ -482,13 +482,54 @@
   /* ============================================================
      SIDE NAV — desktop
      ============================================================ */
+  /* ============================================================
+     GLOBAL NAV
+     ============================================================ */
+  .global-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--s5);
+    background: rgba(19, 19, 17, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule-dk);
+  }
+  .global-nav-brand {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 400;
+    font-size: 18px;
+    color: #e8e4d8;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .global-nav-links {
+    display: flex;
+    gap: var(--s3);
+    list-style: none;
+  }
+  .global-nav-links a {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .global-nav-links a:hover { color: #e8e4d8; }
+  .global-nav-links a.active { color: #e8e4d8; }
+
   .sidenav {
     position: fixed;
-    top: 0;
+    top: 48px;
     left: 0;
     width: 200px;
-    height: 100vh;
-    padding: var(--s7) var(--s3) var(--s3) var(--s3);
+    height: calc(100vh - 48px);
+    padding: var(--s5) var(--s3) var(--s3) var(--s3);
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -534,7 +575,7 @@
     .topnav {
       display: flex;
       position: sticky;
-      top: 0;
+      top: 48px;
       z-index: 100;
       background: var(--bg-dark);
       border-bottom: 1px solid var(--rule-dk);
@@ -566,6 +607,10 @@
     }
   }
 
+  @media (max-width: 960px) {
+    .global-nav { padding: 0 var(--s3); }
+  }
+
   @media (max-width: 768px) {
     .flow { flex-direction: column; }
     .flow-node { width: auto; }
@@ -579,10 +624,20 @@
 </head>
 <body>
 
+<nav class="global-nav">
+  <a href="index.html" class="global-nav-brand">forme</a>
+  <ul class="global-nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="concepts.html" class="active">Concepts</a></li>
+    <li><a href="api.html">API</a></li>
+    <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
+  </ul>
+</nav>
+
 <nav class="sidenav">
   <a href="#build" class="sidenav-link">Build & Execute</a>
   <a href="#pointers" class="sidenav-link">Pointer Semantics</a>
-  <a href="#layout" class="sidenav-link">Layout Cycle</a>
+  <a href="#layout" class="sidenav-link">Render Cycle</a>
   <a href="#dynamic" class="sidenav-link">Dynamic Children</a>
   <a href="#properties" class="sidenav-link">Layout Properties</a>
   <a href="#input" class="sidenav-link">Input Handling</a>
@@ -660,10 +715,10 @@
     (ForEach element base + unsafe.Pointer arithmetic).
   </div>
 
-  <div class="code"><span class="fn">SetView</span>(                        <span class="cm">// build: compiled once</span>
-    <span class="fn">VBox</span>.<span class="fn">Gap</span>(<span class="nr">2</span>).<span class="fn">Border</span>(<span class="fn">BorderRounded</span>)(
-        <span class="fn">Text</span>(&amp;title),              <span class="cm">// pointer: read each frame</span>
-        <span class="fn">Text</span>(<span class="str">"static label"</span>),       <span class="cm">// static: embedded in op</span>
+  <div class="code code-raw">SetView(                        // build: compiled once
+    VBox.Gap(2).Border(BorderRounded)(
+        Text(&title),              // pointer: read each frame
+        Text("static label"),       // static: embedded in op
     ),
 )</div>
 </div>
@@ -681,11 +736,11 @@
     That's it.
   </div>
 
-  <div class="code">title := <span class="str">"Hello"</span>
+  <div class="code code-raw">title := "Hello"
 
-<span class="fn">app</span>.<span class="fn">SetView</span>(<span class="fn">Text</span>(&amp;title))    <span class="cm">// captures the pointer, not the value</span>
+app.SetView(Text(&title))    // captures the pointer, not the value
 
-title = <span class="str">"World"</span>               <span class="cm">// next render shows "World"</span></div>
+title = "World"               // next render shows "World"</div>
 
   <div class="concept-prose">
     Pass a <code>*string</code> and the text updates when the string changes. Pass a <code>string</code>
@@ -694,36 +749,34 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
   </div>
 
   <div class="concept-prose">
-    Render happens when you tell it to: after a key handler completes (automatic), or when you call
-    <code>RequestRender()</code> from a goroutine (explicit). The framework never decides on its own
-    that something changed. You mutate your state, the next render reads it.
+    The framework never decides on its own that something changed. You mutate your state, you
+    trigger a render — either by returning from a key handler, or by calling
+    <code>RequestRender()</code> from a goroutine. The render reads current values. That's the
+    whole model.
   </div>
 
   <div class="concept-prose">
     This sidesteps an entire category of bugs that reactive frameworks invite — render thrashing,
     cascading updates, glitchy intermediate states from identity-change confusion. None of that can
-    happen here because there's no propagation mechanism to misfire. You update state, you decide
-    when to render. The render reads current values. No surprises.
-  </div>
-
-  <div class="concept-prose">
-    Nothing stops you building reactive patterns on top of this — an observer that calls
-    <code>RequestRender()</code> when a channel fires is a few lines of code. forme just doesn't
-    ship that complexity by default.
+    happen here because there's no propagation mechanism to misfire. Nothing stops you building
+    reactive patterns on top — an observer that calls <code>RequestRender()</code> when a channel
+    fires is a few lines of code. forme just doesn't ship that complexity by default.
   </div>
 </div>
 
 <!-- ============================================================
-     2. LAYOUT CYCLE
+     2. RENDER CYCLE
      ============================================================ -->
 <div class="concept" id="layout">
   <div class="concept-label">System</div>
-  <div class="concept-title">Layout Cycle</div>
+  <div class="concept-title">Render Cycle</div>
 
   <div class="concept-prose">
-    Layout is a four-phase pipeline that runs on every frame. Each phase operates directly on
-    the compiled <strong>Op</strong> and <strong>Geom</strong> arrays — no tree traversal, no node
-    allocation. Shared scratch buffers keep allocation near zero across the entire cycle.
+    Rendering is a four-phase pipeline that runs on every frame, heavily optimised for terminal
+    workloads. Each phase operates directly on flat <strong>Op</strong> and <strong>Geom</strong>
+    arrays — no tree rebuilds, no node allocation. Components outside the viewport are culled
+    before rendering, and the final flush diffs against the previous frame to emit only the
+    cells that actually changed.
   </div>
 
   <div class="cascade">
@@ -741,7 +794,7 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     <div class="cascade-step">
       <div class="cascade-phase">
         <div class="cascade-phase-dir">↑ bottom-up</div>
-        <div class="cascade-phase-name">Height Computation</div>
+        <div class="cascade-phase-name">Layout</div>
       </div>
       <div class="cascade-body">
         Deepest nodes first. Leaf nodes measure content height; containers sum children
@@ -756,9 +809,9 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
         <div class="cascade-phase-name">Flex Grow</div>
       </div>
       <div class="cascade-body">
-        VBox children with <code>Grow()</code> expand vertically to fill remaining space,
-        using <code>ContentH</code> as their baseline. HBox children stretch on the cross-axis.
-        Children are repositioned with new coordinates.
+        Children with <code>Grow()</code> expand along the parent's main axis to fill remaining
+        space — vertically in a VBox, horizontally in an HBox. Siblings are repositioned to
+        account for the new sizes.
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
@@ -775,103 +828,9 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
   </div>
 
   <div class="concept-prose">
-    The key insight is that vertical flex <em>cannot</em> be resolved during the bottom-up pass —
-    you need the parent's final height first, and that flows top-down from the screen dimensions.
-    This is why it's a separate phase between height computation and render.
-  </div>
-
-  <div class="concept-prose">
-    <strong>Flex grow does not re-run layout.</strong> <code>layout()</code> executes exactly once.
-    The flex grow phase is a surgical pass that only mutates two things: <code>geom.H</code>
-    on flex children, and <code>LocalY</code> on their siblings (to account for the new heights).
-    It never recomputes content sizes.
-  </div>
-
-  <div class="concept-prose">
-    This works because the height computation phase saves each node's natural size as
-    <code>ContentH</code> before any expansion. The flex grow phase uses this as the baseline:
-    <code>remaining = parentH - sum(ContentH) - gaps</code>, then distributes
-    <code>remaining</code> proportionally to children by their <code>Grow()</code> factors.
-  </div>
-
-  <div class="cascade">
-    <div class="cascade-step">
-      <div class="cascade-phase">
-        <div class="cascade-phase-dir">↑ phase 2</div>
-        <div class="cascade-phase-name">layout()</div>
-      </div>
-      <div class="cascade-body">
-        Bottom-up. Every node gets <code>ContentH</code> — its natural height.
-        A VBox with three 1-row children and gap=1 gets ContentH=5. Runs once, never repeated.
-      </div>
-    </div>
-    <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
-      <div class="cascade-phase">
-        <div class="cascade-phase-dir">↓ phase 2b</div>
-        <div class="cascade-phase-name">distributeFlexGrow()</div>
-      </div>
-      <div class="cascade-body">
-        Top-down, depth-by-depth. For each VBox: compute <code>remaining = H - usedH</code>,
-        distribute to <code>Grow()</code> children, then reposition <em>all</em> siblings' <code>LocalY</code>.
-        For each HBox: stretch children on the cross-axis (<code>childH = parentH</code>).
-      </div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    Nested flex works naturally: the depth-by-depth iteration means a parent VBox distributes at
-    depth N (setting its child's <code>H</code>), and the child VBox distributes at depth N+1
-    (reading the <code>H</code> that was just set). No recursion needed — the flat iteration order
-    guarantees parents resolve before children.
-  </div>
-
-  <div class="concept-prose">
-    <strong>What flex does NOT touch:</strong> leaf node heights (Text, Progress, Sparkline),
-    non-flex container heights, ForEach iteration templates, and Switch branch templates.
-    Only containers and layers with an explicit <code>Grow()</code> factor participate.
-  </div>
-
-  <div class="concept-prose">
-    <strong>Storage and iteration.</strong> The compiled template is a flat <code>[]Op</code> array
-    with a parallel <code>[]Geom</code> array for runtime geometry. Parent-child relationships
-    are encoded bidirectionally: each op stores its <code>Parent</code> index, and each container
-    stores a <code>ChildStart..ChildEnd</code> range into the same flat array.
-  </div>
-
-  <div class="concept-prose">
-    At compile time, <code>addOp()</code> populates <code>byDepth [][]int16</code> — a pre-built
-    index that groups op indices by tree depth. This is what makes depth-ordered traversal cheap:
-    both the bottom-up height pass and the top-down flex pass iterate <code>byDepth</code> levels
-    instead of scanning the full array.
-  </div>
-
-  <div class="flow">
-    <div class="flow-node accent">
-      <div class="flow-node-label">Compile</div>
-      <div class="flow-node-name">addOp()</div>
-      <div class="flow-node-detail">builds byDepth index</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-label">Phase 2</div>
-      <div class="flow-node-name">layout()</div>
-      <div class="flow-node-detail">byDepth[max] → byDepth[0]</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-label">Phase 2b</div>
-      <div class="flow-node-name">flexGrow()</div>
-      <div class="flow-node-detail">byDepth[0] → byDepth[max]</div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    Finding children of a specific container uses the <code>ChildStart..ChildEnd</code> range —
-    but since this spans <em>all</em> descendants (not just direct children), every scan guards
-    with <code>if childOp.Parent != idx { continue }</code>. Flex children are identified during
-    this scan by checking <code>FlexGrow > 0</code> — they're not pre-catalogued, because the scan
-    is already touching every direct child and the check is a single float comparison.
+    Flex grow is a separate phase because it needs the parent's final size, which flows top-down
+    from the screen dimensions. <code>layout()</code> runs once, saves each node's natural size,
+    and flex grow distributes the remaining space without re-running layout.
   </div>
 </div>
 
@@ -969,10 +928,10 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     to the sub-template's own ops array, not the parent's.
   </div>
 
-  <div class="code"><span class="fn">ForEach</span>(&amp;items, <span class="kw">func</span>(item <span class="tp">*Item</span>) <span class="tp">any</span> {
-    <span class="kw">return</span> <span class="fn">HBox</span>.<span class="fn">Gap</span>(<span class="nr">2</span>)(
-        <span class="fn">Text</span>(&amp;item.Name),     <span class="cm">// → OpTextOff (offset from element base)</span>
-        <span class="fn">Text</span>(&amp;item.Status),   <span class="cm">// → OpTextOff</span>
+  <div class="code code-raw">ForEach(&items, func(item *Item) any {
+    return HBox.Gap(2)(
+        Text(&item.Name),
+        Text(&item.Status),
     )
 })</div>
 </div>
@@ -1035,10 +994,10 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">VBox</span>.<span class="fn">Margin</span>(<span class="nr">1</span>).<span class="fn">Border</span>(<span class="fn">BorderRounded</span>).<span class="fn">Title</span>(<span class="str">"Title"</span>).<span class="fn">Gap</span>(<span class="nr">1</span>)(
-    <span class="fn">Text</span>(<span class="str">"hello"</span>),
-    <span class="fn">Text</span>(<span class="str">"world"</span>),
-    <span class="fn">Text</span>(<span class="str">"!"</span>),
+  <div class="code code-raw">VBox.Margin(1).Border(BorderRounded).Title("Title").Gap(1)(
+    Text("hello"),
+    Text("world"),
+    Text("!"),
 )</div>
 
   <!-- Grow -->
@@ -1068,10 +1027,10 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">VBox</span>(
-    <span class="fn">Text</span>(<span class="str">"header"</span>),
-    <span class="fn">List</span>(&amp;items).<span class="fn">Grow</span>(<span class="nr">1</span>),
-    <span class="fn">Text</span>(<span class="str">"footer"</span>),
+  <div class="code code-raw">VBox(
+    Text("header"),
+    List(&items).Grow(1),
+    Text("footer"),
 )</div>
 
   <div class="concept-prose">
@@ -1093,10 +1052,10 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">VBox</span>(
-    <span class="fn">Text</span>(<span class="str">"header"</span>),
-    <span class="fn">List</span>(&amp;items).<span class="fn">Grow</span>(<span class="nr">1</span>),
-    <span class="fn">LayerView</span>(&amp;log).<span class="fn">Grow</span>(<span class="nr">1</span>),
+  <div class="code code-raw">VBox(
+    Text("header"),
+    List(&items).Grow(1),
+    LayerView(&log).Grow(1),
 )</div>
 
   <div class="concept-prose">
@@ -1119,12 +1078,12 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">VBox</span>(
-    <span class="fn">Text</span>(<span class="str">"header"</span>),
-    <span class="fn">HBox</span>(
-        sidebar.<span class="fn">Grow</span>(<span class="nr">1</span>),            <span class="cm">// 1 part</span>
-        content.<span class="fn">Grow</span>(<span class="nr">2</span>),            <span class="cm">// 2 parts</span>
-    ).<span class="fn">Grow</span>(<span class="nr">1</span>),
+  <div class="code code-raw">VBox(
+    Text("header"),
+    HBox.Grow(1)(
+        sidebar.Grow(1),            // 1 part
+        content.Grow(2),            // 2 parts
+    ),
 )</div>
 
   <div class="concept-prose">
@@ -1192,15 +1151,15 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"q"</span>, <span class="fn">app</span>.<span class="fn">Stop</span>)          <span class="cm">// single key</span>
-<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"gg"</span>, goToTop)          <span class="cm">// multi-key sequence</span>
-<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"&lt;C-w&gt;j"</span>, focusDown)    <span class="cm">// chord + key</span>
-<span class="fn">app</span>.<span class="fn">Handle</span>(<span class="str">"dd"</span>, deleteItem)       <span class="cm">// vim-style with count: 3dd</span>
+  <div class="code code-raw">app.Handle("q", app.Stop)          // single key
+app.Handle("gg", goToTop)          // multi-key sequence
+app.Handle("<C-w>j", focusDown)    // chord + key
+app.Handle("dd", deleteItem)       // vim-style with count: 3dd
 
-<span class="cm">// modal: push router for confirm dialog</span>
-<span class="fn">app</span>.<span class="fn">Push</span>(<span class="fn">confirmRouter</span>)
-<span class="cm">// ...later</span>
-<span class="fn">app</span>.<span class="fn">Pop</span>()</div>
+// modal: push router for confirm dialog
+app.Push(confirmRouter)
+// ...later
+app.Pop()</div>
 </div>
 
 <!-- ============================================================
@@ -1241,13 +1200,13 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     label assignment and positioning during the render pass.
   </div>
 
-  <div class="code"><span class="fn">app</span>.<span class="fn">JumpKey</span>(<span class="str">"space"</span>)
+  <div class="code code-raw">app.JumpKey("space")
 
-<span class="fn">app</span>.<span class="fn">SetView</span>(
-    <span class="fn">VBox</span>.<span class="fn">Gap</span>(<span class="nr">1</span>)(
-        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Inbox"</span>), <span class="kw">func</span>() { section = <span class="str">"inbox"</span> }),
-        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Drafts"</span>), <span class="kw">func</span>() { section = <span class="str">"drafts"</span> }),
-        <span class="fn">Jump</span>(<span class="fn">Text</span>(<span class="str">"Sent"</span>), <span class="kw">func</span>() { section = <span class="str">"sent"</span> }),
+app.SetView(
+    VBox.Gap(1)(
+        Jump(Text("Inbox"), func() { section = "inbox" }),
+        Jump(Text("Drafts"), func() { section = "drafts" }),
+        Jump(Text("Sent"), func() { section = "sent" }),
     ),
 )</div>
 
@@ -1312,16 +1271,16 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code"><span class="fn">app</span>.<span class="fn">View</span>(<span class="str">"list"</span>, <span class="fn">VBox</span>(
-    <span class="fn">Text</span>(<span class="str">"Items"</span>),
-    <span class="fn">List</span>(&amp;items).<span class="fn">BindNav</span>(<span class="str">"j"</span>, <span class="str">"k"</span>),
-)).<span class="fn">Handle</span>(<span class="str">"n"</span>, <span class="kw">func</span>() { <span class="fn">app</span>.<span class="fn">Go</span>(<span class="str">"detail"</span>) })
+  <div class="code code-raw">app.View("list", VBox(
+    Text("Items"),
+    List(&items).BindNav("j", "k"),
+)).Handle("n", func() { app.Go("detail") })
 
-<span class="fn">app</span>.<span class="fn">View</span>(<span class="str">"detail"</span>, <span class="fn">VBox</span>(
-    <span class="fn">Text</span>(&amp;detail),
-)).<span class="fn">Handle</span>(<span class="str">"b"</span>, <span class="kw">func</span>() { <span class="fn">app</span>.<span class="fn">Go</span>(<span class="str">"list"</span>) })
+app.View("detail", VBox(
+    Text(&detail),
+)).Handle("b", func() { app.Go("list") })
 
-<span class="fn">app</span>.<span class="fn">RunFrom</span>(<span class="str">"list"</span>)</div>
+app.RunFrom("list")</div>
 </div>
 
 <!-- ============================================================
@@ -1405,22 +1364,94 @@ title = <span class="str">"World"</span>               <span class="cm">// next 
     </div>
   </div>
 
-  <div class="code">log := <span class="fn">NewLogReader</span>(reader, <span class="nr">1000</span>)  <span class="cm">// max 1000 lines</span>
+  <div class="code code-raw">layer := NewLayer()
+layer.Render = func() {
+    buf := layer.Buffer()
+    for i, line := range lines {
+        buf.WriteString(0, i, line, Style{})
+    }
+}
 
-<span class="fn">app</span>.<span class="fn">SetView</span>(
-    <span class="fn">VBox</span>(
-        <span class="fn">LayerView</span>(&amp;log.<span class="fn">Layer</span>).<span class="fn">Grow</span>(<span class="nr">1</span>),
-    ),
-)
-
-log.<span class="fn">OnUpdate</span>(<span class="kw">func</span>() {
-    <span class="fn">app</span>.<span class="fn">RequestRender</span>()          <span class="cm">// goroutine → needs explicit render</span>
-})</div>
+app.SetView(VBox(LayerView(layer).Grow(1)))</div>
 </div>
 
 </div><!-- .page -->
 
 <script>
+// syntax highlighting for code-raw blocks
+(function() {
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function highlightGo(raw) {
+    const s = esc(raw);
+    const tokens = [];
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === '"' || s[i] === '`') {
+        const q = s[i];
+        let j = i + 1;
+        while (j < s.length && s[j] !== q) { if (s[j] === '\\' && q === '"') j++; j++; }
+        tokens.push({ type: 'str', text: s.slice(i, j + 1) });
+        i = j + 1;
+      } else if (s.slice(i, i + 4) === '&amp' || s.slice(i, i + 3) === '&lt' || s.slice(i, i + 3) === '&gt') {
+        let j = s.indexOf(';', i);
+        if (j === -1) j = i;
+        tokens.push({ type: 'text', text: s.slice(i, j + 1) });
+        i = j + 1;
+      } else if (s.slice(i, i + 2) === '//') {
+        let j = s.indexOf('\n', i);
+        if (j === -1) j = s.length;
+        tokens.push({ type: 'cm', text: s.slice(i, j) });
+        i = j;
+      } else if (/[a-zA-Z_]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[a-zA-Z0-9_]/.test(s[j])) j++;
+        tokens.push({ type: 'word', text: s.slice(i, j) });
+        i = j;
+      } else if (/[0-9]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[0-9.x]/.test(s[j])) j++;
+        tokens.push({ type: 'nr', text: s.slice(i, j) });
+        i = j;
+      } else {
+        tokens.push({ type: 'text', text: s[i] });
+        i++;
+      }
+    }
+
+    const kws = new Set(['package','import','func','return','var','const','type','struct',
+      'interface','if','else','for','range','switch','case','default','break','continue',
+      'go','defer','select','chan','map','true','false','nil','any','error']);
+    const types = new Set(['string','int','int8','int16','int32','int64',
+      'uint','uint8','uint16','uint32','uint64','float32','float64','bool','byte','rune']);
+
+    return tokens.map((t, idx) => {
+      if (t.type === 'str') return `<span class="str">${t.text}</span>`;
+      if (t.type === 'cm') return `<span class="cm">${t.text}</span>`;
+      if (t.type === 'nr') return `<span class="nr">${t.text}</span>`;
+      if (t.type === 'word') {
+        if (kws.has(t.text)) return `<span class="kw">${t.text}</span>`;
+        if (types.has(t.text)) return `<span class="tp">${t.text}</span>`;
+        const next = tokens[idx + 1];
+        if (next && (next.text === '(' || next.text === '.')) return `<span class="fn">${t.text}</span>`;
+        const prev = tokens[idx - 1];
+        if (prev && prev.text === '.') return `<span class="fn">${t.text}</span>`;
+      }
+      return t.text;
+    }).join('');
+  }
+
+  document.querySelectorAll('.code-raw').forEach(el => {
+    el.innerHTML = highlightGo(el.textContent);
+    el.classList.remove('code-raw');
+  });
+})();
+
+// scroll tracking
 (function() {
   const sections = Array.from(document.querySelectorAll('.concept[id]'));
   const sideLinks = document.querySelectorAll('.sidenav-link');

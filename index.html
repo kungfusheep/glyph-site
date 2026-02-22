@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>forme — Go TUI Framework</title>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 <style>
@@ -17,35 +17,24 @@
      TOKENS
      ============================================================ */
   :root {
-    /* backgrounds */
     --bg:       #f2f0ec;
     --bg2:      #e6e4de;
     --bg3:      #ffffff;
     --bg-dark:  #131311;
     --bg-dark2: #1a1a18;
     --bg-dark3: #0e0e0c;
-
-    /* foregrounds */
     --fg0:  #131311;
     --fg:   #3a3a36;
     --fg2:  #6a6a64;
     --fg3:  #8a8880;
     --fg4:  #b0aba0;
-
-    /* rules */
     --rule:    #d4d0c8;
     --rule-dk: #262624;
-
-    /* accents */
     --accent:  #c47d3c;
-
-    /* fonts */
     --mono:  'Berkeley Mono', monospace;
     --akz:   'akzidenz-grotesk-next-pro', sans-serif;
     --akz-c: 'akzidenz-grotesk-next-conden', sans-serif;
     --din-r: 'din-2014-rounded-variable', sans-serif;
-
-    /* spacing */
     --s1: 8px;
     --s2: 16px;
     --s3: 24px;
@@ -57,6 +46,7 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
 
   html { scroll-behavior: smooth; }
 
@@ -142,13 +132,24 @@
   .zone-light { background: var(--bg); color: var(--fg); }
   .zone-dark  { background: var(--bg-dark); color: #c8c4b8; }
   .zone-inner { max-width: 1060px; margin: 0 auto; padding: 0 var(--s5); }
-  .zone-rule  { height: 2px; background: var(--fg0); }
+
+  .section-rule {
+    height: 1px;
+    background: var(--rule-dk);
+    max-width: 1060px;
+    margin: 0 auto;
+  }
 
   /* ============================================================
      HERO
      ============================================================ */
   .hero {
-    padding: 180px 0 var(--s7);
+    min-height: calc(100vh - 300px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 0 var(--s5);
   }
 
   .hero-label {
@@ -166,7 +167,15 @@
     color: var(--fg0);
     line-height: 0.9;
     letter-spacing: -0.03em;
-    margin-bottom: var(--s3);
+    margin-bottom: var(--s4);
+  }
+
+  .hero-headline {
+    font-size: 16px;
+    color: var(--fg0);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: var(--s1);
   }
 
   .hero-desc {
@@ -174,7 +183,7 @@
     color: var(--fg2);
     line-height: 1.7;
     max-width: 480px;
-    margin-bottom: var(--s5);
+    margin-bottom: var(--s4);
   }
 
   .hero-install {
@@ -186,9 +195,32 @@
     padding: 12px 20px;
     font-size: 13px;
     letter-spacing: 0.01em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
   }
 
+  .hero-install:hover { background: #1a1a18; }
+
   .hero-install .prompt { color: #555; user-select: none; }
+
+  .hero-install .copied {
+    font-size: 11px;
+    color: #9abf8a;
+    margin-left: var(--s2);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .hero-install .copied.show { opacity: 1; }
+
+  .zone-dark .hero-install {
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
+  }
+
+  .zone-dark .hero-install:hover { background: #111; }
 
   /* ============================================================
      SECTION HEADERS
@@ -243,206 +275,11 @@
     font-style: italic;
     max-width: 540px;
     margin: var(--s2) 0 var(--s5);
-    border-left: 2px solid var(--rule);
+    border-left: 1px solid var(--rule);
     padding-left: 20px;
   }
 
-  .zone-dark .section-desc { color: #666; border-color: #333; }
-
-  .callout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--s5);
-    margin: var(--s6) 0;
-    padding: var(--s5) 0;
-    border-top: 1px solid var(--rule-dk);
-    border-bottom: 1px solid var(--rule-dk);
-  }
-  .callout-phase {
-    display: flex;
-    flex-direction: column;
-  }
-  .callout-label {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #555;
-    margin-bottom: var(--s2);
-  }
-  .callout-title {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 18px;
-    color: #e8e4d8;
-    margin-bottom: var(--s1);
-  }
-  .callout-body {
-    font-size: 12px;
-    color: #777;
-    line-height: 1.7;
-  }
-  .callout-body code {
-    font-family: var(--mono);
-    color: #999;
-  }
-
-  /* ============================================================
-     PATTERN LATTICE
-     ============================================================ */
-  .lattice {
-    padding-bottom: var(--s7);
-  }
-
-  .lattice-scales {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-bottom: var(--s5);
-  }
-
-  .lattice-scale {
-    display: flex;
-    align-items: stretch;
-    gap: 2px;
-  }
-
-  .scale-label {
-    width: 120px;
-    flex-shrink: 0;
-    padding: 12px 16px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--fg4);
-    background: var(--bg3);
-    display: flex;
-    align-items: center;
-  }
-
-  .scale-nodes {
-    display: flex;
-    gap: 2px;
-    flex: 1;
-    flex-wrap: wrap;
-  }
-
-  .node {
-    padding: 12px 16px;
-    background: var(--bg3);
-    font-size: 12px;
-    color: var(--fg2);
-    cursor: pointer;
-    transition: all 0.15s;
-    border: 1px solid transparent;
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .node:hover {
-    color: var(--fg0);
-    border-color: var(--rule);
-  }
-
-  .node.active {
-    color: var(--fg0);
-    border-color: var(--fg0);
-    background: var(--bg);
-  }
-
-  .node.connected {
-    border-color: var(--accent);
-    color: var(--fg0);
-  }
-
-  .node-id {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--fg4);
-    margin-bottom: 2px;
-  }
-
-  .node.active .node-id,
-  .node.connected .node-id { color: var(--fg2); }
-
-  /* pattern detail panel */
-  .lattice-detail {
-    background: var(--bg3);
-    border: 1px solid var(--rule);
-    padding: var(--s4);
-    margin-top: var(--s3);
-    display: none;
-  }
-
-  .lattice-detail.vis { display: block; }
-
-  .detail-head {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: var(--s2);
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .detail-id { font-size: 10px; color: var(--fg4); }
-
-  .detail-name {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 22px;
-    color: var(--fg0);
-  }
-
-  .detail-confidence {
-    display: flex;
-    gap: 4px;
-    margin-left: auto;
-    align-items: center;
-  }
-
-  .conf-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-
-  .conf-dot.on  { background: var(--fg0); }
-  .conf-dot.off { border: 1px solid var(--fg4); }
-
-  .detail-problem {
-    font-size: 12px;
-    color: var(--fg2);
-    font-style: italic;
-    line-height: 1.7;
-    margin-bottom: 10px;
-  }
-
-  .detail-solution {
-    font-size: 12px;
-    color: var(--fg);
-    line-height: 1.7;
-    margin-bottom: var(--s2);
-  }
-
-  .therefore { color: var(--fg0); font-weight: 500; }
-
-  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .tag {
-    font-size: 10px;
-    padding: 4px 10px;
-    border: 1px solid;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .tag:hover { opacity: 0.7; }
-  .tag-up { border-color: var(--fg0); color: var(--fg0); }
-  .tag-dn { border-color: var(--accent); color: var(--accent); }
-  .tag-pr { border-color: var(--fg4); color: var(--fg2); }
+  .zone-dark .section-desc { color: #666; border-color: var(--rule-dk); }
 
   /* ============================================================
      CODE BLOCKS
@@ -458,6 +295,7 @@
     color: #c8c4b8;
     white-space: pre;
     tab-size: 4;
+    border-radius: 8px;
   }
 
   .zone-dark .code {
@@ -470,334 +308,217 @@
   .code .str { color: #c4a06a; }
   .code .cm  { color: #555; }
   .code .tp  { color: #7a9aba; }
+  .code .nr  { color: #c4a06a; }
 
   /* ============================================================
-     INDEX ROWS
+     FEATURE CARDS — explanation left, code right
      ============================================================ */
-  .index-row {
-    display: grid;
-    grid-template-columns: 56px 1fr auto;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--rule);
-    font-size: 11px;
-    align-items: center;
-    cursor: pointer;
-    transition: color 0.1s;
-    text-decoration: none;
-    color: inherit;
+  .features {
+    padding-bottom: var(--s7);
   }
 
-  .zone-dark .index-row { border-color: var(--rule-dk); }
-  .index-row:hover { color: var(--fg0); }
-  .zone-dark .index-row:hover { color: #f0ece0; }
-
-  .index-id {
-    color: var(--fg4);
-    font-size: 10px;
-  }
-
-  .zone-dark .index-id { color: #444; }
-
-  .index-name {
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .index-arrow {
-    color: var(--fg4);
-    transition: color 0.1s;
-    padding-left: var(--s2);
-  }
-
-  .index-row:hover .index-arrow { color: var(--fg0); }
-  .zone-dark .index-row:hover .index-arrow { color: #e8e4d8; }
-
-  /* ============================================================
-     API REFERENCE (dynamic from api.json)
-     ============================================================ */
-
-  /* category sections */
-  .api-category {
-    margin-bottom: var(--s7);
-  }
-  .api-category-head {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #555;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--rule-dk);
-    margin-bottom: var(--s5);
-  }
-  .zone-dark .api-category-head { color: #666; }
-
-  /* individual type blocks */
-  .api-type {
-    margin-bottom: var(--s6);
-  }
-  .api-type-head {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 4px;
-  }
-  .api-type-name {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: -0.01em;
-    color: #e8e4d8;
-  }
-  .api-type-kind {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: #444;
-    letter-spacing: 0.02em;
-  }
-  .api-type-doc {
-    font-size: 12px;
-    color: #777;
-    line-height: 1.7;
-    max-width: 620px;
-    margin-bottom: var(--s2);
-  }
-  .api-type-decl {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: #666;
-    margin-bottom: var(--s3);
-    white-space: pre-wrap;
-    line-height: 1.6;
-  }
-
-  /* constructors */
-  .api-constructors {
-    margin-top: var(--s3);
-    margin-bottom: var(--s3);
-  }
-  .api-ctor {
-    margin-bottom: var(--s2);
-  }
-  .api-sig {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: #c8c4b8;
-    line-height: 1.5;
-  }
-  .api-fn-doc {
-    font-size: 11px;
-    color: #666;
-    line-height: 1.6;
-    margin-top: 2px;
-    max-width: 620px;
-  }
-
-  /* methods — stacked list, collapsible */
-  .api-methods-label {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #444;
-    padding-bottom: var(--s2);
-    border-bottom: 1px solid #1e1e1c;
-    margin-top: var(--s5);
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: color 0.15s;
-  }
-  .api-methods-label:hover { color: #666; }
-  .api-methods-label .chevron {
-    display: inline-block;
-    transition: transform 0.2s;
-    font-size: 9px;
-  }
-  .api-methods-label.open .chevron { transform: rotate(90deg); }
-  .api-methods-list {
-    display: none;
-  }
-  .api-methods-list.open { display: block; }
-  .api-method {
-    padding: var(--s3) var(--s2);
-    border-bottom: 1px solid #1e1e1c;
-  }
-  .api-method:last-child { border-bottom: none; }
-  .api-method-name {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: #c8c4b8;
-    margin-bottom: 4px;
-  }
-  .api-method-doc {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: #555;
-    line-height: 1.6;
-  }
-
-  /* consts & vars blocks */
-  .api-vars-section,
-  .api-consts-section {
-    margin-bottom: var(--s6);
-  }
-  .api-vars-section .api-type-name,
-  .api-consts-section .api-type-name {
-    font-size: 18px;
-    margin-bottom: var(--s2);
-  }
-  .api-var-group {
-    margin-bottom: var(--s3);
-  }
-  .api-var-names {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: #c8c4b8;
-    margin-bottom: 2px;
-  }
-  .api-var-doc {
-    font-size: 11px;
-    color: #666;
-    line-height: 1.5;
-  }
-  .api-var-decl {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: #444;
-    white-space: pre-wrap;
-    line-height: 1.5;
-    margin-top: 4px;
-  }
-
-  /* free functions section */
-  .api-free-fn {
-    margin-bottom: var(--s3);
-  }
-
-  /* internals collapsed by default */
-  .api-category.collapsed .api-category-types { display: none; }
-  .api-category-toggle {
-    cursor: pointer;
-    user-select: none;
-  }
-  .api-category-toggle .cat-chevron {
-    display: inline-block;
-    transition: transform 0.2s;
-    margin-left: 8px;
-    font-size: 11px;
-  }
-  .api-category.collapsed .cat-chevron { transform: rotate(0deg); }
-  .api-category:not(.collapsed) .cat-chevron { transform: rotate(90deg); }
-
-  /* template syntax showcase */
-  .api-showcase {
-    margin-bottom: var(--s7);
-    padding: var(--s5) 0;
-    border-bottom: 1px solid var(--rule-dk);
-  }
-  .api-showcase-label {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #555;
-    margin-bottom: var(--s3);
-  }
-  .api-showcase .code {
-    font-size: 13px;
-    line-height: 1.7;
-    margin-bottom: var(--s3);
-  }
-  .api-showcase-note {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.6;
-    max-width: 560px;
-  }
-
-  /* examples — rounded cards, split pane on desktop, stacked on mobile */
-  .api-examples {
+  .features-stack {
     display: flex;
     flex-direction: column;
-    gap: var(--s4);
-    margin-top: var(--s3);
+    gap: var(--s1);
   }
-  .api-example-row {
+
+  .feature-card {
     display: grid;
-    grid-template-columns: minmax(180px, 35%) 1fr;
+    grid-template-columns: 2fr 3fr;
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid #1e1e1c;
   }
-  .api-example-prose {
-    padding: var(--s3);
+
+  .feature-info {
+    padding: var(--s5) var(--s4);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.025);
   }
-  .api-example-title {
+
+  .feature-title {
     font-family: var(--akz);
     font-weight: 700;
-    font-size: 13px;
-    color: #c8c4b8;
-    line-height: 1.3;
+    font-size: 16px;
+    color: #e8e4d8;
+    margin-bottom: var(--s2);
   }
-  .api-example-desc {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: #555;
-    line-height: 1.5;
-    margin-top: 6px;
-  }
-  .api-example-code {
-    padding: var(--s3);
-    background: rgba(0, 0, 0, 0.2);
-    overflow-x: auto;
-  }
-  .api-example-code pre {
-    font-family: var(--mono);
+
+  .feature-desc {
     font-size: 12px;
-    color: #999;
-    line-height: 1.6;
-    white-space: pre;
-    tab-size: 4;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  .feature-card .code {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    background: none;
+  }
+
+  /* ============================================================
+     SHOW GRID — code left, text right
+     ============================================================ */
+  .show-section {
+    padding-bottom: var(--s3);
+  }
+
+  .show-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: var(--s5);
+    align-items: start;
+  }
+
+  .show-grid .code {
     margin: 0;
   }
-  .api-example-code .cm  { color: #444; }
-  .api-example-code .kw  { color: #9abf8a; }
-  .api-example-code .fn  { color: #eeeee4; }
-  .api-example-code .str { color: #c4a06a; }
-  .api-example-code .tp  { color: #7a9aba; }
-  .api-example-code .nr  { color: #c4a06a; }
 
-  @media (max-width: 768px) {
-    .api-example-row {
-      grid-template-columns: 1fr;
-    }
+  .show-text p {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.7;
+    margin-bottom: var(--s2);
   }
 
-  /* struct annotation */
-  .api-type-struct {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: #444;
-    margin-left: 10px;
-  }
-
-  /* loading state */
-  .api-loading {
-    font-family: var(--mono);
+  .show-aside {
     font-size: 12px;
-    color: #555;
-    padding: var(--s5) 0;
+    color: #666;
+    line-height: 1.7;
+    border-left: 1px solid var(--rule-dk);
+    padding-left: var(--s2);
+    margin-top: var(--s3);
   }
+
+  /* ============================================================
+     BUILD / EXECUTE CALLOUT
+     ============================================================ */
+  .callout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s5);
+    margin: var(--s5) 0;
+    padding: var(--s5) 0;
+    border-top: 1px solid var(--rule-dk);
+    border-bottom: 1px solid var(--rule-dk);
+  }
+
+  .callout-phase {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .callout-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: var(--s2);
+  }
+
+  .callout-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 18px;
+    color: #e8e4d8;
+    margin-bottom: var(--s1);
+  }
+
+  .callout-body {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.7;
+  }
+
+  .callout-body code {
+    font-family: var(--mono);
+    color: #999;
+  }
+
+  /* ============================================================
+     BATTERIES INCLUDED
+     ============================================================ */
+  .batteries {
+    padding-bottom: var(--s7);
+  }
+
+  .batteries-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: var(--s3);
+  }
+
+  .battery {
+    background: var(--bg3);
+    padding: var(--s3);
+  }
+
+  .zone-dark .battery { background: var(--bg-dark2); }
+
+  .battery-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg4);
+    margin-bottom: 8px;
+  }
+
+  .zone-dark .battery-label { color: #444; }
+
+  .battery-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-size: 12px;
+    color: var(--fg2);
+    line-height: 1.6;
+  }
+
+  .zone-dark .battery-items { color: #777; }
+
+  .battery-items a {
+    color: var(--fg2);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .battery-items a:hover { color: var(--fg0); }
+
+  .zone-dark .battery-items a { color: #777; }
+  .zone-dark .battery-items a:hover { color: #e8e4d8; }
+
+  /* ============================================================
+     START LINKS
+     ============================================================ */
+  .start-links {
+    display: flex;
+    gap: var(--s5);
+    padding: var(--s4) 0 var(--s7);
+  }
+
+  .start-links a {
+    font-size: 12px;
+    color: #c8c4b8;
+    text-decoration: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    transition: border-color 0.15s;
+  }
+
+  .start-links a:hover { border-color: #c8c4b8; }
+
+  .zone-light .start-links { padding-bottom: 0; }
+  .zone-light .start-links a { color: var(--fg2); border-color: var(--rule); }
+  .zone-light .start-links a:hover { color: var(--fg0); border-color: var(--fg0); }
 
   /* ============================================================
      FOOTER
@@ -823,8 +544,24 @@
   }
 
   @media (max-width: 1024px) {
-    .code,
-    .api-example-code pre { font-stretch: 87%; }
+    .code { font-stretch: 87%; }
+    .batteries-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 var(--s3); }
+    .zone-inner { padding: 0 var(--s3); }
+    .hero { min-height: calc(100vh - 200px); padding: 48px 0 var(--s4); }
+    .hero-title { font-size: 64px; }
+    .hero-install { font-size: 11px; padding: 10px 14px; max-width: 100%; }
+    .code { font-size: 11px; max-width: 100%; }
+    .section-head { flex-direction: column; gap: var(--s2); }
+    .section-num { font-size: 48px; min-width: auto; }
+    .show-grid { grid-template-columns: 1fr; }
+    .feature-card { grid-template-columns: 1fr; }
+    .callout { grid-template-columns: 1fr; gap: var(--s4); }
+    .batteries-grid { grid-template-columns: 1fr; }
+    .start-links { flex-direction: column; gap: var(--s2); }
   }
 </style>
 </head>
@@ -836,427 +573,393 @@
 <nav id="nav">
   <a href="#" class="nav-brand">forme</a>
   <ul class="nav-links">
-    <li><a href="#lattice">Patterns</a></li>
-    <li><a href="#start">Start</a></li>
-    <li><a href="#api">API</a></li>
+    <li><a href="concepts.html">Concepts</a></li>
+    <li><a href="api.html">API</a></li>
     <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
   </ul>
 </nav>
 
 <!-- ============================================================
-     HERO
+     HERO (light)
      ============================================================ -->
 <div class="zone-light">
   <div class="zone-inner">
     <div class="hero">
       <div class="hero-label">Go TUI Framework</div>
       <div class="hero-title">forme</div>
+      <div class="hero-headline">Batteries-included terminal apps in Go.</div>
       <div class="hero-desc">
-        Compose terminal interfaces from simple components.
-        Bind state through pointers. Handle input with vim-style patterns.
-        No virtual DOM, no diffing — just functions and values.
-      </div>
-      <div class="hero-install">
+        Declarative composition with a compile-once rendering model. Keyboard-first. Fast by default.      </div>
+      <div class="hero-install" onclick="copyInstall(this)">
         <span class="prompt">$</span>
         go get github.com/kungfusheep/forme@latest
+        <span class="copied">copied</span>
+      </div>
+      <div class="start-links">
+        <a href="concepts.html">Read the concepts &rarr;</a>
+        <a href="api.html">Browse the API &rarr;</a>
+        <iframe src="https://ghbtns.com/github-btn.html?user=kungfusheep&repo=forme&type=star&count=false" frameborder="0" scrolling="0" width="70" height="20" title="GitHub Stars" style="vertical-align: middle;"></iframe>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ============================================================
-     PATTERN LATTICE
+     DARK ZONE — everything below the hero
      ============================================================ -->
-<div class="zone-light" id="lattice">
+<div class="zone-dark" id="start">
+
+  <!-- 01 — FIRST APP -->
   <div class="zone-inner">
-    <div class="lattice">
+    <div class="show-section">
       <div class="section-head">
         <div class="section-num">01</div>
         <div class="section-meta">
-          <div class="section-label">Patterns</div>
-          <div class="section-title">Pattern Lattice</div>
+          <div class="section-label">Getting Started</div>
+          <div class="section-title">First App</div>
         </div>
       </div>
 
       <div class="section-desc">
-        Every component exists because of something above it and is
-        implemented through something below it. Click a node to see
-        its connections.
+        A minimal forme application. Create an app, set a view, run.
       </div>
 
-      <div class="lattice-scales" id="lattice-grid">
-        <!-- generated by JS -->
-      </div>
-
-      <div class="lattice-detail" id="lattice-detail">
-        <div class="detail-head">
-          <div class="detail-id" id="d-id"></div>
-          <div class="detail-name" id="d-name"></div>
-          <div class="detail-confidence" id="d-conf"></div>
-        </div>
-        <div class="detail-problem" id="d-problem"></div>
-        <div class="detail-solution" id="d-solution"></div>
-        <div class="tags" id="d-tags"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="zone-rule"></div>
-
-<!-- ============================================================
-     GETTING STARTED
-     ============================================================ -->
-<div class="zone-dark" id="start">
-  <div class="zone-inner">
-    <div class="section-head">
-      <div class="section-num">02</div>
-      <div class="section-meta">
-        <div class="section-label">Getting Started</div>
-        <div class="section-title">First App</div>
-      </div>
-    </div>
-
-    <div class="section-desc">
-      A minimal forme application. Create an app, set a view, run.
-    </div>
-
-    <div class="code code-raw">package main
+      <div class="show-grid">
+        <div class="code code-raw">package main
 
 import . "github.com/kungfusheep/forme"
 
 func main() {
-    app, _ := NewApp()
+	app, _ := NewApp()
 
-    app.SetView(
-        VBox(
-            Text("Hello, forme"),
-            Text("Press q to quit"),
-        ),
-    )
-    app.Handle("q", app.Stop)
+	app.SetView(
+		VBox(
+			Text("Hello, forme"),
+			Text("Press q to quit"),
+		),
+	)
 
-    app.Run()
+	app.Handle("q", app.Stop)
+	app.Run()
 }</div>
-
-    <div class="callout">
-      <div class="callout-phase">
-        <div class="callout-label">Once</div>
-        <div class="callout-title">Build</div>
-        <div class="callout-body">
-          When you call <code>SetView()</code>, the declarative tree is compiled into a flat array of operations.
-          All reflection, type switches, and allocation happen here. The composable API surface —
-          <code>VBox.Gap(2).Border(...)</code> — is purely a build-time convenience.
+        <div class="show-text">
+          <p>Create an app. Set a view. Run.</p>
+          <p>That's the whole thing.</p>
+          <div class="show-aside">
+            The view is a tree of composable functions. VBox stacks vertically.
+            Text renders a value. The tree compiles once, then executes every frame.
+          </div>
         </div>
       </div>
-      <div class="callout-phase">
-        <div class="callout-label">Each update</div>
-        <div class="callout-title">Execute</div>
-        <div class="callout-body">
-          Rendering walks the compiled ops and dereferences pointers to read current state.
-          No tree rebuilds, no diffing, no allocation. Just pointer reads into a cell buffer,
-          then a
-          diff-based flush to the terminal.
+
+      <div class="callout">
+        <div class="callout-phase">
+          <div class="callout-label">Once</div>
+          <div class="callout-title">Build</div>
+          <div class="callout-body">
+            When you call <code>SetView()</code>, the declarative tree is compiled into
+            a flat array of operations. All reflection, type switches, and allocation
+            happen here. The composable API surface &mdash;
+            <code>VBox.Gap(2).Border(...)</code> &mdash; is purely a build-time convenience.
+          </div>
+        </div>
+        <div class="callout-phase">
+          <div class="callout-label">Each update</div>
+          <div class="callout-title">Execute</div>
+          <div class="callout-body">
+            Rendering walks the compiled ops and dereferences pointers to read current
+            state. No tree rebuilds, no diffing, no allocation. Just pointer reads into
+            a cell buffer, then a diff-based flush to the terminal.
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="section-head">
-      <div class="section-num">03</div>
-      <div class="section-meta">
-        <div class="section-label">Concepts</div>
-        <div class="section-title">Pointer Semantics</div>
-      </div>
-    </div>
-
-    <div class="section-desc">
-      This is why state is bound through pointers. The compiled template doesn't know your
-      variable names — it knows addresses. Mutate the value, and the next frame reads it.
-    </div>
-
-    <div class="code code-raw">count := 0
-
-app.SetView(
-    VBox(
-        Text(&count),  // reads current value at render time
-        Text("Press + to increment"),
-    ),
-)
-
-app.Handle("+", func() {
-    count++
-})</div>
   </div>
-</div>
 
-<!-- ============================================================
-     API REFERENCE
-     ============================================================ -->
-<div class="zone-dark" id="api">
+  <div class="section-rule"></div>
+
+  <!-- 02 — SHOWCASE -->
+  <div class="zone-inner">
+    <div class="features">
+      <div class="section-head">
+        <div class="section-num">02</div>
+        <div class="section-meta">
+          <div class="section-label">Showcase</div>
+          <div class="section-title">In Practice</div>
+        </div>
+      </div>
+
+      <div class="features-stack">
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">File browser</div>
+            <div class="feature-desc">
+              Split pane with list navigation and live preview.
+              OnSelect loads the file, TextView renders it.
+            </div>
+          </div>
+          <div class="code code-raw">HBox(
+	VBox.Grow(1).Border(BorderRounded)(
+		List(&files).BindVimNav().OnSelect(func(f *string) {
+			data, _ := os.ReadFile(*f)
+			preview = string(data)
+		}),
+	),
+	VBox.Grow(2).Border(BorderRounded)(
+		TextView(&preview).Grow(1),
+	),
+)</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">Process monitor</div>
+            <div class="feature-desc">
+              Progress bars for system metrics, sortable table
+              for processes. AutoTable infers columns from struct fields.
+            </div>
+          </div>
+          <div class="code code-raw">VBox(
+	HBox.Gap(4)(
+		Text("CPU"), Progress(&cpuPct).Width(30),
+		Text("Mem"), Progress(&memPct).Width(30),
+	),
+	AutoTable(&procs).
+		Columns("PID", "Command", "CPU", "Mem").
+		Column("CPU", Percent(1)).
+		Column("Mem", Percent(1)).
+		Sortable().Scrollable(20).BindVimNav(),
+)</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">Deploy log</div>
+            <div class="feature-desc">
+              Spinner, status text, and progress in a single row.
+              Log streams output live. If shows the result when done.
+            </div>
+          </div>
+          <div class="code code-raw">VBox.Border(BorderRounded).Title("deploy")(
+	HBox.Gap(2)(
+		Spinner(&frame).FG(Cyan),
+		Text(&status).Bold(),
+		Progress(&pct).Width(20),
+	),
+	Log(output).Grow(1).MaxLines(500),
+	If(&done).Then(Text(&result).Bold().FG(Green)),
+)</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">Fuzzy finder</div>
+            <div class="feature-desc">
+              FilterList handles the search input and matching.
+              Custom Render for each row, border and title for framing.
+            </div>
+          </div>
+          <div class="code code-raw">FilterList(&packages, func(p *Pkg) string { return p.Name }).
+	Render(func(p *Pkg) any {
+		return HBox.Gap(2)(
+			Text(&p.Name).Bold(),
+			Text(&p.Desc).FG(BrightBlack),
+		)
+	}).MaxVisible(15).Border(BorderRounded).Title("packages")</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">Live dashboard</div>
+            <div class="feature-desc">
+              Two sparkline panels side by side with a scrolling
+              event log below. Update the slices, the view follows.
+            </div>
+          </div>
+          <div class="code code-raw">VBox(
+	HBox.Gap(1)(
+		VBox.Grow(1).Border(BorderRounded).Title("requests/s")(
+			Sparkline(&reqData).FG(Green),
+			Text(&reqRate).FG(BrightBlack),
+		),
+		VBox.Grow(1).Border(BorderRounded).Title("p99 latency")(
+			Sparkline(&latData).FG(Yellow),
+			Text(&p99).FG(BrightBlack),
+		),
+	),
+	Log(events).Grow(1).MaxLines(200),
+)</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-info">
+            <div class="feature-title">Registration form</div>
+            <div class="feature-desc">
+              Form auto-aligns labels, manages focus, and wires
+              validation. Tab between fields, errors appear on blur.
+            </div>
+          </div>
+          <div class="code code-raw">Form(
+	Field("Name", Input(&name).Validate(VRequired, VOnBlur)),
+	Field("Email", Input(&email).Validate(VEmail, VOnBlur)),
+	Field("Role", Radio(&role, "Admin", "User", "Guest")),
+	Field("Terms", Checkbox(&agree, "I accept").Validate(VTrue, VOnSubmit)),
+).LabelBold()</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-rule"></div>
+
+  <!-- 03 — BATTERIES INCLUDED -->
+  <div class="zone-inner">
+    <div class="batteries">
+      <div class="section-head">
+        <div class="section-num">03</div>
+        <div class="section-meta">
+          <div class="section-label">What you get</div>
+          <div class="section-title">Batteries Included</div>
+        </div>
+      </div>
+
+      <div class="batteries-grid">
+        <div class="battery">
+          <div class="battery-label">Layout</div>
+          <div class="battery-items">
+            <a href="api.html">VBox</a>
+            <a href="api.html">HBox</a>
+            <a href="api.html">Overlay</a>
+            <a href="api.html">Flex Grow</a>
+            <a href="api.html">Arrange</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Display</div>
+          <div class="battery-items">
+            <a href="api.html">Text</a>
+            <a href="api.html">Rich</a>
+            <a href="api.html">Progress</a>
+            <a href="api.html">Spinner</a>
+            <a href="api.html">Sparkline</a>
+            <a href="api.html">Tree</a>
+            <a href="api.html">Log</a>
+            <a href="api.html">TextView</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Tables & Lists</div>
+          <div class="battery-items">
+            <a href="api.html">List</a>
+            <a href="api.html">AutoTable</a>
+            <a href="api.html">CheckList</a>
+            <a href="api.html">Tabs</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Input</div>
+          <div class="battery-items">
+            <a href="api.html">Input</a>
+            <a href="api.html">Checkbox</a>
+            <a href="api.html">Radio</a>
+            <a href="api.html">Form</a>
+            <a href="api.html">Validation</a>
+            <a href="api.html">FilterList</a>
+            <a href="api.html">FilterLog</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Navigation</div>
+          <div class="battery-items">
+            <a href="api.html">Vim Keys</a>
+            <a href="api.html">Jump Labels</a>
+            <a href="api.html">Focus Manager</a>
+            <a href="api.html">View Routing</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Styling</div>
+          <div class="battery-items">
+            <a href="api.html">Borders</a>
+            <a href="api.html">Themes</a>
+            <a href="api.html">RGB / 256</a>
+            <a href="api.html">Cascade Styles</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Control Flow</div>
+          <div class="battery-items">
+            <a href="api.html">If / IfOrd</a>
+            <a href="api.html">Switch</a>
+            <a href="api.html">ForEach</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Rendering</div>
+          <div class="battery-items">
+            <a href="api.html">Double Buffer</a>
+            <a href="api.html">Diff Flush</a>
+            <a href="api.html">Inline Mode</a>
+            <a href="api.html">Layers</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Filtering</div>
+          <div class="battery-items">
+            <a href="api.html">fzf Syntax</a>
+            <a href="api.html">Fuzzy / Exact</a>
+            <a href="api.html">Negation</a>
+            <a href="api.html">AND / OR</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-rule"></div>
+
+  <!-- 04 — GET STARTED -->
   <div class="zone-inner">
     <div class="section-head">
       <div class="section-num">04</div>
       <div class="section-meta">
-        <div class="section-label">Reference</div>
-        <div class="section-title">API</div>
+        <div class="section-label">Install</div>
+        <div class="section-title">Get Started</div>
       </div>
     </div>
 
-    <div class="section-desc">
-      The complete API surface, generated from source.
+    <div class="hero-install" onclick="copyInstall(this)">
+      <span class="prompt">$</span>
+      go get github.com/kungfusheep/forme@latest
+      <span class="copied">copied</span>
     </div>
 
-    <div class="api-showcase">
-      <div class="api-showcase-label">The template syntax</div>
-      <div class="code code-raw">VBox.Gap(2).Border(BorderRounded).CascadeStyle(&theme)(
-    Text(&title).Bold().FG(Cyan),
-    HBox.Gap(1)(
-        Text(&count),
-        Space(),
-        Text("items"),
-    ),
-    List(&items).Render(func(item *string) any {
-        return Text(item)
-    }).BindNav("j", "k"),
-)</div>
-      <div class="api-showcase-note">Configure with chained methods, then call as a function with children. Values behind pointers are dereferenced every render pass — no subscriptions, no signals.</div>
-    </div>
-
-    <div id="api-content">
-      <div class="api-loading">Loading API reference...</div>
+    <div class="start-links">
+      <a href="concepts.html">Read the concepts &rarr;</a>
+      <a href="api.html">Browse the API &rarr;</a>
     </div>
   </div>
-</div>
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
-<div class="zone-dark">
+  <!-- FOOTER -->
   <div class="zone-inner">
     <footer>
       <div class="footer-inner">
-        <span>forme — built by <a href="#">Pete Griffiths</a></span>
-        <span><a href="https://github.com/kungfusheep/forme">source</a></span>
+        <span>forme &mdash; built by <a href="#">Pete Griffiths</a></span>
+        <span>
+          <a href="api.html">API</a> &middot;
+          <a href="concepts.html">Concepts</a> &middot;
+          <a href="https://github.com/kungfusheep/forme">source</a>
+        </span>
       </div>
     </footer>
   </div>
+
 </div>
 
 <!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
 <script>
-// pattern data
-const patterns = [
-  // philosophy
-  { id: 'P01', name: 'Compile Once, Render Forever', scale: 'philosophy', conf: 2,
-    problem: 'Rebuilding the UI tree every frame causes allocation pressure, reflection overhead, and unpredictable latency in terminal rendering.',
-    solution: 'Build() compiles the declarative view tree into a flat Op array once at SetView() time. All reflection happens at compile time. Execute() is pure pointer arithmetic with near-zero allocation in steady state.',
-    up: [], down: ['S01', 'S02', 'S05', 'S06'], peer: ['P02'] },
-
-  { id: 'P02', name: 'Pointer Semantics', scale: 'philosophy', conf: 2,
-    problem: 'Many UI frameworks require subscription systems, diffing algorithms, or signals to detect state changes — adding complexity and indirection.',
-    solution: 'State is updated by mutating values behind pointers (*string, *int, *bool, *[]T). The compiled template dereferences these pointers every frame. No subscriptions, no diffing of state — just pointer reads.',
-    up: [], down: ['S02'], peer: ['P01'] },
-
-  { id: 'P03', name: 'Declarative Composition', scale: 'philosophy', conf: 2,
-    problem: 'Imperative UI code tangles layout, styling, event handling, and state management into unreadable spaghetti.',
-    solution: 'Views are declared as composable trees using function-type-with-methods constructors (VBox.Fill(Red).Gap(2)(children...)). Components declare their key bindings as data via the bindable interface, wired at compile time.',
-    up: [], down: ['S01', 'S04'], peer: [] },
-
-  // systems
-  { id: 'S01', name: 'Template Compiler', scale: 'systems', conf: 2,
-    problem: 'A declarative view tree made of Go structs and interfaces cannot be executed efficiently without transformation — runtime type switches on every frame would be prohibitive.',
-    solution: 'The compile() method performs a ~50-type switch once, producing a flat []Op array with a parallel []Geom array. Control flow (If/ForEach/Switch) compiles branches as sub-Templates. ForEach uses unsafe pointer offsets computed from a prototype element at compile time.',
-    up: ['P01', 'P03'], down: ['S03'], peer: ['S02'] },
-
-  { id: 'S02', name: 'Three-Way Value Resolution', scale: 'systems', conf: 2,
-    problem: 'Values in a compiled template need to support static content, dynamic pointers, AND per-element rebinding inside ForEach — three distinct resolution strategies from one data structure.',
-    solution: 'Every value-carrying Op exists in three variants: Static (OpText), Ptr (OpTextPtr — *string dereferenced each frame), and Off (OpTextOff — uintptr offset added to ForEach element base via unsafe.Pointer arithmetic). Conditions use evaluateWithBase() with unsafe.Add for the same trick.',
-    up: ['P01', 'P02'], down: [], peer: ['S01'] },
-
-  { id: 'S03', name: 'Layout Engine', scale: 'systems', conf: 2,
-    problem: 'Terminal UIs need CSS-like flex layout but cannot afford the complexity or allocation cost of a full layout engine.',
-    solution: 'A four-phase pipeline: top-down width distribution, bottom-up height computation, top-down flex grow distribution, top-down render. All phases operate on the compiled Op/Geom arrays with shared scratch buffers for near-zero allocation.',
-    up: ['S01'], down: ['C01'], peer: ['S05'] },
-
-  { id: 'S04', name: 'Event System', scale: 'systems', conf: 2,
-    problem: 'Terminal UIs need modal key handling, vim-style multi-key sequences, text input routing, and focus management — wiring this manually per component is error-prone.',
-    solution: 'riffkey provides a Router stack with push/pop for modal input. Components declare bindings as data (bindable interface), wired at compile time. FocusManager coordinates Tab/Shift-Tab cycling and routes unmatched keys to the focused component.',
-    up: ['P03'], down: ['C06', 'D05'], peer: ['S06'] },
-
-  { id: 'S05', name: 'Render Pipeline', scale: 'systems', conf: 2,
-    problem: 'Getting cells from a compiled template to the terminal requires careful orchestration of buffering, diffing, cursor management, and output batching.',
-    solution: 'App.render() orchestrates: Execute() into BufferPool → CopyFrom() to Screen back buffer → Flush() diffs against front buffer → FlushBuffer() writes everything in one syscall → BufferPool.Swap() clears via partial ClearDirty().',
-    up: ['P01'], down: ['D01', 'D02'], peer: ['S03'] },
-
-  { id: 'S06', name: 'View Routing', scale: 'systems', conf: 1,
-    problem: 'Applications with multiple screens need view switching, view-specific key bindings, and modal overlays without recompiling templates.',
-    solution: 'Named views each get their own compiled Template and riffkey Router. Go() swaps the active template and router. PushView()/PopView() manage a view stack for modal overlays.',
-    up: ['P01'], down: [], peer: ['S04'] },
-
-  // components
-  { id: 'C01', name: 'Containers & Layout Primitives', scale: 'components', conf: 2,
-    problem: 'Building complex layouts requires composable containers with flex, borders, margins, gaps, style cascade, and content sizing — plus an escape hatch for custom layouts.',
-    solution: 'VBox/HBox with the function-type-with-methods pattern, supporting Fill, CascadeStyle, Gap, Border, Margin, Grow, FitContent, WidthPct. Arrange() provides custom LayoutFunc. Overlay for floating content.',
-    up: ['S03'], down: ['D03', 'D04'], peer: ['C04'] },
-
-  { id: 'C02', name: 'Lists & Selection', scale: 'components', conf: 2,
-    problem: 'Navigable lists with selection, scrolling, custom rendering, and type-safe item access are a core building block that every TUI needs.',
-    solution: 'Generic ListC[T] backed by *[]T with windowed scrolling, custom Render func, selection marker, and declarative BindNav/BindVimNav. CheckListC[T] extends with per-item checkboxes and struct tag inference.',
-    up: [], down: ['C05'], peer: ['C06'] },
-
-  { id: 'C03', name: 'Data Display', scale: 'components', conf: 2,
-    problem: 'Displaying structured data (tables, sparklines, progress bars, leaders, trees) requires specialised rendering with alignment, formatting, and dynamic binding.',
-    solution: 'AutoTable reflects struct fields into columns with functional ColumnOption presets (Number, Currency, Percent, Bytes, StyleThreshold). Sparkline, Progress with sub-character precision, Leader, and TreeView round out the toolkit.',
-    up: [], down: [], peer: ['C04'] },
-
-  { id: 'C04', name: 'Text & Rich Text', scale: 'components', conf: 2,
-    problem: 'Terminal text needs per-character styling, text transforms, multi-span inline styling, and alignment — all within the pointer-binding declarative model.',
-    solution: 'TextC with value-receiver chaining (.Bold().FG(Red)), Span-based RichTextNode for mixed inline styles, and helper functions (Rich, Bold, Dim, FG, BG). Style inheritance cascades through CascadeStyle on containers.',
-    up: [], down: ['D04'], peer: ['C01', 'C03'] },
-
-  { id: 'C05', name: 'Filtering & Search', scale: 'components', conf: 2,
-    problem: 'Interactive lists and logs need real-time fzf-style filtering that maintains index mapping back to the source data for correct item selection.',
-    solution: 'Filter[T] provides generic fzf filtering with scored ranking and index mapping. FilterListC[T] composes Input + Filter + List into a single node. FilterLogC extends LogC with per-line filtering. Full fzf query syntax: fuzzy, exact, prefix, suffix, negation, AND/OR.',
-    up: ['C02'], down: [], peer: ['C07'] },
-
-  { id: 'C06', name: 'Forms & Input', scale: 'components', conf: 2,
-    problem: 'Text input, checkboxes, radio buttons, and multi-field forms need focus management, keystroke routing, and state binding — composing many subsystems correctly.',
-    solution: 'InputC wraps InputState with placeholder, mask, and FocusManager integration. Checkbox/Radio with pointer-bound state and declarative BindToggle/BindNav. FocusManager coordinates Tab/Shift-Tab cycling across focusable components.',
-    up: ['S04'], down: [], peer: ['C02'] },
-
-  { id: 'C07', name: 'Layers & Scrolling', scale: 'components', conf: 1,
-    problem: 'Content taller than the viewport needs pre-rendered off-screen buffers with scroll management, lazy re-rendering, and cursor coordinate translation.',
-    solution: 'Layer provides a pre-rendered Buffer with scroll API, lazy Render callback on viewport width changes, and ScreenCursor() for coordinate translation. LogC extends Layer with io.Reader background ingestion and auto-scroll following.',
-    up: [], down: [], peer: ['C05'] },
-
-  // details
-  { id: 'D01', name: 'Double Buffer & Cell Grid', scale: 'details', conf: 2,
-    problem: 'Rendering needs a drawable surface with dirty tracking, fast clearing, and double buffering to avoid tearing or redundant redraws.',
-    solution: 'Buffer is a flat []Cell array with per-row dirty flags and dirtyMaxY partial-clear optimization. BufferPool alternates two buffers via atomic swap. Region provides zero-copy sub-buffer views.',
-    up: ['S05'], down: [], peer: ['D02'] },
-
-  { id: 'D02', name: 'Terminal Protocol', scale: 'details', conf: 2,
-    problem: 'Communicating with the terminal requires raw mode, ANSI escape sequences, signal handling, cursor management, and platform-specific ioctls.',
-    solution: 'Screen manages termios, raw mode, alternate buffer, and SIGWINCH. Flush() emits minimal ANSI with allocation-free integer formatting. CJK double-width handled with placeholder cells and ASCII fast path.',
-    up: ['S05'], down: [], peer: ['D01'] },
-
-  { id: 'D03', name: 'Borders & Box Drawing', scale: 'details', conf: 2,
-    problem: 'Nested containers with borders produce junction characters that must merge correctly without explicit coordination between components.',
-    solution: 'Automatic border merging via bitmask OR of edge flags. borderEdgesArray maps box-drawing runes to 4-bit edge flags, edgesToBorderArray maps merged flags back to junction characters. Three built-in styles: Single, Rounded, Double.',
-    up: ['C01'], down: [], peer: [] },
-
-  { id: 'D04', name: 'Style & Colour System', scale: 'details', conf: 2,
-    problem: 'Terminal styling requires managing colours across four modes, text attributes as composable bitmasks, text transforms, alignment, and style inheritance.',
-    solution: 'Style struct combines FG/BG/Fill Color, Attribute bitmask, TextTransform, and Align. Color supports Default/16/256/RGB. CascadeStyle *Style on containers enables dynamic theme switching via pointer. effectiveStyle() merges inherited attributes and colours.',
-    up: ['C01', 'C04'], down: [], peer: [] },
-
-  { id: 'D05', name: 'Jump Labels', scale: 'details', conf: 2,
-    problem: 'Keyboard-driven UIs need a way to target arbitrary screen locations without sequential navigation — the terminal equivalent of clicking.',
-    solution: 'JumpMode collects targets during a render pass, assigns home-row-first labels, pushes a temporary riffkey Router handling multi-char input accumulation with partial matching. Jump wraps any component as a target.',
-    up: ['S04'], down: [], peer: [] },
-];
-
-const scaleOrder = ['philosophy', 'systems', 'components', 'details'];
-const scaleLabels = { philosophy: 'Philosophy', systems: 'Systems', components: 'Components', details: 'Details' };
-
-// build lattice grid
-const grid = document.getElementById('lattice-grid');
-
-scaleOrder.forEach(scale => {
-  const row = document.createElement('div');
-  row.className = 'lattice-scale';
-
-  const label = document.createElement('div');
-  label.className = 'scale-label';
-  label.textContent = scaleLabels[scale];
-  row.appendChild(label);
-
-  const nodes = document.createElement('div');
-  nodes.className = 'scale-nodes';
-
-  patterns.filter(p => p.scale === scale).forEach(p => {
-    const node = document.createElement('div');
-    node.className = 'node';
-    node.dataset.id = p.id;
-    node.innerHTML = `<div class="node-id">${p.id}</div>${p.name}`;
-    node.addEventListener('click', () => selectPattern(p.id));
-    nodes.appendChild(node);
-  });
-
-  row.appendChild(nodes);
-  grid.appendChild(row);
-});
-
-function selectPattern(id) {
-  const p = patterns.find(x => x.id === id);
-  if (!p) return;
-
-  // clear all states
-  document.querySelectorAll('.node').forEach(n => {
-    n.classList.remove('active', 'connected');
-  });
-
-  // highlight active
-  const active = document.querySelector(`.node[data-id="${id}"]`);
-  if (active) active.classList.add('active');
-
-  // highlight connected
-  const allConnected = [...p.up, ...p.down, ...p.peer];
-  allConnected.forEach(cid => {
-    const el = document.querySelector(`.node[data-id="${cid}"]`);
-    if (el) el.classList.add('connected');
-  });
-
-  // fill detail
-  document.getElementById('d-id').textContent = p.id;
-  document.getElementById('d-name').textContent = p.name;
-
-  const conf = document.getElementById('d-conf');
-  conf.innerHTML = '';
-  for (let i = 0; i < 2; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'conf-dot ' + (i < p.conf ? 'on' : 'off');
-    conf.appendChild(dot);
-  }
-
-  document.getElementById('d-problem').textContent = p.problem;
-  document.getElementById('d-solution').innerHTML = `<span class="therefore">Therefore:</span> ${p.solution}`;
-
-  const tags = document.getElementById('d-tags');
-  tags.innerHTML = '';
-
-  p.up.forEach(cid => {
-    const t = document.createElement('span');
-    t.className = 'tag tag-up';
-    const cp = patterns.find(x => x.id === cid);
-    t.textContent = `↑ ${cp ? cp.name : cid}`;
-    t.addEventListener('click', (e) => { e.stopPropagation(); selectPattern(cid); });
-    tags.appendChild(t);
-  });
-
-  p.peer.forEach(cid => {
-    const t = document.createElement('span');
-    t.className = 'tag tag-pr';
-    const cp = patterns.find(x => x.id === cid);
-    t.textContent = `↔ ${cp ? cp.name : cid}`;
-    t.addEventListener('click', (e) => { e.stopPropagation(); selectPattern(cid); });
-    tags.appendChild(t);
-  });
-
-  p.down.forEach(cid => {
-    const t = document.createElement('span');
-    t.className = 'tag tag-dn';
-    const cp = patterns.find(x => x.id === cid);
-    t.textContent = `↓ ${cp ? cp.name : cid}`;
-    t.addEventListener('click', (e) => { e.stopPropagation(); selectPattern(cid); });
-    tags.appendChild(t);
-  });
-
-  document.getElementById('lattice-detail').classList.add('vis');
-}
-
 // nav scroll behavior
 const navEl = document.getElementById('nav');
 const darkZone = document.getElementById('start');
@@ -1264,7 +967,6 @@ const heroTitle = document.querySelector('.hero-title');
 
 function updateNav() {
   const scrollY = window.scrollY;
-  const darkTop = darkZone.offsetTop - 48;
   const heroBottom = heroTitle.offsetTop + heroTitle.offsetHeight;
 
   if (scrollY > 20) {
@@ -1279,556 +981,99 @@ function updateNav() {
     navEl.classList.remove('brand-visible');
   }
 
-  if (scrollY >= darkTop) {
-    navEl.classList.add('in-dark');
-  } else {
-    navEl.classList.remove('in-dark');
+  if (darkZone) {
+    const darkTop = darkZone.offsetTop - 48;
+    if (scrollY >= darkTop) {
+      navEl.classList.add('in-dark');
+    } else {
+      navEl.classList.remove('in-dark');
+    }
   }
 }
 
 window.addEventListener('scroll', updateNav, { passive: true });
 updateNav();
 
-// ============================================================
-// API REFERENCE — fetch api.json + render (function-first)
-// ============================================================
-(function() {
+// highlight static code blocks
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
 
-  // user-facing display names — how people actually use them
-  const displayNames = {
-    VBoxFn: 'VBox', HBoxFn: 'HBox', OverlayFn: 'Overlay',
-    TextC: 'Text', InputC: 'Input', ListC: 'List',
-    CheckListC: 'CheckList', TabsC: 'Tabs',
-    FilterListC: 'FilterList', FilterLogC: 'FilterLog', LogC: 'Log',
-    LayerViewC: 'LayerView', JumpC: 'Jump',
-    RadioC: 'Radio', CheckboxC: 'Checkbox',
-    FormC: 'Form', ScrollbarC: 'Scroll',
-    HRuleC: 'HRule', VRuleC: 'VRule', LeaderC: 'Leader',
-    SpacerC: 'Spacer', AutoTableC: 'AutoTable',
-    SparklineC: 'Sparkline', ProgressC: 'Progress', SpinnerC: 'Spinner',
-    ForEachC: 'ForEach', Condition: 'If', OrdCondition: 'IfOrd',
-    SwitchBuilder: 'Switch', RichTextNode: 'Rich',
-    Custom: 'Widget', ThemeEx: 'Theme',
-  };
-
-  // types to hide (internal/node types that add noise — their methods
-  // belong to the parent function-type and shouldn't appear standalone)
-  const hidden = new Set([
-    'VBoxC', 'HBoxC', 'OverlayC',
-    'VBoxNode', 'HBoxNode', 'OverlayNode', 'SpacerNode',
-    'TextNode', 'TabsNode', 'HRuleNode', 'VRuleNode', 'LeaderNode',
-    'JumpNode', 'ScrollbarNode', 'SparklineNode', 'ProgressNode', 'SpinnerNode',
-    'IfNode', 'ElseNode', 'SwitchNode', 'ForEachNode', 'LayerViewNode',
-    'ChildSize', 'Size', 'Rect', 'Component', 'TextInput', 'Renderer',
-    'LayoutFunc', 'Layout', 'FocusGroup',
-  ]);
-
-  const categoryMap = {
-    // app & lifecycle
-    App: 'App & Lifecycle', ViewBuilder: 'App & Lifecycle',
-    // layout — only what users compose with
-    VBoxFn: 'Layout', HBoxFn: 'Layout', OverlayFn: 'Layout',
-    SpacerC: 'Layout', Box: 'Layout', Flex: 'Layout',
-    // components
-    TextC: 'Components', InputC: 'Components', InputState: 'Components',
-    ListC: 'Components', CheckListC: 'Components',
-    TabsC: 'Components', TabsStyle: 'Components',
-    FilterListC: 'Components', FilterLogC: 'Components', LogC: 'Components',
-    LayerViewC: 'Components',
-    JumpC: 'Components', JumpMode: 'Components',
-    JumpStyle: 'Components', JumpTarget: 'Components',
-    RadioC: 'Components', CheckboxC: 'Components',
-    FormC: 'Components', FormField: 'Components',
-    ScrollbarC: 'Components', HRuleC: 'Components', VRuleC: 'Components',
-    LeaderC: 'Components', Custom: 'Components',
-    // data display
-    AutoTableC: 'Data Display', Table: 'Data Display', TableColumn: 'Data Display',
-    SparklineC: 'Data Display', ProgressC: 'Data Display', SpinnerC: 'Data Display',
-    TreeNode: 'Data Display', TreeView: 'Data Display',
-    ColumnOption: 'Data Display', ColumnConfig: 'Data Display',
-    // control flow
-    Condition: 'Control Flow', ConditionEval: 'Control Flow',
-    OrdCondition: 'Control Flow', OrdConditionEval: 'Control Flow',
-    SwitchBuilder: 'Control Flow', ForEachC: 'Control Flow',
-    // style & theme
-    Style: 'Style & Theme', Color: 'Style & Theme', ColorMode: 'Style & Theme',
-    Attribute: 'Style & Theme', BorderStyle: 'Style & Theme',
-    ThemeEx: 'Style & Theme', TextTransform: 'Style & Theme',
-    Align: 'Style & Theme', CursorShape: 'Style & Theme', Cursor: 'Style & Theme',
-    // rich text
-    RichTextNode: 'Rich Text', Span: 'Rich Text',
-    // internals
-    Template: 'Internals', Op: 'Internals', OpKind: 'Internals',
-    Geom: 'Internals', Buffer: 'Internals', BufferPool: 'Internals',
-    Screen: 'Internals', Cell: 'Internals', Region: 'Internals',
-    Layer: 'Internals', Filter: 'Internals', FzfQuery: 'Internals',
-    FocusManager: 'Internals', SelectionList: 'Internals',
-    FlushStats: 'Internals', Timings: 'Internals',
-    FlexNode: 'Internals', FlexNodeKind: 'Internals', FlexTree: 'Internals',
-    HorizontalLayout: 'Internals', VerticalLayout: 'Internals',
-  };
-
-  const categoryOrder = [
-    'App & Lifecycle', 'Layout', 'Components', 'Data Display',
-    'Control Flow', 'Style & Theme', 'Rich Text', 'Internals'
-  ];
-
-  const collapsedByDefault = new Set(['Internals']);
-
-  // examples come from api.json (generated from _test.go Example functions)
-
-  function esc(s) {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
+function highlightGo(raw) {
+  const s = esc(raw);
+  const tokens = [];
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] === '"' || s[i] === '`') {
+      const q = s[i];
+      let j = i + 1;
+      while (j < s.length && s[j] !== q) { if (s[j] === '\\' && q === '"') j++; j++; }
+      tokens.push({ type: 'str', text: s.slice(i, j + 1) });
+      i = j + 1;
+    } else if (s.slice(i, i + 4) === '&amp' || s.slice(i, i + 3) === '&lt' || s.slice(i, i + 3) === '&gt') {
+      let j = s.indexOf(';', i);
+      if (j === -1) j = i;
+      tokens.push({ type: 'text', text: s.slice(i, j + 1) });
+      i = j + 1;
+    } else if (s.slice(i, i + 2) === '//') {
+      let j = s.indexOf('\n', i);
+      if (j === -1) j = s.length;
+      tokens.push({ type: 'cm', text: s.slice(i, j) });
+      i = j;
+    } else if (/[a-zA-Z_]/.test(s[i])) {
+      let j = i;
+      while (j < s.length && /[a-zA-Z0-9_]/.test(s[j])) j++;
+      tokens.push({ type: 'word', text: s.slice(i, j) });
+      i = j;
+    } else if (/[0-9]/.test(s[i])) {
+      let j = i;
+      while (j < s.length && /[0-9.x]/.test(s[j])) j++;
+      tokens.push({ type: 'nr', text: s.slice(i, j) });
+      i = j;
+    } else {
+      tokens.push({ type: 'text', text: s[i] });
+      i++;
+    }
   }
 
-  function trimDoc(s) {
-    return (s || '').replace(/\n$/, '');
-  }
+  const kws = new Set(['package','import','func','return','var','const','type','struct',
+    'interface','if','else','for','range','switch','case','default','break','continue',
+    'go','defer','select','chan','map','true','false','nil','any','error']);
+  const types = new Set(['string','int','int8','int16','int32','int64',
+    'uint','uint8','uint16','uint32','uint64','float32','float64','bool','byte','rune']);
 
-  // for type-level docs: first paragraph only
-  function briefDoc(s) {
-    if (!s) return '';
-    const para = s.split(/\n\n/)[0].trim();
-    // if still long, take first two sentences
-    const m = para.match(/^(.+?\.\s+.+?\.)\s/);
-    return m ? m[1] : para;
-  }
-
-  function highlightGo(raw) {
-    const s = esc(raw);
-    // tokenize to avoid highlighting inside strings/comments
-    const tokens = [];
-    let i = 0;
-    while (i < s.length) {
-      // strings
-      if (s[i] === '"' || s[i] === '`') {
-        const q = s[i];
-        let j = i + 1;
-        while (j < s.length && s[j] !== q) { if (s[j] === '\\' && q === '"') j++; j++; }
-        tokens.push({ type: 'str', text: s.slice(i, j + 1) });
-        i = j + 1;
-      // html entity (from esc) — treat as text
-      } else if (s.slice(i, i + 4) === '&amp' || s.slice(i, i + 3) === '&lt' || s.slice(i, i + 3) === '&gt') {
-        let j = s.indexOf(';', i);
-        if (j === -1) j = i;
-        tokens.push({ type: 'text', text: s.slice(i, j + 1) });
-        i = j + 1;
-      // line comments
-      } else if (s.slice(i, i + 2) === '//') {
-        let j = s.indexOf('\n', i);
-        if (j === -1) j = s.length;
-        tokens.push({ type: 'cm', text: s.slice(i, j) });
-        i = j;
-      // words
-      } else if (/[a-zA-Z_]/.test(s[i])) {
-        let j = i;
-        while (j < s.length && /[a-zA-Z0-9_]/.test(s[j])) j++;
-        tokens.push({ type: 'word', text: s.slice(i, j) });
-        i = j;
-      // numbers
-      } else if (/[0-9]/.test(s[i])) {
-        let j = i;
-        while (j < s.length && /[0-9.x]/.test(s[j])) j++;
-        tokens.push({ type: 'nr', text: s.slice(i, j) });
-        i = j;
-      } else {
-        tokens.push({ type: 'text', text: s[i] });
-        i++;
-      }
+  return tokens.map((t, idx) => {
+    if (t.type === 'str') return `<span class="str">${t.text}</span>`;
+    if (t.type === 'cm') return `<span class="cm">${t.text}</span>`;
+    if (t.type === 'nr') return `<span class="nr">${t.text}</span>`;
+    if (t.type === 'word') {
+      if (kws.has(t.text)) return `<span class="kw">${t.text}</span>`;
+      if (types.has(t.text)) return `<span class="tp">${t.text}</span>`;
+      const next = tokens[idx + 1];
+      if (next && (next.text === '(' || next.text === '.')) return `<span class="fn">${t.text}</span>`;
+      const prev = tokens[idx - 1];
+      if (prev && prev.text === '.') return `<span class="fn">${t.text}</span>`;
     }
+    return t.text;
+  }).join('');
+}
 
-    const kws = new Set(['package','import','func','return','var','const','type','struct',
-      'interface','if','else','for','range','switch','case','default','break','continue',
-      'go','defer','select','chan','map','true','false','nil','any','error']);
-    const types = new Set(['string','int','int8','int16','int32','int64',
-      'uint','uint8','uint16','uint32','uint64','float32','float64','bool','byte','rune']);
-
-    return tokens.map((t, idx) => {
-      if (t.type === 'str') return `<span class="str">${t.text}</span>`;
-      if (t.type === 'cm') return `<span class="cm">${t.text}</span>`;
-      if (t.type === 'nr') return `<span class="nr">${t.text}</span>`;
-      if (t.type === 'word') {
-        if (kws.has(t.text)) return `<span class="kw">${t.text}</span>`;
-        if (types.has(t.text)) return `<span class="tp">${t.text}</span>`;
-        // function call: word followed by ( or . , or word preceded by .
-        const next = tokens[idx + 1];
-        if (next && (next.text === '(' || next.text === '.')) return `<span class="fn">${t.text}</span>`;
-        const prev = tokens[idx - 1];
-        if (prev && prev.text === '.') return `<span class="fn">${t.text}</span>`;
-      }
-      return t.text;
-    }).join('');
-  }
-
-  function getDisplayName(type) {
-    if (displayNames[type.name]) return displayNames[type.name];
-    // for types with a single constructor, use that name
-    if (type.constructors?.length === 1) return type.constructors[0].name;
-    // for types with vars, use first var name
-    if (type.vars?.length) return type.vars[0].names[0];
-    return type.name;
-  }
-
-  function renderType(type) {
-    const el = document.createElement('div');
-    el.className = 'api-type';
-    const dname = getDisplayName(type);
-
-    // header: function name + struct annotation
-    const head = document.createElement('div');
-    head.className = 'api-type-head';
-    const name = document.createElement('div');
-    name.className = 'api-type-name';
-    name.textContent = dname;
-    head.appendChild(name);
-
-    if (dname !== type.name) {
-      const struct = document.createElement('span');
-      struct.className = 'api-type-struct';
-      struct.textContent = type.name;
-      head.appendChild(struct);
-    }
-
-    // kind hint for simple types (uint8, interface, etc.)
-    const declMatch = type.decl.match(/^type \w+(?:\[.*?\])? ([\s\S]+)/);
-    if (declMatch) {
-      const raw = declMatch[1].replace(/\{[\s\S]*\}/, '').replace(/struct\s*$/, '').trim();
-      if (raw && raw !== 'struct' && raw.length < 40) {
-        const kind = document.createElement('div');
-        kind.className = 'api-type-kind';
-        kind.textContent = raw;
-        head.appendChild(kind);
-      }
-    }
-    el.appendChild(head);
-
-    // doc — first paragraph only
-    if (type.doc) {
-      const doc = document.createElement('div');
-      doc.className = 'api-type-doc';
-      doc.textContent = briefDoc(type.doc);
-      el.appendChild(doc);
-    }
-
-    // examples — collected from type, constructors, and methods
-    const allExamples = [
-      ...(type.examples || []),
-      ...(type.constructors || []).flatMap(c => c.examples || []),
-      ...(type.methods || []).flatMap(m => m.examples || []),
-    ];
-    if (allExamples.length) {
-      const exContainer = document.createElement('div');
-      exContainer.className = 'api-examples';
-      allExamples.forEach(ex => {
-        const row = document.createElement('div');
-        row.className = 'api-example-row';
-
-        // left: prose pane
-        const prose = document.createElement('div');
-        prose.className = 'api-example-prose';
-        if (ex.doc) {
-          const raw = ex.doc.trim();
-          // split on first sentence: ". " or ".\n"
-          const m = raw.match(/^(.+?\.)\s*\n([\s\S]*)$/);
-          const title = (m ? m[1] : raw).replace(/\.$/, '');
-          const desc = m ? m[2].trim() : '';
-          const titleEl = document.createElement('div');
-          titleEl.className = 'api-example-title';
-          titleEl.textContent = title;
-          prose.appendChild(titleEl);
-          if (desc) {
-            const descEl = document.createElement('div');
-            descEl.className = 'api-example-desc';
-            descEl.textContent = desc;
-            prose.appendChild(descEl);
-          }
-        }
-        row.appendChild(prose);
-
-        // right: code pane
-        const code = document.createElement('div');
-        code.className = 'api-example-code';
-        const pre = document.createElement('pre');
-        pre.innerHTML = highlightGo(ex.code);
-        code.appendChild(pre);
-        row.appendChild(code);
-
-        exContainer.appendChild(row);
-      });
-      el.appendChild(exContainer);
-    }
-
-    // consts for this type
-    if (type.consts?.length) {
-      type.consts.forEach(c => {
-        const g = document.createElement('div');
-        g.className = 'api-var-group';
-        const names = document.createElement('div');
-        names.className = 'api-var-names';
-        names.textContent = c.names.join(', ');
-        g.appendChild(names);
-        if (c.doc) {
-          const d = document.createElement('div');
-          d.className = 'api-var-doc';
-          d.textContent = trimDoc(c.doc);
-          g.appendChild(d);
-        }
-        el.appendChild(g);
-      });
-    }
-
-    // constructors (skip if display name already IS the constructor)
-    if (type.constructors?.length) {
-      const ctors = document.createElement('div');
-      ctors.className = 'api-constructors';
-      type.constructors.forEach(c => {
-        const ct = document.createElement('div');
-        ct.className = 'api-ctor';
-        const sig = document.createElement('div');
-        sig.className = 'api-sig';
-        sig.textContent = c.signature;
-        ct.appendChild(sig);
-        if (c.doc) {
-          const d = document.createElement('div');
-          d.className = 'api-fn-doc';
-          d.textContent = trimDoc(c.doc);
-          ct.appendChild(d);
-        }
-        ctors.appendChild(ct);
-      });
-      el.appendChild(ctors);
-    }
-
-    // vars for this type
-    if (type.vars?.length) {
-      type.vars.forEach(v => {
-        const g = document.createElement('div');
-        g.className = 'api-var-group';
-        const names = document.createElement('div');
-        names.className = 'api-var-names';
-        names.textContent = v.names.join(', ');
-        g.appendChild(names);
-        if (v.doc) {
-          const d = document.createElement('div');
-          d.className = 'api-var-doc';
-          d.textContent = trimDoc(v.doc);
-          g.appendChild(d);
-        }
-        el.appendChild(g);
-      });
-    }
-
-    // methods — always visible, stacked list
-    if (type.methods?.length) {
-      const label = document.createElement('div');
-      label.className = 'api-methods-label';
-      label.innerHTML = `<span class="chevron">▶</span> Methods`;
-      el.appendChild(label);
-
-      const list = document.createElement('div');
-      list.className = 'api-methods-list';
-
-      label.addEventListener('click', () => {
-        label.classList.toggle('open');
-        list.classList.toggle('open');
-      });
-
-      type.methods.forEach(m => {
-        const me = document.createElement('div');
-        me.className = 'api-method';
-        // short form: .Name(params)
-        const sig = document.createElement('div');
-        sig.className = 'api-method-name';
-        // extract params: find "MethodName(" then grab to its balanced closing ")"
-        const mIdx = m.signature.indexOf(') ' + m.name + '(');
-        let params = '';
-        if (mIdx >= 0) {
-          const start = mIdx + 2 + m.name.length + 1;
-          let depth = 1, j = start;
-          while (j < m.signature.length && depth > 0) {
-            if (m.signature[j] === '(') depth++;
-            if (m.signature[j] === ')') depth--;
-            j++;
-          }
-          params = m.signature.slice(start, j - 1);
-        }
-        sig.textContent = `.${m.name}(${params})`;
-        me.appendChild(sig);
-        if (m.doc) {
-          const d = document.createElement('div');
-          d.className = 'api-method-doc';
-          d.textContent = trimDoc(m.doc);
-          me.appendChild(d);
-        }
-        list.appendChild(me);
-      });
-
-      el.appendChild(list);
-    }
-
-    return el;
-  }
-
-  function renderFreeFunctions(funcs) {
-    const cat = document.createElement('div');
-    cat.className = 'api-category';
-
-    const head = document.createElement('div');
-    head.className = 'api-category-head api-category-toggle';
-    head.innerHTML = `Functions <span class="cat-chevron">▶</span>`;
-    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
-    cat.appendChild(head);
-
-    const types = document.createElement('div');
-    types.className = 'api-category-types';
-
-    funcs.forEach(fn => {
-      const el = document.createElement('div');
-      el.className = 'api-free-fn';
-      const sig = document.createElement('div');
-      sig.className = 'api-sig';
-      sig.textContent = fn.signature;
-      el.appendChild(sig);
-      if (fn.doc) {
-        const d = document.createElement('div');
-        d.className = 'api-fn-doc';
-        d.textContent = trimDoc(fn.doc);
-        el.appendChild(d);
-      }
-      types.appendChild(el);
-    });
-
-    cat.appendChild(types);
-    return cat;
-  }
-
-  function renderVarsConsts(items, title) {
-    if (!items?.length) return null;
-    const cat = document.createElement('div');
-    cat.className = 'api-category';
-
-    const head = document.createElement('div');
-    head.className = 'api-category-head api-category-toggle';
-    head.innerHTML = `${esc(title)} <span class="cat-chevron">▶</span>`;
-    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
-    cat.appendChild(head);
-
-    const types = document.createElement('div');
-    types.className = 'api-category-types';
-
-    items.forEach(v => {
-      const g = document.createElement('div');
-      g.className = 'api-var-group';
-      const names = document.createElement('div');
-      names.className = 'api-var-names';
-      names.textContent = v.names.join(', ');
-      g.appendChild(names);
-      if (v.doc) {
-        const d = document.createElement('div');
-        d.className = 'api-var-doc';
-        d.textContent = trimDoc(v.doc);
-        g.appendChild(d);
-      }
-      const decl = document.createElement('div');
-      decl.className = 'api-var-decl';
-      decl.textContent = v.decl;
-      g.appendChild(decl);
-      types.appendChild(g);
-    });
-
-    cat.appendChild(types);
-    return cat;
-  }
-
-  function renderAPI(data) {
-    const container = document.getElementById('api-content');
-    container.innerHTML = '';
-
-    // group types by category, skipping hidden types
-    const groups = {};
-    categoryOrder.forEach(c => groups[c] = []);
-
-    data.types.forEach(type => {
-      if (hidden.has(type.name)) return;
-      const cat = categoryMap[type.name] || 'Other';
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(type);
-    });
-
-    // render each category
-    const orderedCats = [...categoryOrder];
-    if (groups['Other']?.length) orderedCats.push('Other');
-
-    orderedCats.forEach(catName => {
-      const typeList = groups[catName];
-      if (!typeList?.length) return;
-
-      const cat = document.createElement('div');
-      cat.className = 'api-category';
-      if (collapsedByDefault.has(catName)) cat.classList.add('collapsed');
-
-      const head = document.createElement('div');
-      head.className = 'api-category-head api-category-toggle';
-      head.innerHTML = `${esc(catName)} <span class="cat-chevron">▶</span>`;
-      head.addEventListener('click', () => cat.classList.toggle('collapsed'));
-      cat.appendChild(head);
-
-      const typesEl = document.createElement('div');
-      typesEl.className = 'api-category-types';
-
-      // sort: types with examples first, then those with constructors/methods, then alpha
-      typeList.sort((a, b) => {
-        const hasEx = t => (t.examples?.length || 0)
-          + (t.constructors || []).reduce((n, c) => n + (c.examples?.length || 0), 0)
-          + (t.methods || []).reduce((n, m) => n + (m.examples?.length || 0), 0);
-        const aEx = hasEx(a) ? 1 : 0;
-        const bEx = hasEx(b) ? 1 : 0;
-        if (aEx !== bEx) return bEx - aEx;
-        const aw = (a.constructors?.length || 0) + (a.methods?.length || 0);
-        const bw = (b.constructors?.length || 0) + (b.methods?.length || 0);
-        if (aw && !bw) return -1;
-        if (!aw && bw) return 1;
-        return getDisplayName(a).localeCompare(getDisplayName(b));
-      });
-
-      typeList.forEach(type => {
-        typesEl.appendChild(renderType(type));
-      });
-
-      cat.appendChild(typesEl);
-      container.appendChild(cat);
-    });
-
-    // free functions
-    if (data.funcs?.length) {
-      container.appendChild(renderFreeFunctions(data.funcs));
-    }
-
-    // package vars
-    const vars = renderVarsConsts(data.vars, 'Package Variables');
-    if (vars) container.appendChild(vars);
-
-    // package consts
-    const consts = renderVarsConsts(data.consts, 'Package Constants');
-    if (consts) container.appendChild(consts);
-  }
-
-  // highlight static code blocks (getting started, showcase)
-  document.querySelectorAll('.code-raw').forEach(el => {
-    el.innerHTML = highlightGo(el.textContent);
-    el.classList.remove('code-raw');
+// click-to-copy install command
+function copyInstall(el) {
+  const cmd = 'go get github.com/kungfusheep/forme@latest';
+  navigator.clipboard.writeText(cmd).then(() => {
+    const badge = el.querySelector('.copied');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 1500);
   });
+}
 
-  fetch('api.json')
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(renderAPI)
-    .catch(err => {
-      document.getElementById('api-content').innerHTML =
-        `<div class="api-loading">Failed to load API reference: ${esc(err.message)}</div>`;
-    });
-})();
+document.querySelectorAll('.code-raw').forEach(el => {
+  el.innerHTML = highlightGo(el.textContent);
+  el.classList.remove('code-raw');
+});
 </script>
 </body>
 </html>
