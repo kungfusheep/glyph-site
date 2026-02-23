@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Reference — forme</title>
+<link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
+<style>
+  @font-face {
+    font-family: 'Berkeley Mono';
+    src: url('BerkeleyMonoVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  :root {
+    --bg:       #f2f0ec;
+    --bg2:      #e6e4de;
+    --bg3:      #ffffff;
+    --bg-dark:  #131311;
+    --bg-dark2: #1a1a18;
+    --bg-dark3: #0e0e0c;
+    --fg0:  #131311;
+    --fg:   #3a3a36;
+    --fg2:  #6a6a64;
+    --fg3:  #8a8880;
+    --fg4:  #b0aba0;
+    --rule:    #d4d0c8;
+    --rule-dk: #262624;
+    --accent:  #c47d3c;
+    --mono:  'Berkeley Mono', monospace;
+    --akz:   'akzidenz-grotesk-next-pro', sans-serif;
+    --akz-c: 'akzidenz-grotesk-next-conden', sans-serif;
+    --din-r: 'din-2014-rounded-variable', sans-serif;
+    --s1: 8px;
+    --s2: 16px;
+    --s3: 24px;
+    --s4: 32px;
+    --s5: 48px;
+    --s6: 64px;
+    --s7: 80px;
+    --s8: 120px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: #c8c4b8;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: #e8e4d8; color: var(--bg-dark); }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--s5);
+    background: rgba(19, 19, 17, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule-dk);
+  }
+
+  .nav-brand {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 400;
+    font-size: 18px;
+    color: #e8e4d8;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--s3);
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover { color: #e8e4d8; }
+  .nav-links a.active { color: #e8e4d8; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .zone-dark  { background: var(--bg-dark); color: #c8c4b8; }
+  .zone-inner { max-width: 1060px; margin: 0 auto; padding: 0 var(--s5); }
+
+  /* ============================================================
+     SEARCH
+     ============================================================ */
+  .search-bar {
+    position: sticky;
+    top: 48px;
+    z-index: 90;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--rule-dk);
+    padding: 12px var(--s5);
+  }
+
+  .search-inner {
+    max-width: 1060px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
+    color: #c8c4b8;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 10px 40px 10px 16px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-input::placeholder { color: #444; }
+
+  .search-input:focus { border-color: #444; }
+
+  .search-hint {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #333;
+    pointer-events: none;
+    border: 1px solid #262624;
+    padding: 2px 6px;
+    line-height: 1;
+  }
+
+  .search-hint.hidden { display: none; }
+
+  .search-count {
+    font-size: 11px;
+    color: #444;
+    margin-top: 6px;
+  }
+
+  .search-count.hidden { display: none; }
+
+  /* ============================================================
+     SIDEBAR TREE NAV
+     ============================================================ */
+  .sidebar {
+    position: fixed;
+    top: 96px;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    background: var(--bg-dark);
+    border-right: 1px solid var(--rule-dk);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 80;
+    padding: var(--s3) 0;
+    scrollbar-width: thin;
+    scrollbar-color: #262624 transparent;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: #262624; border-radius: 2px; }
+
+  .sidebar-cat {
+    margin-bottom: var(--s1);
+  }
+
+  .sidebar-cat-head {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #444;
+    padding: 6px 20px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+
+  .sidebar-cat-head:hover { color: #666; }
+
+  .sidebar-cat-head .sc-chevron {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    transform-origin: center;
+    stroke: #444;
+  }
+
+  .sidebar-cat-head:hover .sc-chevron { stroke: #666; }
+
+  .sidebar-cat.open > .sidebar-cat-head .sc-chevron {
+    transform: rotate(90deg);
+  }
+
+  .sidebar-cat-items {
+    display: none;
+  }
+
+  .sidebar-cat.open > .sidebar-cat-items {
+    display: block;
+  }
+
+  .sidebar-item {
+    display: block;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #555;
+    text-decoration: none;
+    padding: 3px 20px 3px 32px;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-item:hover {
+    color: #999;
+  }
+
+  .sidebar-item.active {
+    color: #c8c4b8;
+    border-left-color: var(--accent);
+  }
+
+  /* type-level expand chevron */
+  .sidebar-type-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-type-row .sidebar-item { flex: 1; }
+
+  .sidebar-type-chevron {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px 4px 4px;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .sidebar-type-chevron .sc-chevron {
+    transition: transform 0.2s;
+    transform-origin: center;
+  }
+
+  .sidebar-type-chevron .sc-chevron { stroke: #333; transition: stroke 0.15s; }
+  .sidebar-type-chevron:hover .sc-chevron { stroke: #666; }
+  .sidebar-type-row.open > .sidebar-type-chevron .sc-chevron { transform: rotate(90deg); }
+
+  /* method sub-items */
+  .sidebar-methods {
+    display: none;
+  }
+
+  .sidebar-type-row.open + .sidebar-methods { display: block; }
+
+  .sidebar-method {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #383836;
+    text-decoration: none;
+    padding: 1px 20px 1px 44px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.1s;
+  }
+
+  .sidebar-method:hover { color: #777; }
+
+  /* hamburger button — hidden on desktop */
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 12px;
+  }
+
+  .hamburger svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    stroke: #888;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: stroke 0.15s;
+  }
+
+  .hamburger:hover svg { stroke: #e8e4d8; }
+
+  /* backdrop for mobile sidebar */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 79;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-backdrop.visible { display: block; }
+
+  /* desktop: sidebar visible, content shifted */
+  @media (min-width: 1061px) {
+    .sidebar { display: block; }
+    .zone-inner { margin-left: 240px; margin-right: auto; }
+    .footer-wrap .zone-inner { margin-left: 240px; }
+    .search-bar { padding-left: calc(240px + var(--s5)); }
+    .search-inner { margin-left: 0; }
+  }
+
+  /* tablet/mobile: sidebar hidden behind hamburger */
+  @media (max-width: 1060px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 110;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .hamburger { display: block; }
+  }
+
+  /* ============================================================
+     SECTION HEADERS
+     ============================================================ */
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s4);
+    padding: var(--s7) 0 var(--s4);
+  }
+
+  .section-num {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 200;
+    font-size: 84px;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    flex-shrink: 0;
+    min-width: 110px;
+    color: #1e1e1c;
+  }
+
+  .section-meta { padding-top: 8px; }
+
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #444;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 34px;
+    color: #e8e4d8;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.75;
+    font-style: italic;
+    max-width: 540px;
+    margin: var(--s2) 0 var(--s5);
+    border-left: 2px solid #333;
+    padding-left: 20px;
+  }
+
+  /* ============================================================
+     CODE BLOCKS
+     ============================================================ */
+  .code {
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
+    padding: var(--s3);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: var(--s3) 0;
+    overflow-x: auto;
+    color: #c8c4b8;
+    white-space: pre;
+    tab-size: 4;
+  }
+
+  .code .kw  { color: #9abf8a; }
+  .code .fn  { color: #eeeee4; }
+  .code .str { color: #c4a06a; }
+  .code .cm  { color: #555; }
+  .code .tp  { color: #7a9aba; }
+
+  /* ============================================================
+     API REFERENCE
+     ============================================================ */
+
+  /* template syntax showcase */
+  .api-showcase {
+    margin-bottom: var(--s7);
+    padding: var(--s5) 0;
+    border-bottom: 1px solid var(--rule-dk);
+  }
+  .api-showcase-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: var(--s3);
+  }
+  .api-showcase .code {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: var(--s3);
+  }
+  .api-showcase-note {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+    max-width: 560px;
+  }
+
+  /* category sections */
+  .api-category {
+    margin-bottom: var(--s7);
+  }
+  .api-category-head {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #666;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--rule-dk);
+    margin-bottom: var(--s5);
+  }
+
+  /* individual type blocks */
+  .api-type {
+    margin-bottom: var(--s6);
+    scroll-margin-top: 112px;
+    padding-left: var(--s2);
+    border-left: 3px solid transparent;
+  }
+  .api-type.highlighted { border-left-color: var(--accent); }
+  .api-type.search-hidden { display: none; }
+  .api-type-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .api-type-name {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: #e8e4d8;
+  }
+  .api-type-kind {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #444;
+    letter-spacing: 0.02em;
+  }
+  .api-type-doc {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.7;
+    max-width: 620px;
+    margin-bottom: var(--s2);
+  }
+  .api-type-decl {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #666;
+    margin-bottom: var(--s3);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  /* constructors */
+  .api-constructors {
+    margin-top: var(--s3);
+    margin-bottom: var(--s3);
+  }
+  .api-ctor {
+    margin-bottom: var(--s2);
+  }
+  .api-sig {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #c8c4b8;
+    line-height: 1.5;
+  }
+  .api-fn-doc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 2px;
+    max-width: 620px;
+  }
+
+  /* methods — stacked list, collapsible */
+  .api-methods-label {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #444;
+    padding-bottom: var(--s2);
+    border-bottom: 1px solid #1e1e1c;
+    margin-top: var(--s5);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s;
+  }
+  .api-methods-label:hover { color: #666; }
+  .api-methods-label .chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 9px;
+  }
+  .api-methods-label.open .chevron { transform: rotate(90deg); }
+  .api-methods-list {
+    display: none;
+  }
+  .api-methods-list.open { display: block; }
+  .api-method {
+    padding: var(--s3) var(--s2);
+    border-bottom: 1px solid #1e1e1c;
+    scroll-margin-top: 112px;
+    border-left: 3px solid transparent;
+  }
+  .api-method.highlighted { border-left-color: var(--accent); }
+  .api-method:last-child { border-bottom: none; }
+  .api-method-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #c8c4b8;
+    margin-bottom: 4px;
+  }
+  .api-method-doc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* consts & vars blocks */
+  .api-vars-section,
+  .api-consts-section {
+    margin-bottom: var(--s6);
+  }
+  .api-vars-section .api-type-name,
+  .api-consts-section .api-type-name {
+    font-size: 18px;
+    margin-bottom: var(--s2);
+  }
+  .api-var-group {
+    margin-bottom: var(--s3);
+  }
+  .api-var-names {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #c8c4b8;
+    margin-bottom: 2px;
+  }
+  .api-var-doc {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .api-var-decl {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #444;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  /* free functions section */
+  .api-free-fn {
+    margin-bottom: var(--s3);
+  }
+
+  /* internals collapsed by default */
+  .api-category.collapsed .api-category-types { display: none; }
+  .api-category-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
+  .api-category-toggle .cat-chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+    margin-left: 8px;
+    font-size: 11px;
+  }
+  .api-category.collapsed .cat-chevron { transform: rotate(0deg); }
+  .api-category:not(.collapsed) .cat-chevron { transform: rotate(90deg); }
+
+  /* examples — rounded cards, split pane on desktop, stacked on mobile */
+  .api-examples {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    margin-top: var(--s3);
+  }
+  .api-example-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 35%) 1fr;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e1e1c;
+  }
+  .api-example-prose {
+    padding: var(--s3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .api-example-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 13px;
+    color: #c8c4b8;
+    line-height: 1.3;
+  }
+  .api-example-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .api-example-code {
+    padding: var(--s3);
+    background: rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+  }
+  .api-example-code pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #999;
+    line-height: 1.6;
+    white-space: pre;
+    tab-size: 4;
+    margin: 0;
+  }
+  .api-example-code .cm  { color: #444; }
+  .api-example-code .kw  { color: #9abf8a; }
+  .api-example-code .fn  { color: #eeeee4; }
+  .api-example-code .str { color: #c4a06a; }
+  .api-example-code .tp  { color: #7a9aba; }
+  .api-example-code .nr  { color: #c4a06a; }
+
+  @media (max-width: 768px) {
+    .api-example-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* struct annotation */
+  .api-type-struct {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #444;
+    margin-left: 10px;
+  }
+
+  /* loading state */
+  .api-loading {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #555;
+    padding: var(--s5) 0;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    padding: var(--s5) 0;
+    border-top: 1px solid var(--rule-dk);
+    font-size: 11px;
+    color: #444;
+  }
+
+  footer a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  footer a:hover { color: #e8e4d8; }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  @media (max-width: 1024px) {
+    .code,
+    .api-example-code pre { font-stretch: 87%; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 var(--s3); }
+    .zone-inner { padding: 0 var(--s3); }
+    .search-bar { padding: 12px var(--s3); }
+    .section-head { flex-direction: column; gap: var(--s2); }
+    .section-num { font-size: 48px; min-width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav>
+  <div style="display:flex;align-items:center;">
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+      <svg viewBox="0 0 18 18" fill="none"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
+    </button>
+    <a href="index.html" class="nav-brand">forme</a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="concepts.html">Concepts</a></li>
+    <li><a href="api.html" class="active">API</a></li>
+    <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- sidebar tree nav (populated by JS) -->
+<aside class="sidebar" id="sidebar"></aside>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<!-- ============================================================
+     SEARCH
+     ============================================================ -->
+<div class="search-bar">
+  <div class="search-inner">
+    <input type="text" class="search-input" id="search" placeholder="Search API..." autocomplete="off" spellcheck="false">
+    <span class="search-hint" id="search-hint">/</span>
+    <div class="search-count hidden" id="search-count"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     API REFERENCE
+     ============================================================ -->
+<div class="zone-dark">
+  <div class="zone-inner">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-meta">
+        <div class="section-label">Reference</div>
+        <div class="section-title">API</div>
+      </div>
+    </div>
+
+    <div class="section-desc">
+      The complete API surface, generated from source. All examples are compiler-verified.
+    </div>
+
+    <div class="api-showcase">
+      <div class="api-showcase-label">The template syntax</div>
+      <div class="code code-raw">VBox.Gap(2).Border(BorderRounded).CascadeStyle(&theme)(
+    Text(&title).Bold().FG(Cyan),
+    HBox.Gap(1)(
+        Text(&count),
+        Space(),
+        Text("items"),
+    ),
+    List(&items).Render(func(item *string) any {
+        return Text(item)
+    }).BindNav("j", "k"),
+)</div>
+      <div class="api-showcase-note">Configure with chained methods, then call as a function with children. Values behind pointers are dereferenced every render pass — no subscriptions, no signals.</div>
+    </div>
+
+    <div id="api-content">
+      <div class="api-loading">Loading API reference...</div>
+    </div>
+    <div style="height:50vh"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<div class="zone-dark footer-wrap">
+  <div class="zone-inner">
+    <footer>
+      <div class="footer-inner">
+        <span>forme — built by <a href="#">Pete Griffiths</a></span>
+        <span><a href="https://github.com/kungfusheep/forme">source</a></span>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+
+// ============================================================
+// API REFERENCE — fetch api.json + render (function-first)
+// ============================================================
+(function() {
+
+  const displayNames = {
+    VBoxFn: 'VBox', HBoxFn: 'HBox', OverlayFn: 'Overlay',
+    TextC: 'Text', InputC: 'Input', ListC: 'List',
+    CheckListC: 'CheckList', TabsC: 'Tabs',
+    FilterListC: 'FilterList', FilterLogC: 'FilterLog', LogC: 'Log',
+    LayerViewC: 'LayerView', JumpC: 'Jump',
+    RadioC: 'Radio', CheckboxC: 'Checkbox',
+    FormC: 'Form', ScrollbarC: 'Scroll',
+    HRuleC: 'HRule', VRuleC: 'VRule', LeaderC: 'Leader',
+    SpacerC: 'Spacer', AutoTableC: 'AutoTable',
+    SparklineC: 'Sparkline', ProgressC: 'Progress', SpinnerC: 'Spinner',
+    ForEachC: 'ForEach', Condition: 'If', OrdCondition: 'IfOrd',
+    SwitchBuilder: 'Switch', RichTextNode: 'Rich',
+    Custom: 'Widget', ThemeEx: 'Theme',
+  };
+
+  const hidden = new Set([
+    'VBoxC', 'HBoxC', 'OverlayC',
+    'VBoxNode', 'HBoxNode', 'OverlayNode', 'SpacerNode',
+    'TextNode', 'TabsNode', 'HRuleNode', 'VRuleNode', 'LeaderNode',
+    'JumpNode', 'ScrollbarNode', 'SparklineNode', 'ProgressNode', 'SpinnerNode',
+    'IfNode', 'ElseNode', 'SwitchNode', 'ForEachNode', 'LayerViewNode',
+    'ChildSize', 'Size', 'Rect', 'Component', 'TextInput', 'Renderer',
+    'LayoutFunc', 'Layout', 'FocusGroup',
+  ]);
+
+  const categoryMap = {
+    App: 'App & Lifecycle', ViewBuilder: 'App & Lifecycle',
+    VBoxFn: 'Layout', HBoxFn: 'Layout', OverlayFn: 'Layout',
+    SpacerC: 'Layout', Box: 'Layout', Flex: 'Layout',
+    TextC: 'Components', InputC: 'Components', InputState: 'Components',
+    ListC: 'Components', CheckListC: 'Components',
+    TabsC: 'Components', TabsStyle: 'Components',
+    FilterListC: 'Components', FilterLogC: 'Components', LogC: 'Components',
+    LayerViewC: 'Components',
+    JumpC: 'Components', JumpMode: 'Components',
+    JumpStyle: 'Components', JumpTarget: 'Components',
+    RadioC: 'Components', CheckboxC: 'Components',
+    FormC: 'Components', FormField: 'Components',
+    ScrollbarC: 'Components', HRuleC: 'Components', VRuleC: 'Components',
+    LeaderC: 'Components', Custom: 'Components',
+    AutoTableC: 'Data Display', Table: 'Data Display', TableColumn: 'Data Display',
+    SparklineC: 'Data Display', ProgressC: 'Data Display', SpinnerC: 'Data Display',
+    TreeNode: 'Data Display', TreeView: 'Data Display',
+    ColumnOption: 'Data Display', ColumnConfig: 'Data Display',
+    Condition: 'Control Flow', ConditionEval: 'Control Flow',
+    OrdCondition: 'Control Flow', OrdConditionEval: 'Control Flow',
+    SwitchBuilder: 'Control Flow', ForEachC: 'Control Flow',
+    Style: 'Style & Theme', Color: 'Style & Theme', ColorMode: 'Style & Theme',
+    Attribute: 'Style & Theme', BorderStyle: 'Style & Theme',
+    ThemeEx: 'Style & Theme', TextTransform: 'Style & Theme',
+    Align: 'Style & Theme', CursorShape: 'Style & Theme', Cursor: 'Style & Theme',
+    RichTextNode: 'Rich Text', Span: 'Rich Text',
+    Template: 'Internals', Op: 'Internals', OpKind: 'Internals',
+    Geom: 'Internals', Buffer: 'Internals', BufferPool: 'Internals',
+    Screen: 'Internals', Cell: 'Internals', Region: 'Internals',
+    Layer: 'Internals', Filter: 'Internals', FzfQuery: 'Internals',
+    FocusManager: 'Internals', SelectionList: 'Internals',
+    FlushStats: 'Internals', Timings: 'Internals',
+    FlexNode: 'Internals', FlexNodeKind: 'Internals', FlexTree: 'Internals',
+    HorizontalLayout: 'Internals', VerticalLayout: 'Internals',
+  };
+
+  const categoryOrder = [
+    'App & Lifecycle', 'Layout', 'Components', 'Data Display',
+    'Control Flow', 'Style & Theme', 'Rich Text', 'Internals'
+  ];
+
+  const collapsedByDefault = new Set(['Internals']);
+
+  // all rendered type elements, keyed by type name for search filtering
+  let typeElements = [];
+  let apiData = null;
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function trimDoc(s) {
+    return (s || '').replace(/\n$/, '');
+  }
+
+  function briefDoc(s) {
+    if (!s) return '';
+    const para = s.split(/\n\n/)[0].trim();
+    const m = para.match(/^(.+?\.\s+.+?\.)\s/);
+    return m ? m[1] : para;
+  }
+
+  function highlightGo(raw) {
+    const s = esc(raw);
+    const tokens = [];
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === '"' || s[i] === '`') {
+        const q = s[i];
+        let j = i + 1;
+        while (j < s.length && s[j] !== q) { if (s[j] === '\\' && q === '"') j++; j++; }
+        tokens.push({ type: 'str', text: s.slice(i, j + 1) });
+        i = j + 1;
+      } else if (s.slice(i, i + 4) === '&amp' || s.slice(i, i + 3) === '&lt' || s.slice(i, i + 3) === '&gt') {
+        let j = s.indexOf(';', i);
+        if (j === -1) j = i;
+        tokens.push({ type: 'text', text: s.slice(i, j + 1) });
+        i = j + 1;
+      } else if (s.slice(i, i + 2) === '//') {
+        let j = s.indexOf('\n', i);
+        if (j === -1) j = s.length;
+        tokens.push({ type: 'cm', text: s.slice(i, j) });
+        i = j;
+      } else if (/[a-zA-Z_]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[a-zA-Z0-9_]/.test(s[j])) j++;
+        tokens.push({ type: 'word', text: s.slice(i, j) });
+        i = j;
+      } else if (/[0-9]/.test(s[i])) {
+        let j = i;
+        while (j < s.length && /[0-9.x]/.test(s[j])) j++;
+        tokens.push({ type: 'nr', text: s.slice(i, j) });
+        i = j;
+      } else {
+        tokens.push({ type: 'text', text: s[i] });
+        i++;
+      }
+    }
+
+    const kws = new Set(['package','import','func','return','var','const','type','struct',
+      'interface','if','else','for','range','switch','case','default','break','continue',
+      'go','defer','select','chan','map','true','false','nil','any','error']);
+    const types = new Set(['string','int','int8','int16','int32','int64',
+      'uint','uint8','uint16','uint32','uint64','float32','float64','bool','byte','rune']);
+
+    return tokens.map((t, idx) => {
+      if (t.type === 'str') return `<span class="str">${t.text}</span>`;
+      if (t.type === 'cm') return `<span class="cm">${t.text}</span>`;
+      if (t.type === 'nr') return `<span class="nr">${t.text}</span>`;
+      if (t.type === 'word') {
+        if (kws.has(t.text)) return `<span class="kw">${t.text}</span>`;
+        if (types.has(t.text)) return `<span class="tp">${t.text}</span>`;
+        const next = tokens[idx + 1];
+        if (next && (next.text === '(' || next.text === '.')) return `<span class="fn">${t.text}</span>`;
+        const prev = tokens[idx - 1];
+        if (prev && prev.text === '.') return `<span class="fn">${t.text}</span>`;
+      }
+      return t.text;
+    }).join('');
+  }
+
+  function getDisplayName(type) {
+    if (displayNames[type.name]) return displayNames[type.name];
+    if (type.constructors?.length === 1) return type.constructors[0].name;
+    if (type.vars?.length) return type.vars[0].names[0];
+    return type.name;
+  }
+
+  function renderType(type) {
+    const el = document.createElement('div');
+    el.className = 'api-type';
+    const dname = getDisplayName(type);
+    el.id = dname;
+
+    // store searchable text on the element
+    const searchTerms = [dname, type.name, type.doc || ''];
+    (type.constructors || []).forEach(c => searchTerms.push(c.name, c.doc || ''));
+    (type.methods || []).forEach(m => searchTerms.push(m.name, m.doc || ''));
+    (type.examples || []).forEach(e => searchTerms.push(e.doc || ''));
+    (type.constructors || []).flatMap(c => c.examples || []).forEach(e => searchTerms.push(e.doc || ''));
+    (type.methods || []).flatMap(m => m.examples || []).forEach(e => searchTerms.push(e.doc || ''));
+    el._searchText = searchTerms.join(' ').toLowerCase();
+    el._displayName = dname.toLowerCase();
+    el._typeName = type.name;
+    el._methods = (type.methods || []).map(m => m.name);
+
+    const head = document.createElement('div');
+    head.className = 'api-type-head';
+    const name = document.createElement('div');
+    name.className = 'api-type-name';
+    name.textContent = dname;
+    head.appendChild(name);
+
+    if (dname !== type.name) {
+      const struct = document.createElement('span');
+      struct.className = 'api-type-struct';
+      struct.textContent = type.name;
+      head.appendChild(struct);
+    }
+
+    const declMatch = type.decl.match(/^type \w+(?:\[.*?\])? ([\s\S]+)/);
+    if (declMatch) {
+      const raw = declMatch[1].replace(/\{[\s\S]*\}/, '').replace(/struct\s*$/, '').trim();
+      if (raw && raw !== 'struct' && raw.length < 40) {
+        const kind = document.createElement('div');
+        kind.className = 'api-type-kind';
+        kind.textContent = raw;
+        head.appendChild(kind);
+      }
+    }
+    el.appendChild(head);
+
+    if (type.doc) {
+      const doc = document.createElement('div');
+      doc.className = 'api-type-doc';
+      doc.textContent = briefDoc(type.doc);
+      el.appendChild(doc);
+    }
+
+    const allExamples = [
+      ...(type.examples || []),
+      ...(type.constructors || []).flatMap(c => c.examples || []),
+      ...(type.methods || []).flatMap(m => m.examples || []),
+    ];
+    if (allExamples.length) {
+      const exContainer = document.createElement('div');
+      exContainer.className = 'api-examples';
+      allExamples.forEach(ex => {
+        const row = document.createElement('div');
+        row.className = 'api-example-row';
+
+        const prose = document.createElement('div');
+        prose.className = 'api-example-prose';
+        if (ex.doc) {
+          const raw = ex.doc.trim();
+          const m = raw.match(/^(.+?\.)\s*\n([\s\S]*)$/);
+          const title = (m ? m[1] : raw).replace(/\.$/, '');
+          const desc = m ? m[2].trim() : '';
+          const titleEl = document.createElement('div');
+          titleEl.className = 'api-example-title';
+          titleEl.textContent = title;
+          prose.appendChild(titleEl);
+          if (desc) {
+            const descEl = document.createElement('div');
+            descEl.className = 'api-example-desc';
+            descEl.textContent = desc;
+            prose.appendChild(descEl);
+          }
+        }
+        row.appendChild(prose);
+
+        const code = document.createElement('div');
+        code.className = 'api-example-code';
+        const pre = document.createElement('pre');
+        pre.innerHTML = highlightGo(ex.code);
+        code.appendChild(pre);
+        row.appendChild(code);
+
+        exContainer.appendChild(row);
+      });
+      el.appendChild(exContainer);
+    }
+
+    if (type.consts?.length) {
+      type.consts.forEach(c => {
+        const g = document.createElement('div');
+        g.className = 'api-var-group';
+        const names = document.createElement('div');
+        names.className = 'api-var-names';
+        names.textContent = c.names.join(', ');
+        g.appendChild(names);
+        if (c.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-var-doc';
+          d.textContent = trimDoc(c.doc);
+          g.appendChild(d);
+        }
+        el.appendChild(g);
+      });
+    }
+
+    if (type.constructors?.length) {
+      const ctors = document.createElement('div');
+      ctors.className = 'api-constructors';
+      type.constructors.forEach(c => {
+        const ct = document.createElement('div');
+        ct.className = 'api-ctor';
+        const sig = document.createElement('div');
+        sig.className = 'api-sig';
+        sig.textContent = c.signature;
+        ct.appendChild(sig);
+        if (c.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-fn-doc';
+          d.textContent = trimDoc(c.doc);
+          ct.appendChild(d);
+        }
+        ctors.appendChild(ct);
+      });
+      el.appendChild(ctors);
+    }
+
+    if (type.vars?.length) {
+      type.vars.forEach(v => {
+        const g = document.createElement('div');
+        g.className = 'api-var-group';
+        const names = document.createElement('div');
+        names.className = 'api-var-names';
+        names.textContent = v.names.join(', ');
+        g.appendChild(names);
+        if (v.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-var-doc';
+          d.textContent = trimDoc(v.doc);
+          g.appendChild(d);
+        }
+        el.appendChild(g);
+      });
+    }
+
+    if (type.methods?.length) {
+      const label = document.createElement('div');
+      label.className = 'api-methods-label';
+      label.innerHTML = `<span class="chevron">&#9654;</span> Methods`;
+      el.appendChild(label);
+
+      const list = document.createElement('div');
+      list.className = 'api-methods-list';
+
+      label.addEventListener('click', () => {
+        label.classList.toggle('open');
+        list.classList.toggle('open');
+      });
+
+      type.methods.forEach(m => {
+        const me = document.createElement('div');
+        me.className = 'api-method';
+        me.id = dname + '.' + m.name;
+        const sig = document.createElement('div');
+        sig.className = 'api-method-name';
+        const mIdx = m.signature.indexOf(') ' + m.name + '(');
+        let params = '';
+        if (mIdx >= 0) {
+          const start = mIdx + 2 + m.name.length + 1;
+          let depth = 1, j = start;
+          while (j < m.signature.length && depth > 0) {
+            if (m.signature[j] === '(') depth++;
+            if (m.signature[j] === ')') depth--;
+            j++;
+          }
+          params = m.signature.slice(start, j - 1);
+        }
+        sig.textContent = `.${m.name}(${params})`;
+        me.appendChild(sig);
+        if (m.doc) {
+          const d = document.createElement('div');
+          d.className = 'api-method-doc';
+          d.textContent = trimDoc(m.doc);
+          me.appendChild(d);
+        }
+        list.appendChild(me);
+      });
+
+      el.appendChild(list);
+    }
+
+    return el;
+  }
+
+  function renderFreeFunctions(funcs) {
+    const cat = document.createElement('div');
+    cat.className = 'api-category';
+
+    const head = document.createElement('div');
+    head.className = 'api-category-head api-category-toggle';
+    head.innerHTML = `Functions <span class="cat-chevron">&#9654;</span>`;
+    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+    cat.appendChild(head);
+
+    const types = document.createElement('div');
+    types.className = 'api-category-types';
+
+    funcs.forEach(fn => {
+      const el = document.createElement('div');
+      el.className = 'api-free-fn';
+      const sig = document.createElement('div');
+      sig.className = 'api-sig';
+      sig.textContent = fn.signature;
+      el.appendChild(sig);
+      if (fn.doc) {
+        const d = document.createElement('div');
+        d.className = 'api-fn-doc';
+        d.textContent = trimDoc(fn.doc);
+        el.appendChild(d);
+      }
+      types.appendChild(el);
+    });
+
+    cat.appendChild(types);
+    return cat;
+  }
+
+  function renderVarsConsts(items, title) {
+    if (!items?.length) return null;
+    const cat = document.createElement('div');
+    cat.className = 'api-category';
+
+    const head = document.createElement('div');
+    head.className = 'api-category-head api-category-toggle';
+    head.innerHTML = `${esc(title)} <span class="cat-chevron">&#9654;</span>`;
+    head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+    cat.appendChild(head);
+
+    const types = document.createElement('div');
+    types.className = 'api-category-types';
+
+    items.forEach(v => {
+      const g = document.createElement('div');
+      g.className = 'api-var-group';
+      const names = document.createElement('div');
+      names.className = 'api-var-names';
+      names.textContent = v.names.join(', ');
+      g.appendChild(names);
+      if (v.doc) {
+        const d = document.createElement('div');
+        d.className = 'api-var-doc';
+        d.textContent = trimDoc(v.doc);
+        g.appendChild(d);
+      }
+      const decl = document.createElement('div');
+      decl.className = 'api-var-decl';
+      decl.textContent = v.decl;
+      g.appendChild(decl);
+      types.appendChild(g);
+    });
+
+    cat.appendChild(types);
+    return cat;
+  }
+
+  function renderAPI(data) {
+    apiData = data;
+    const container = document.getElementById('api-content');
+    container.innerHTML = '';
+    typeElements = [];
+
+    const groups = {};
+    categoryOrder.forEach(c => groups[c] = []);
+
+    data.types.forEach(type => {
+      if (hidden.has(type.name)) return;
+      const cat = categoryMap[type.name] || 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(type);
+    });
+
+    const orderedCats = [...categoryOrder];
+    if (groups['Other']?.length) orderedCats.push('Other');
+
+    orderedCats.forEach(catName => {
+      const typeList = groups[catName];
+      if (!typeList?.length) return;
+
+      const cat = document.createElement('div');
+      cat.className = 'api-category';
+      cat.dataset.category = catName;
+      if (collapsedByDefault.has(catName)) cat.classList.add('collapsed');
+
+      const head = document.createElement('div');
+      head.className = 'api-category-head api-category-toggle';
+      head.innerHTML = `${esc(catName)} <span class="cat-chevron">&#9654;</span>`;
+      head.addEventListener('click', () => cat.classList.toggle('collapsed'));
+      cat.appendChild(head);
+
+      const typesEl = document.createElement('div');
+      typesEl.className = 'api-category-types';
+
+      typeList.sort((a, b) => {
+        const hasEx = t => (t.examples?.length || 0)
+          + (t.constructors || []).reduce((n, c) => n + (c.examples?.length || 0), 0)
+          + (t.methods || []).reduce((n, m) => n + (m.examples?.length || 0), 0);
+        const aEx = hasEx(a) ? 1 : 0;
+        const bEx = hasEx(b) ? 1 : 0;
+        if (aEx !== bEx) return bEx - aEx;
+        const aw = (a.constructors?.length || 0) + (a.methods?.length || 0);
+        const bw = (b.constructors?.length || 0) + (b.methods?.length || 0);
+        if (aw && !bw) return -1;
+        if (!aw && bw) return 1;
+        return getDisplayName(a).localeCompare(getDisplayName(b));
+      });
+
+      typeList.forEach(type => {
+        const el = renderType(type);
+        el._category = catName;
+        typeElements.push(el);
+        typesEl.appendChild(el);
+      });
+
+      cat.appendChild(typesEl);
+      container.appendChild(cat);
+    });
+
+    if (data.funcs?.length) {
+      container.appendChild(renderFreeFunctions(data.funcs));
+    }
+
+    const vars = renderVarsConsts(data.vars, 'Package Variables');
+    if (vars) container.appendChild(vars);
+
+    const consts = renderVarsConsts(data.consts, 'Package Constants');
+    if (consts) container.appendChild(consts);
+  }
+
+  // ============================================================
+  // SIDEBAR TREE NAV
+  // ============================================================
+
+  const sidebar = document.getElementById('sidebar');
+  const hamburger = document.getElementById('hamburger');
+  const backdrop = document.getElementById('sidebar-backdrop');
+
+  function chevronSVG(size) {
+    const s = size || 10;
+    return `<svg class="sc-chevron" width="${s}" height="${s}" viewBox="0 0 10 10" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 2 L7 5 L3.5 8"/></svg>`;
+  }
+
+  let highlightedEl = null;
+  function highlightTarget(el) {
+    if (highlightedEl) highlightedEl.classList.remove('highlighted');
+    if (el) el.classList.add('highlighted');
+    highlightedEl = el;
+  }
+
+  function scrollToType(name) {
+    const target = document.getElementById(name);
+    if (!target) return;
+    const parentCat = target.closest('.api-category');
+    if (parentCat) parentCat.classList.remove('collapsed');
+    clickLock = Date.now() + 800;
+    setActiveItem(name);
+    highlightTarget(target);
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    history.replaceState(null, '', '#' + name);
+    closeMobileSidebar();
+  }
+
+  function buildSidebar() {
+    sidebar.innerHTML = '';
+    const catEls = document.querySelectorAll('.api-category[data-category]');
+    catEls.forEach(catEl => {
+      const catName = catEl.dataset.category;
+      const types = catEl.querySelectorAll('.api-type');
+      if (!types.length) return;
+
+      const cat = document.createElement('div');
+      cat.className = 'sidebar-cat';
+      if (!collapsedByDefault.has(catName)) cat.classList.add('open');
+
+      const head = document.createElement('div');
+      head.className = 'sidebar-cat-head';
+      head.innerHTML = `${chevronSVG(10)} ${esc(catName)}`;
+      head.addEventListener('click', () => cat.classList.toggle('open'));
+      cat.appendChild(head);
+
+      const items = document.createElement('div');
+      items.className = 'sidebar-cat-items';
+
+      types.forEach(typeEl => {
+        const name = typeEl.id;
+        if (!name) return;
+        const methods = typeEl._methods || [];
+        const hasMethods = methods.length > 0;
+
+        if (hasMethods) {
+          const row = document.createElement('div');
+          row.className = 'sidebar-type-row';
+
+          const chevron = document.createElement('span');
+          chevron.className = 'sidebar-type-chevron';
+          chevron.innerHTML = chevronSVG(9);
+          chevron.addEventListener('click', e => {
+            e.stopPropagation();
+            row.classList.toggle('open');
+          });
+
+          const a = document.createElement('a');
+          a.className = 'sidebar-item';
+          a.textContent = name;
+          a.href = '#' + name;
+          a.dataset.target = name;
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            scrollToType(name);
+          });
+
+          row.appendChild(a);
+          row.appendChild(chevron);
+          items.appendChild(row);
+
+          const methodList = document.createElement('div');
+          methodList.className = 'sidebar-methods';
+          methods.forEach(mName => {
+            const mId = name + '.' + mName;
+            const ma = document.createElement('a');
+            ma.className = 'sidebar-method';
+            ma.textContent = '.' + mName;
+            ma.href = '#' + mId;
+            ma.addEventListener('click', e => {
+              e.preventDefault();
+              const target = document.getElementById(mId);
+              if (!target) return;
+              // expand parent category + methods list in main content
+              const parentCat = target.closest('.api-category');
+              if (parentCat) parentCat.classList.remove('collapsed');
+              const methodsLabel = target.closest('.api-methods-list')?.previousElementSibling;
+              if (methodsLabel && !methodsLabel.classList.contains('open')) {
+                methodsLabel.classList.add('open');
+                methodsLabel.nextElementSibling.classList.add('open');
+              }
+              highlightTarget(target);
+              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              history.replaceState(null, '', '#' + mId);
+              closeMobileSidebar();
+            });
+            methodList.appendChild(ma);
+          });
+          items.appendChild(methodList);
+        } else {
+          const a = document.createElement('a');
+          a.className = 'sidebar-item';
+          a.textContent = name;
+          a.href = '#' + name;
+          a.dataset.target = name;
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            scrollToType(name);
+          });
+          items.appendChild(a);
+        }
+      });
+
+      cat.appendChild(items);
+      sidebar.appendChild(cat);
+    });
+  }
+
+  // active state tracking via IntersectionObserver
+  let activeItem = null;
+  let clickLock = 0;
+
+  function setupActiveTracking() {
+    const observer = new IntersectionObserver(entries => {
+      if (Date.now() < clickLock) return;
+      let topVisible = null;
+      let topY = Infinity;
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.boundingClientRect.top < topY) {
+          topY = entry.boundingClientRect.top;
+          topVisible = entry.target;
+        }
+      });
+      if (topVisible) setActiveItem(topVisible.id);
+    }, {
+      rootMargin: '-40% 0px -50% 0px',
+      threshold: 0,
+    });
+
+    typeElements.forEach(el => observer.observe(el));
+  }
+
+  let activeId = null;
+
+  function setActiveItem(id) {
+    if (id === activeId) return;
+    activeId = id;
+    if (activeItem) activeItem.classList.remove('active');
+    const item = sidebar.querySelector(`.sidebar-item[data-target="${id}"]`);
+    if (item) {
+      item.classList.add('active');
+      activeItem = item;
+      // expand parent category
+      const cat = item.closest('.sidebar-cat');
+      if (cat && !cat.classList.contains('open')) cat.classList.add('open');
+      // keep active item centered in sidebar like zz in vim
+      item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+    // sync content highlight
+    const target = document.getElementById(id);
+    highlightTarget(target || null);
+  }
+
+  // hamburger toggle
+  function closeMobileSidebar() {
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('visible');
+  }
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = sidebar.classList.toggle('open');
+    backdrop.classList.toggle('visible', isOpen);
+  });
+
+  backdrop.addEventListener('click', closeMobileSidebar);
+
+  function syncSidebarWithSearch(query) {
+    const items = sidebar.querySelectorAll('.sidebar-item');
+    if (!query) {
+      items.forEach(a => a.style.display = '');
+      sidebar.querySelectorAll('.sidebar-cat').forEach(cat => cat.style.display = '');
+      return;
+    }
+    // hide sidebar items whose target type is search-hidden
+    items.forEach(a => {
+      const target = document.getElementById(a.dataset.target);
+      a.style.display = (target && !target.classList.contains('search-hidden')) ? '' : 'none';
+    });
+    // hide empty sidebar categories
+    sidebar.querySelectorAll('.sidebar-cat').forEach(cat => {
+      const hasVisible = cat.querySelector('.sidebar-item:not([style*="display: none"])');
+      cat.style.display = hasVisible ? '' : 'none';
+      if (hasVisible) cat.classList.add('open');
+    });
+  }
+
+  // ============================================================
+  // FUZZY SEARCH
+  // ============================================================
+
+  function fuzzyScore(query, text) {
+    if (!query) return 1;
+    query = query.toLowerCase();
+    text = text.toLowerCase();
+
+    // exact substring — best score
+    const subIdx = text.indexOf(query);
+    if (subIdx !== -1) {
+      let score = 100 + (query.length / text.length) * 50;
+      if (subIdx === 0) score += 30; // prefix bonus
+      // word-start bonus
+      if (subIdx > 0 && /[\s._\-(]/.test(text[subIdx - 1])) score += 20;
+      return score;
+    }
+
+    // character-sequence match
+    let qi = 0, score = 0, consecutive = 0;
+    for (let ti = 0; ti < text.length && qi < query.length; ti++) {
+      if (text[ti] === query[qi]) {
+        qi++;
+        consecutive++;
+        score += consecutive * 2;
+        if (ti === 0 || /[\s._\-(]/.test(text[ti - 1])) score += 5;
+      } else {
+        consecutive = 0;
+      }
+    }
+
+    return qi === query.length ? score : 0;
+  }
+
+  const searchInput = document.getElementById('search');
+  const searchHint = document.getElementById('search-hint');
+  const searchCount = document.getElementById('search-count');
+
+  function doSearch() {
+    const query = searchInput.value.trim();
+
+    if (!query) {
+      // show everything, restore original state
+      typeElements.forEach(el => el.classList.remove('search-hidden'));
+      document.querySelectorAll('.api-category').forEach(cat => {
+        cat.style.display = '';
+      });
+      syncSidebarWithSearch('');
+      searchCount.classList.add('hidden');
+      return;
+    }
+
+    let visible = 0;
+
+    // score each type
+    const scores = typeElements.map(el => {
+      // higher weight for display name match
+      const nameScore = fuzzyScore(query, el._displayName) * 3;
+      const textScore = fuzzyScore(query, el._searchText);
+      return { el, score: Math.max(nameScore, textScore) };
+    });
+
+    scores.forEach(({ el, score }) => {
+      if (score > 0) {
+        el.classList.remove('search-hidden');
+        visible++;
+      } else {
+        el.classList.add('search-hidden');
+      }
+    });
+
+    // hide empty categories
+    document.querySelectorAll('.api-category').forEach(cat => {
+      const types = cat.querySelector('.api-category-types');
+      if (!types) return;
+      const hasVisible = types.querySelector('.api-type:not(.search-hidden)');
+      cat.style.display = hasVisible ? '' : 'none';
+      // expand matching categories during search
+      if (hasVisible) cat.classList.remove('collapsed');
+    });
+
+    // sync sidebar with search results
+    syncSidebarWithSearch(query);
+
+    searchCount.textContent = `${visible} result${visible !== 1 ? 's' : ''}`;
+    searchCount.classList.remove('hidden');
+  }
+
+  let searchTimeout;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(doSearch, 80);
+  });
+
+  searchInput.addEventListener('focus', () => {
+    searchHint.classList.add('hidden');
+  });
+
+  searchInput.addEventListener('blur', () => {
+    if (!searchInput.value) searchHint.classList.remove('hidden');
+  });
+
+  // keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    if (e.key === 'Escape') {
+      if (sidebar.classList.contains('open') && window.innerWidth <= 1060) {
+        closeMobileSidebar();
+      } else if (document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+        doSearch();
+      }
+    }
+  });
+
+  // highlight static code blocks
+  document.querySelectorAll('.code-raw').forEach(el => {
+    el.innerHTML = highlightGo(el.textContent);
+    el.classList.remove('code-raw');
+  });
+
+  function scrollToHash() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    const target = document.getElementById(hash);
+    if (!target) return;
+    // expand parent category if collapsed
+    const cat = target.closest('.api-category');
+    if (cat) cat.classList.remove('collapsed');
+    // if this is a method, expand the methods list too
+    if (target.classList.contains('api-method')) {
+      const methodsLabel = target.closest('.api-methods-list')?.previousElementSibling;
+      if (methodsLabel && !methodsLabel.classList.contains('open')) {
+        methodsLabel.classList.add('open');
+        methodsLabel.nextElementSibling.classList.add('open');
+      }
+    }
+    target.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }
+
+  fetch('api.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => { renderAPI(data); buildSidebar(); setupActiveTracking(); scrollToHash(); })
+    .catch(err => {
+      document.getElementById('api-content').innerHTML =
+        `<div class="api-loading">Failed to load API reference: ${esc(err.message)}</div>`;
+    });
+})();
+</script>
+</body>
+</html>

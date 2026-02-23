@@ -69,7 +69,7 @@
         {
           "name": "BindField",
           "doc": "BindField routes unmatched keys to a text input field.\n",
-          "signature": "func (a *App) BindField(f *Field) *App",
+          "signature": "func (a *App) BindField(f *InputState) *App",
           "recv": "*App"
         },
         {
@@ -416,7 +416,7 @@
       "methods": [
         {
           "name": "AltRowStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "AltRowStyle sets the alternating row style.\n",
           "signature": "func (t AutoTableC) AltRowStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -458,13 +458,13 @@
         },
         {
           "name": "Gap",
-          "doc": "Gap sets the spacing between children.\n",
+          "doc": "Gap sets the spacing between columns.\n",
           "signature": "func (t AutoTableC) Gap(g int8) AutoTableC",
           "recv": "AutoTableC"
         },
         {
           "name": "HeaderStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "HeaderStyle sets the header row style.\n",
           "signature": "func (t AutoTableC) HeaderStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -494,7 +494,7 @@
         },
         {
           "name": "RowStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "RowStyle sets the default row style.\n",
           "signature": "func (t AutoTableC) RowStyle(s Style) AutoTableC",
           "recv": "AutoTableC"
         },
@@ -511,6 +511,11 @@
           "recv": "AutoTableC"
         }
       ]
+    },
+    {
+      "name": "BoolValidator",
+      "doc": "BoolValidator validates a boolean value.\n",
+      "decl": "type BoolValidator func(bool) error"
     },
     {
       "name": "BorderStyle",
@@ -582,6 +587,12 @@
           "recv": "*Buffer"
         },
         {
+          "name": "ContentHeight",
+          "doc": "ContentHeight returns the number of rows that have been written to.\n",
+          "signature": "func (b *Buffer) ContentHeight() int",
+          "recv": "*Buffer"
+        },
+        {
           "name": "CopyFrom",
           "doc": "CopyFrom copies all cells from src to b using a single bulk copy.\nRequires both buffers to have identical dimensions.\nThis is much faster than cell-by-cell copy for full-buffer transfers.\n",
           "signature": "func (b *Buffer) CopyFrom(src *Buffer)",
@@ -613,7 +624,7 @@
         },
         {
           "name": "FillRect",
-          "doc": "FillRect fills a rectangular region with the given cell.\n",
+          "doc": "FillRect fills a rectangular region with the given cell.\nUses direct slice writes (no border merge) for non-border cells,\nfalls back to Set() only when the cell is a border character.\n",
           "signature": "func (b *Buffer) FillRect(x, y, width, height int, c Cell)",
           "recv": "*Buffer"
         },
@@ -789,12 +800,12 @@
     },
     {
       "name": "BufferPool",
-      "doc": "BufferPool manages double-buffered rendering with async clearing.\nThe clear happens in a background goroutine during app logic time,\nmaking it invisible to the render critical path.\n",
+      "doc": "BufferPool manages double-buffered rendering.\nSwap alternates between two buffers, clearing the inactive one\nsynchronously before making it current.\n",
       "decl": "type BufferPool struct {\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "NewBufferPool",
-          "doc": "NewBufferPool creates a double-buffered pool with async clearing.\n",
+          "doc": "NewBufferPool creates a double-buffered pool.\n",
           "signature": "func NewBufferPool(width, height int) *BufferPool"
         }
       ],
@@ -825,7 +836,7 @@
         },
         {
           "name": "Stop",
-          "doc": "Stop shuts down the clearer goroutine.\n",
+          "doc": "Stop is a no-op kept for API compatibility.\n",
           "signature": "func (p *BufferPool) Stop()",
           "recv": "*BufferPool"
         },
@@ -1092,6 +1103,18 @@
           "recv": "*CheckboxC"
         },
         {
+          "name": "Err",
+          "doc": "Err returns the current validation error message, or empty string if valid.\n",
+          "signature": "func (c *CheckboxC) Err() string",
+          "recv": "*CheckboxC"
+        },
+        {
+          "name": "Focused",
+          "doc": "Focused returns whether this checkbox currently has focus.\n",
+          "signature": "func (c *CheckboxC) Focused() bool",
+          "recv": "*CheckboxC"
+        },
+        {
           "name": "Margin",
           "doc": "Margin sets uniform margin on all sides.\n",
           "signature": "func (c *CheckboxC) Margin(all int16) *CheckboxC",
@@ -1131,6 +1154,12 @@
           "name": "Toggle",
           "doc": "Toggle flips the checked state.\n",
           "signature": "func (c *CheckboxC) Toggle()",
+          "recv": "*CheckboxC"
+        },
+        {
+          "name": "Validate",
+          "doc": "Validate sets a validation function and when it runs.\nIf when is omitted, defaults to VOnBlur|VOnSubmit.\n",
+          "signature": "func (c *CheckboxC) Validate(fn BoolValidator, when ...ValidateOn) *CheckboxC",
           "recv": "*CheckboxC"
         }
       ]
@@ -1448,19 +1477,6 @@
           "name": "Else",
           "doc": "Else creates an else branch.\n",
           "signature": "func Else(then any) ElseNode"
-        }
-      ]
-    },
-    {
-      "name": "Field",
-      "doc": "Field bundles the state for a text input field.\nUse with TextInput.Field for cleaner multi-field forms.\n",
-      "decl": "type Field struct {\n\tValue  string\n\tCursor int\n}",
-      "methods": [
-        {
-          "name": "Clear",
-          "doc": "Clear resets the field value and cursor.\n",
-          "signature": "func (f *Field) Clear()",
-          "recv": "*Field"
         }
       ]
     },
@@ -1788,177 +1804,6 @@
       "decl": "type Flex struct {\n\tPercentWidth float32 // fraction of parent width (0.5 = 50%)\n\tWidth        int16   // explicit width in characters\n\tHeight       int16   // explicit height in lines\n\tFlexGrow     float32 // share of remaining space (0 = none, 1 = equal share)\n}"
     },
     {
-      "name": "FlexNode",
-      "doc": "FlexNode represents a node in the layout tree.\n",
-      "decl": "type FlexNode struct {\n\n\t// Calculated geometry (set during layout phases)\n\tX, Y int16\n\tW, H int16\n\t// contains filtered or unexported fields\n}",
-      "constructors": [
-        {
-          "name": "FBar",
-          "doc": "FBar creates a bar display node.\n",
-          "signature": "func FBar(filled, total int) *FlexNode"
-        },
-        {
-          "name": "FCol",
-          "doc": "FCol creates a vertical container.\n",
-          "signature": "func FCol(children ...*FlexNode) *FlexNode"
-        },
-        {
-          "name": "FLED",
-          "doc": "FLED creates an LED indicator node.\n",
-          "signature": "func FLED(on bool) *FlexNode"
-        },
-        {
-          "name": "FLEDs",
-          "doc": "FLEDs creates multiple LED indicators.\n",
-          "signature": "func FLEDs(states ...bool) *FlexNode"
-        },
-        {
-          "name": "FLeader",
-          "doc": "FLeader creates a leader (label...value) node.\n",
-          "signature": "func FLeader(label, value string) *FlexNode"
-        },
-        {
-          "name": "FMeter",
-          "doc": "FMeter creates a meter display node.\n",
-          "signature": "func FMeter(value, max int) *FlexNode"
-        },
-        {
-          "name": "FPanel",
-          "doc": "FPanel creates a bordered panel with a title.\nTitle appears in the top border: ┌─ TITLE ─────┐\n",
-          "signature": "func FPanel(title string, children ...*FlexNode) *FlexNode"
-        },
-        {
-          "name": "FRich",
-          "doc": "FRich creates a rich text node.\n",
-          "signature": "func FRich(spans []Span) *FlexNode"
-        },
-        {
-          "name": "FRow",
-          "doc": "FRow creates a horizontal container.\n",
-          "signature": "func FRow(children ...*FlexNode) *FlexNode"
-        },
-        {
-          "name": "FText",
-          "doc": "FText creates a text node.\n",
-          "signature": "func FText(content any) *FlexNode"
-        }
-      ],
-      "methods": [
-        {
-          "name": "Bold",
-          "doc": "Bold enables bold text.\n",
-          "signature": "func (n *FlexNode) Bold() *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Border",
-          "doc": "Border sets the border style.\n",
-          "signature": "func (n *FlexNode) Border(b BorderStyle) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Gap",
-          "doc": "Gap sets the spacing between children.\n",
-          "signature": "func (n *FlexNode) Gap(g int8) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Grow",
-          "doc": "Grow sets the flex grow factor.\n",
-          "signature": "func (n *FlexNode) Grow(factor float32) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Height",
-          "doc": "Height sets a fixed height.\n",
-          "signature": "func (n *FlexNode) Height(h int16) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "MinHeight",
-          "doc": "Height sets a fixed height.\n",
-          "signature": "func (n *FlexNode) MinHeight(h int16) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "MinWidth",
-          "doc": "Width sets a fixed width.\n",
-          "signature": "func (n *FlexNode) MinWidth(w int16) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Pad",
-          "doc": "Pad sets horizontal and vertical padding.\n",
-          "signature": "func (n *FlexNode) Pad(h, v int8) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Percent",
-          "doc": "Percent sets width as a percentage of the parent.\n",
-          "signature": "func (n *FlexNode) Percent(p float32) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Ref",
-          "doc": "Ref provides access to the node for external references.\n",
-          "signature": "func (n *FlexNode) Ref(f func(*FlexNode)) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Style",
-          "doc": "Style sets the component style.\n",
-          "signature": "func (n *FlexNode) Style(s Style) *FlexNode",
-          "recv": "*FlexNode"
-        },
-        {
-          "name": "Width",
-          "doc": "Width sets a fixed width.\n",
-          "signature": "func (n *FlexNode) Width(w int16) *FlexNode",
-          "recv": "*FlexNode"
-        }
-      ]
-    },
-    {
-      "name": "FlexNodeKind",
-      "doc": "",
-      "decl": "type FlexNodeKind uint8",
-      "consts": [
-        {
-          "doc": "",
-          "names": [
-            "FlexNodeContainer",
-            "FlexNodeText",
-            "FlexNodeRichText",
-            "FlexNodeProgress",
-            "FlexNodeMeter",
-            "FlexNodeBar",
-            "FlexNodeLeader"
-          ],
-          "decl": "const (\n\tFlexNodeContainer FlexNodeKind = iota\n\tFlexNodeText\n\tFlexNodeRichText\n\tFlexNodeProgress\n\tFlexNodeMeter\n\tFlexNodeBar\n\tFlexNodeLeader\n)"
-        }
-      ]
-    },
-    {
-      "name": "FlexTree",
-      "doc": "FlexTree manages the three-phase layout process.\n",
-      "decl": "type FlexTree struct {\n\t// contains filtered or unexported fields\n}",
-      "constructors": [
-        {
-          "name": "NewFlexTree",
-          "doc": "NewFlexTree creates a new layout tree with the given root.\n",
-          "signature": "func NewFlexTree(root *FlexNode) *FlexTree"
-        }
-      ],
-      "methods": [
-        {
-          "name": "Execute",
-          "doc": "Execute runs all three phases and renders to the buffer.\n",
-          "signature": "func (t *FlexTree) Execute(buf *Buffer, w, h int16)",
-          "recv": "*FlexTree"
-        }
-      ]
-    },
-    {
       "name": "FlushStats",
       "doc": "FlushStats holds statistics from the last flush.\n",
       "decl": "type FlushStats struct {\n\tDirtyRows   int\n\tChangedRows int\n}",
@@ -1988,6 +1833,12 @@
       ],
       "methods": [
         {
+          "name": "BlurCurrent",
+          "doc": "BlurCurrent unfocuses the current item and pops its sub-router.\n",
+          "signature": "func (fm *FocusManager) BlurCurrent()",
+          "recv": "*FocusManager"
+        },
+        {
           "name": "Current",
           "doc": "Current returns the currently focused index.\n",
           "signature": "func (fm *FocusManager) Current() int",
@@ -2006,6 +1857,12 @@
           "recv": "*FocusManager"
         },
         {
+          "name": "ItemBindings",
+          "doc": "ItemBindings adds bindings to the most recently registered item's sub-router.\n",
+          "signature": "func (fm *FocusManager) ItemBindings(binds ...binding)",
+          "recv": "*FocusManager"
+        },
+        {
           "name": "Next",
           "doc": "Next moves focus to the next component.\n",
           "signature": "func (fm *FocusManager) Next()",
@@ -2015,6 +1872,12 @@
           "name": "NextKey",
           "doc": "NextKey sets the key binding for moving to the next focusable (default: Tab).\n",
           "signature": "func (fm *FocusManager) NextKey(key string) *FocusManager",
+          "recv": "*FocusManager"
+        },
+        {
+          "name": "OnBlur",
+          "doc": "OnBlur sets a callback that fires when all items lose focus (via BlurCurrent).\n",
+          "signature": "func (fm *FocusManager) OnBlur(fn func()) *FocusManager",
           "recv": "*FocusManager"
         },
         {
@@ -2044,7 +1907,7 @@
       ],
       "examples": [
         {
-          "doc": "Focus cycling.\nFocusManager coordinates focus between multiple inputs. Tab/Shift-Tab cycles through ManagedBy components.\n",
+          "doc": "Focu cycling.\nFocusManager coordinates focus between multiple inputs. Tab/Shift-Tab cycles through ManagedBy components.\n",
           "code": "fm := NewFocusManager()\n\nVBox(\n\tInput().Placeholder(\"Name\").ManagedBy(fm),\n\tInput().Placeholder(\"Email\").ManagedBy(fm),\n)"
         }
       ]
@@ -2071,6 +1934,141 @@
       "name": "ForEachNode",
       "doc": "ForEachNode iterates over a slice.\n",
       "decl": "type ForEachNode struct {\n\tItems  any // *[]T\n\tRender any // func(*T) any\n}"
+    },
+    {
+      "name": "FormC",
+      "doc": "FormC is a higher-order form component that arranges labeled fields\nin a vertical layout with aligned labels and automatic focus management.\n\nusage:\n\n\tForm.LabelBold().OnSubmit(register)(\n\t    Field(\"Name\", Input().Placeholder(\"Enter your name\")),\n\t    Field(\"Email\", Input().Placeholder(\"you@example.com\")),\n\t    Field(\"Password\", Input().Placeholder(\"password\").Mask('*')),\n\t)\n",
+      "decl": "type FormC struct {\n\t// contains filtered or unexported fields\n}",
+      "methods": [
+        {
+          "name": "FocusManager",
+          "doc": "FocusManager returns the internal focus manager for external wiring.\n",
+          "signature": "func (f *FormC) FocusManager() *FocusManager",
+          "recv": "*FormC"
+        },
+        {
+          "name": "ValidateAll",
+          "doc": "ValidateAll runs validation on all fields that have VOnSubmit set.\nReturns true if all fields are valid.\n",
+          "signature": "func (f *FormC) ValidateAll() bool",
+          "recv": "*FormC"
+        }
+      ]
+    },
+    {
+      "name": "FormField",
+      "doc": "FormField pairs a label with an input control.\n",
+      "decl": "type FormField struct {\n\t// contains filtered or unexported fields\n}",
+      "constructors": [
+        {
+          "name": "Field",
+          "doc": "Field creates a form field pairing a label with any control component.\n",
+          "signature": "func Field(label string, control any) FormField"
+        }
+      ]
+    },
+    {
+      "name": "FormFn",
+      "doc": "FormFn is a configurable constructor for forms.\nConfigure with methods, then call with fields — same pattern as VBox/HBox.\n",
+      "decl": "type FormFn func(fields ...FormField) *FormC",
+      "methods": [
+        {
+          "name": "Gap",
+          "doc": "Gap sets the vertical gap between fields.\n",
+          "signature": "func (f FormFn) Gap(g int8) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "Grow",
+          "doc": "Grow sets the flex grow factor.\n",
+          "signature": "func (f FormFn) Grow(g float32) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "LabelBold",
+          "doc": "LabelBold sets labels to bold.\n",
+          "signature": "func (f FormFn) LabelBold() FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "LabelFG",
+          "doc": "LabelFG sets the foreground color for all labels.\n",
+          "signature": "func (f FormFn) LabelFG(c Color) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "LabelStyle",
+          "doc": "LabelStyle sets the full style for all labels.\n",
+          "signature": "func (f FormFn) LabelStyle(s Style) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "Margin",
+          "doc": "Margin sets equal margin on all sides.\n",
+          "signature": "func (f FormFn) Margin(m int16) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "MarginTRBL",
+          "doc": "MarginTRBL sets top, right, bottom, left margin individually.\n",
+          "signature": "func (f FormFn) MarginTRBL(t, r, b, l int16) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "MarginVH",
+          "doc": "MarginVH sets vertical and horizontal margin.\n",
+          "signature": "func (f FormFn) MarginVH(v, h int16) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "NextKey",
+          "doc": "NextKey sets the key for advancing focus (default: Tab).\n",
+          "signature": "func (f FormFn) NextKey(key string) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "OnFocusChange",
+          "doc": "OnFocusChange sets a callback that fires when focus changes.\n",
+          "signature": "func (f FormFn) OnFocusChange(fn func(index int)) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "OnSubmit",
+          "doc": "OnSubmit sets a callback that fires when Enter is pressed.\n",
+          "signature": "func (f FormFn) OnSubmit(fn func()) FormFn",
+          "recv": "FormFn"
+        },
+        {
+          "name": "PrevKey",
+          "doc": "PrevKey sets the key for reversing focus (default: Shift-Tab).\n",
+          "signature": "func (f FormFn) PrevKey(key string) FormFn",
+          "recv": "FormFn"
+        }
+      ],
+      "vars": [
+        {
+          "doc": "Form creates a form from labeled fields.\nAutomatically creates a FocusManager and wires any focusable controls.\n",
+          "names": [
+            "Form"
+          ],
+          "decl": "var Form FormFn = func(fields ...FormField) *FormC {\n\tf := \u0026FormC{\n\t\tfields: fields,\n\t\tfm:     NewFocusManager(),\n\t}\n\n\tfor _, ff := range fields {\n\t\tw := int16(len(ff.label) + 1)\n\t\tif w \u003e f.labelWidth {\n\t\t\tf.labelWidth = w\n\t\t}\n\t}\n\n\t// auto-wire focusable controls and blur validation\n\tvar focusableFields []*FormField // maps FM index → FormField\n\tfor idx := range fields {\n\t\tff := \u0026f.fields[idx]\n\t\tif fc, ok := ff.control.(focusable); ok {\n\t\t\tfieldRef := ff\n\t\t\tfocusableFields = append(focusableFields, fieldRef)\n\t\t\tswitch ctrl := ff.control.(type) {\n\t\t\tcase *InputC:\n\t\t\t\tctrl.ManagedBy(f.fm)\n\t\t\t\tctrl.onBlur = func() {\n\t\t\t\t\tfieldRef.err = ctrl.Err()\n\t\t\t\t}\n\t\t\tcase *CheckboxC:\n\t\t\t\tf.fm.Register(fc)\n\t\t\t\tctrl.onBlur = func() {\n\t\t\t\t\tfieldRef.err = ctrl.Err()\n\t\t\t\t}\n\t\t\t\tf.fm.ItemBindings(\n\t\t\t\t\tbinding{pattern: \"\u003cSpace\u003e\", handler: func() { ctrl.Toggle() }},\n\t\t\t\t)\n\t\t\tcase *RadioC:\n\t\t\t\tf.fm.Register(fc)\n\t\t\t\tf.fm.ItemBindings(\n\t\t\t\t\tbinding{pattern: \"j\", handler: func() { ctrl.Next() }},\n\t\t\t\t\tbinding{pattern: \"k\", handler: func() { ctrl.Prev() }},\n\t\t\t\t)\n\t\t\tdefault:\n\t\t\t\tf.fm.Register(fc)\n\t\t\t}\n\t\t}\n\t}\n\n\tif len(focusableFields) \u003e 0 {\n\t\tfocusableFields[0].focused = true\n\t}\n\n\tf.fm.OnChange(func(idx int) {\n\t\tfor i, ff := range focusableFields {\n\t\t\tff.focused = (i == idx)\n\t\t}\n\t})\n\tf.fm.OnBlur(func() {\n\t\tfor _, ff := range focusableFields {\n\t\t\tff.focused = false\n\t\t}\n\t})\n\n\treturn f\n}"
+        }
+      ],
+      "examples": [
+        {
+          "doc": "Registration form.\nForm arranges labeled fields with aligned labels and automatic focus management. Mix inputs, checkboxes and validators.\n",
+          "code": "var name, email, pass string\nvar terms bool\n\nForm.LabelBold().Gap(1)(\n\tField(\"Name\", Input(\u0026name).Placeholder(\"Jane Doe\")),\n\tField(\"Email\", Input(\u0026email).Placeholder(\"jane@example.com\")),\n\tField(\"Password\", Input(\u0026pass).Placeholder(\"min 8 chars\").Mask('*')),\n\tField(\"Terms\", Checkbox(\u0026terms, \"I agree\")),\n)"
+        },
+        {
+          "name": "mixedControls",
+          "doc": "Mixed control types.\nInputs, checkboxes and radio groups all work as form fields with automatic focus cycling.\n",
+          "code": "var name string\nvar notify bool\nvar role int\n\nForm.LabelBold().Gap(1)(\n\tField(\"Name\", Input(\u0026name).Placeholder(\"you\")),\n\tField(\"Notify\", Checkbox(\u0026notify, \"Send me updates\")),\n\tField(\"Role\", Radio(\u0026role, \"Viewer\", \"Editor\", \"Admin\")),\n)"
+        },
+        {
+          "name": "onSubmit",
+          "doc": "Submit handler.\nForward-declare the form variable so OnSubmit can reference the same instance.\n",
+          "code": "var name, email, pass string\nvar terms bool\nvar form *FormC\n\nform = Form.LabelBold().OnSubmit(func() {\n\t_ = form.ValidateAll()\n})(\n\tField(\"Name\", Input(\u0026name).Validate(VRequired)),\n\tField(\"Email\", Input(\u0026email).Validate(VEmail)),\n\tField(\"Password\", Input(\u0026pass).Mask('*').Validate(VMinLen(8))),\n\tField(\"Terms\", Checkbox(\u0026terms, \"I agree\").Validate(VTrue)),\n)\n_ = form"
+        }
+      ]
     },
     {
       "name": "FzfQuery",
@@ -2372,25 +2370,6 @@
       "decl": "type HRuleNode struct {\n\tChar  rune  // line character (0 = '─')\n\tStyle Style // styling\n}"
     },
     {
-      "name": "HorizontalLayout",
-      "doc": "HorizontalLayout arranges children horizontally.\n",
-      "decl": "type HorizontalLayout struct {\n\tGap     int8\n\tVPad    int8 // vertical padding\n\tLeftPad int8\n}",
-      "methods": [
-        {
-          "name": "DistributeWidths",
-          "doc": "DistributeWidths allocates widths to children based on flex grow factors.\n",
-          "signature": "func (l HorizontalLayout) DistributeWidths(node *FlexNode)",
-          "recv": "HorizontalLayout"
-        },
-        {
-          "name": "LayoutChildren",
-          "doc": "LayoutChildren positions children horizontally within the available space.\n",
-          "signature": "func (l HorizontalLayout) LayoutChildren(node *FlexNode)",
-          "recv": "HorizontalLayout"
-        }
-      ]
-    },
-    {
       "name": "IfNode",
       "doc": "IfNode conditionally renders content.\n",
       "decl": "type IfNode struct {\n\tCond any // *bool\n\tThen any\n}"
@@ -2402,8 +2381,8 @@
       "constructors": [
         {
           "name": "Input",
-          "doc": "Input creates a text input with internal state.\n",
-          "signature": "func Input() *InputC",
+          "doc": "Input creates a text input with internal state.\nOptionally pass a *string to bind the input value to a variable.\n",
+          "signature": "func Input(bind ...*string) *InputC",
           "examples": [
             {
               "doc": "Text input.\nA managed text input with placeholder text shown when empty.\n",
@@ -2431,9 +2410,9 @@
           "recv": "*InputC"
         },
         {
-          "name": "Field",
-          "doc": "Field returns a pointer to the internal field (for TextInput compatibility).\n",
-          "signature": "func (i *InputC) Field() *Field",
+          "name": "Err",
+          "doc": "Err returns the current validation error message, or empty string if valid.\n",
+          "signature": "func (i *InputC) Err() string",
           "recv": "*InputC"
         },
         {
@@ -2491,9 +2470,21 @@
           "recv": "*InputC"
         },
         {
+          "name": "State",
+          "doc": "State returns a pointer to the internal input state (for TextInput compatibility).\n",
+          "signature": "func (i *InputC) State() *InputState",
+          "recv": "*InputC"
+        },
+        {
           "name": "Style",
           "doc": "Style sets the component style.\n",
           "signature": "func (i *InputC) Style(s Style) *InputC",
+          "recv": "*InputC"
+        },
+        {
+          "name": "Validate",
+          "doc": "Validate sets a validation function and when it runs.\nIf when is omitted, defaults to VOnBlur|VOnSubmit.\n",
+          "signature": "func (i *InputC) Validate(fn StringValidator, when ...ValidateOn) *InputC",
           "recv": "*InputC"
         },
         {
@@ -2507,6 +2498,19 @@
           "doc": "Width sets the input width.\n",
           "signature": "func (i *InputC) Width(w int16) *InputC",
           "recv": "*InputC"
+        }
+      ]
+    },
+    {
+      "name": "InputState",
+      "doc": "InputState bundles the state for a text input field.\nUse with TextInput.Field for cleaner multi-field forms.\n",
+      "decl": "type InputState struct {\n\tValue  string\n\tCursor int\n}",
+      "methods": [
+        {
+          "name": "Clear",
+          "doc": "Clear resets the field value and cursor.\n",
+          "signature": "func (f *InputState) Clear()",
+          "recv": "*InputState"
         }
       ]
     },
@@ -2614,7 +2618,7 @@
     {
       "name": "Layer",
       "doc": "Layer is a pre-rendered buffer with scroll management.\nContent is rendered once (expensive), then blitted to screen each frame (cheap).\n\nIf Render is set, the framework automatically calls it before blitting when\nthe viewport dimensions change. This ensures content is always rendered at\nthe correct size without manual timing coordination.\n",
-      "decl": "type Layer struct {\n\n\t// Render populates the layer buffer. Called automatically by the framework\n\t// before blitting when viewport dimensions change. The layer ensures its\n\t// buffer exists and is sized appropriately before calling this.\n\t//\n\t// Width changes always trigger a re-render (text wrapping changes).\n\t// Height changes trigger a re-render if content height depends on viewport.\n\tRender func()\n\t// contains filtered or unexported fields\n}",
+      "decl": "type Layer struct {\n\n\t// Render populates the layer buffer. Called automatically by the framework\n\t// before blitting when viewport dimensions change. The layer ensures its\n\t// buffer exists and is sized appropriately before calling this.\n\t//\n\t// Width changes always trigger a re-render (text wrapping changes).\n\t// Height changes trigger a re-render if content height depends on viewport.\n\tRender func()\n\n\t// AlwaysRender causes Render to fire every frame, not just on width changes.\n\t// Used by components that track external pointer mutations (e.g. TextViewC).\n\tAlwaysRender bool\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "NewLayer",
@@ -2881,11 +2885,6 @@
       ]
     },
     {
-      "name": "Layout",
-      "doc": "Layout defines how a container positions its children.\n",
-      "decl": "type Layout interface {\n\t// DistributeWidths is called during Update phase (top→down).\n\t// Parent has W set, distribute to children based on percentWidth.\n\tDistributeWidths(node *FlexNode)\n\n\t// LayoutChildren is called during Layout phase (bottom→up).\n\t// Children already have their W and H set. Position them and calculate parent H.\n\tLayoutChildren(node *FlexNode)\n}"
-    },
-    {
       "name": "LayoutFunc",
       "doc": "LayoutFunc positions children given their sizes and available space.\n",
       "decl": "type LayoutFunc func(children []ChildSize, availW, availH int) []Rect"
@@ -3096,6 +3095,12 @@
           "recv": "*ListC[T]"
         },
         {
+          "name": "OnSelect",
+          "doc": "OnSelect registers a callback that fires when the selection changes.\n",
+          "signature": "func (l *ListC[T]) OnSelect(fn func(*T)) *ListC[T]",
+          "recv": "*ListC[T]"
+        },
+        {
           "name": "PageDown",
           "doc": "PageDown moves selection down by page size.\n",
           "signature": "func (l *ListC[T]) PageDown(m any)",
@@ -3269,7 +3274,7 @@
     {
       "name": "Op",
       "doc": "Op represents a single instruction.\n",
-      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span  // for static spans\n\tSpansPtr    *[]Span // for pointer to spans\n\tSpansOff    uintptr // for ForEach offset\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *Field      // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\t// contains filtered or unexported fields\n}"
+      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span  // for static spans\n\tSpansPtr    *[]Span // for pointer to spans\n\tSpansOff    uintptr // for ForEach offset\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\tMarkerSpaces     string         // pre-computed spaces matching marker width\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *InputState // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\t// contains filtered or unexported fields\n}"
     },
     {
       "name": "OpKind",
@@ -3567,6 +3572,12 @@
           "name": "BindNav",
           "doc": "BindNav registers key bindings for cycling selection.\n",
           "signature": "func (r *RadioC) BindNav(next, prev string) *RadioC",
+          "recv": "*RadioC"
+        },
+        {
+          "name": "Focused",
+          "doc": "Focused returns whether this radio group currently has focus.\n",
+          "signature": "func (r *RadioC) Focused() bool",
           "recv": "*RadioC"
         },
         {
@@ -4320,6 +4331,28 @@
       "decl": "type SpinnerNode struct {\n\tFrame  *int     // pointer to current frame index\n\tFrames []string // custom frames (nil = default braille spinner)\n\tStyle  Style    // styling\n}"
     },
     {
+      "name": "StringValidator",
+      "doc": "StringValidator validates a string value.\n",
+      "decl": "type StringValidator func(string) error",
+      "constructors": [
+        {
+          "name": "VMatch",
+          "doc": "VMatch rejects strings that don't match the given regex pattern.\n",
+          "signature": "func VMatch(pattern string) StringValidator"
+        },
+        {
+          "name": "VMaxLen",
+          "doc": "VMaxLen rejects strings longer than n.\n",
+          "signature": "func VMaxLen(n int) StringValidator"
+        },
+        {
+          "name": "VMinLen",
+          "doc": "VMinLen rejects strings shorter than n.\n",
+          "signature": "func VMinLen(n int) StringValidator"
+        }
+      ]
+    },
+    {
       "name": "Style",
       "doc": "Style combines foreground, background colours and attributes.\n",
       "decl": "type Style struct {\n\tFG        Color\n\tBG        Color // text background (behind characters)\n\tFill      Color // container fill (entire area)\n\tAttr      Attribute\n\tTransform TextTransform // text case transformation (uppercase, lowercase, etc.)\n\tAlign     Align         // text alignment within allocated width\n\t// contains filtered or unexported fields\n}",
@@ -4747,8 +4780,8 @@
     },
     {
       "name": "TextInput",
-      "doc": "TextInput is a single-line text input field.\nWire up input handling via riffkey.NewTextHandler or riffkey.NewFieldHandler.\n\nExample with Field + FocusGroup (recommended for forms):\n\n\tname := tui.Field{}\n\tfocus := tui.FocusGroup{}\n\ttui.TextInput{Field: \u0026name, FocusGroup: \u0026focus, FocusIndex: 0}\n\nExample with separate pointers (for single fields):\n\n\ttui.TextInput{Value: \u0026query, Cursor: \u0026cursor, Placeholder: \"Search...\"}\n",
-      "decl": "type TextInput struct {\n\t// Field-based API (recommended for forms)\n\tField      *Field      // Bundles Value + Cursor in one struct\n\tFocusGroup *FocusGroup // Shared focus tracker - cursor shows when FocusGroup.Current == FocusIndex\n\tFocusIndex int         // This field's index in the focus group\n\n\t// Pointer-based API (for single fields)\n\tValue   *string // Bound text value (ignored if Field is set)\n\tCursor  *int    // Cursor position (ignored if Field is set)\n\tFocused *bool   // Show cursor only when true (ignored if FocusGroup is set)\n\n\t// Common options\n\tPlaceholder      string // Shown when value is empty\n\tWidth            int    // Field width (0 = fill available)\n\tMask             rune   // Password mask character (0 = none)\n\tStyle            Style  // Text style\n\tPlaceholderStyle Style  // Placeholder style (zero = dim text)\n\tCursorStyle      Style  // Cursor style (zero = reverse video)\n}"
+      "doc": "TextInput is a single-line text input field.\nWire up input handling via riffkey.NewTextHandler or riffkey.NewFieldHandler.\n\nExample with InputState + FocusGroup (recommended for forms):\n\n\tname := tui.InputState{}\n\tfocus := tui.FocusGroup{}\n\ttui.TextInput{Field: \u0026name, FocusGroup: \u0026focus, FocusIndex: 0}\n\nExample with separate pointers (for single fields):\n\n\ttui.TextInput{Value: \u0026query, Cursor: \u0026cursor, Placeholder: \"Search...\"}\n",
+      "decl": "type TextInput struct {\n\t// Field-based API (recommended for forms)\n\tField      *InputState // Bundles Value + Cursor in one struct\n\tFocusGroup *FocusGroup // Shared focus tracker - cursor shows when FocusGroup.Current == FocusIndex\n\tFocusIndex int         // This field's index in the focus group\n\n\t// Pointer-based API (for single fields)\n\tValue   *string // Bound text value (ignored if Field is set)\n\tCursor  *int    // Cursor position (ignored if Field is set)\n\tFocused *bool   // Show cursor only when true (ignored if FocusGroup is set)\n\n\t// Common options\n\tPlaceholder      string // Shown when value is empty\n\tWidth            int    // Field width (0 = fill available)\n\tMask             rune   // Password mask character (0 = none)\n\tStyle            Style  // Text style\n\tPlaceholderStyle Style  // Placeholder style (zero = dim text)\n\tCursorStyle      Style  // Cursor style (zero = reverse video)\n}"
     },
     {
       "name": "TextNode",
@@ -4775,6 +4808,62 @@
         {
           "doc": "Case transform.\nTransform text case via the Style struct. Transforms run at render time without modifying the source string.\n",
           "code": "Text(\"hello world\").Style(Style{Transform: TransformUppercase})"
+        }
+      ]
+    },
+    {
+      "name": "TextViewC",
+      "doc": "TextViewC displays multi-line text with word wrapping in a layer-backed viewport.\nContent is re-wrapped only when the text or viewport width changes.\n",
+      "decl": "type TextViewC struct {\n\t// contains filtered or unexported fields\n}",
+      "constructors": [
+        {
+          "name": "TextView",
+          "doc": "TextView creates a multi-line text display that wraps to its container width.\n",
+          "signature": "func TextView(content *string) *TextViewC"
+        }
+      ],
+      "methods": [
+        {
+          "name": "BindPageScroll",
+          "doc": "BindPageScroll registers keys for half-page scrolling.\n",
+          "signature": "func (tv *TextViewC) BindPageScroll(down, up string) *TextViewC",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "BindScroll",
+          "doc": "BindScroll registers keys for line-by-line scrolling.\n",
+          "signature": "func (tv *TextViewC) BindScroll(down, up string) *TextViewC",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "Grow",
+          "doc": "",
+          "signature": "func (tv *TextViewC) Grow(g float32) *TextViewC",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "Layer",
+          "doc": "Layer returns the underlying layer for external scroll wiring.\n",
+          "signature": "func (tv *TextViewC) Layer() *Layer",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "Margin",
+          "doc": "",
+          "signature": "func (tv *TextViewC) Margin(all int16) *TextViewC",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "MarginTRBL",
+          "doc": "",
+          "signature": "func (tv *TextViewC) MarginTRBL(t, r, b, l int16) *TextViewC",
+          "recv": "*TextViewC"
+        },
+        {
+          "name": "MarginVH",
+          "doc": "",
+          "signature": "func (tv *TextViewC) MarginVH(v, h int16) *TextViewC",
+          "recv": "*TextViewC"
         }
       ]
     },
@@ -5097,21 +5186,18 @@
       "decl": "type VRuleNode struct {\n\tChar  rune  // line character (0 = '│')\n\tStyle Style // styling\n}"
     },
     {
-      "name": "VerticalLayout",
-      "doc": "VerticalLayout stacks children vertically.\n",
-      "decl": "type VerticalLayout struct {\n\tGap    int8\n\tHPad   int8 // horizontal padding\n\tTopPad int8\n}",
-      "methods": [
+      "name": "ValidateOn",
+      "doc": "ValidateOn controls when validation runs. Combine with bitwise OR.\n",
+      "decl": "type ValidateOn uint8",
+      "consts": [
         {
-          "name": "DistributeWidths",
-          "doc": "DistributeWidths allocates widths to children based on flex grow factors.\n",
-          "signature": "func (l VerticalLayout) DistributeWidths(node *FlexNode)",
-          "recv": "VerticalLayout"
-        },
-        {
-          "name": "LayoutChildren",
-          "doc": "LayoutChildren positions children vertically within the available space.\n",
-          "signature": "func (l VerticalLayout) LayoutChildren(node *FlexNode)",
-          "recv": "VerticalLayout"
+          "doc": "",
+          "names": [
+            "VOnChange",
+            "VOnBlur",
+            "VOnSubmit"
+          ],
+          "decl": "const (\n\tVOnChange ValidateOn = 1 \u003c\u003c iota // validate on every keystroke\n\tVOnBlur                          // validate when field loses focus\n\tVOnSubmit                        // validate on form submit\n)"
         }
       ]
     },
@@ -5219,6 +5305,21 @@
       "name": "TimingString",
       "doc": "TimingString returns a formatted timing string.\n",
       "signature": "func TimingString() string"
+    },
+    {
+      "name": "VEmail",
+      "doc": "VEmail rejects strings that don't look like email addresses.\n",
+      "signature": "func VEmail(s string) error"
+    },
+    {
+      "name": "VRequired",
+      "doc": "VRequired rejects empty strings.\n",
+      "signature": "func VRequired(s string) error"
+    },
+    {
+      "name": "VTrue",
+      "doc": "VTrue rejects false values.\n",
+      "signature": "func VTrue(b bool) error"
     }
   ],
   "consts": [

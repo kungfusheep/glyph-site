@@ -89,6 +89,11 @@
     border-color: var(--rule-dk);
   }
 
+  .nav-left {
+    display: flex;
+    align-items: baseline;
+  }
+
   .nav-brand {
     font-family: var(--din-r);
     font-variation-settings: 'wght' 400;
@@ -106,6 +111,17 @@
   }
 
   nav.in-dark .nav-brand { color: #e8e4d8; }
+
+  .nav-section {
+    font-family: var(--berk);
+    font-size: 11px;
+    color: var(--fg3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    margin-left: 10px;
+  }
+  nav.brand-visible .nav-section { opacity: 1; }
+  nav.in-dark .nav-section { color: #555; }
 
   .nav-links {
     display: flex;
@@ -567,7 +583,10 @@
      NAV
      ============================================================ -->
 <nav id="nav">
-  <a href="#" class="nav-brand">forme</a>
+  <div class="nav-left">
+    <a href="#" class="nav-brand">forme</a>
+    <span class="nav-section" id="nav-section"></span>
+  </div>
   <ul class="nav-links">
     <li><a href="concepts.html">Concepts</a></li>
     <li><a href="api.html">API</a></li>
@@ -791,12 +810,12 @@ func main() {
               validation. Errors appear when you configure them to.
             </div>
           </div>
-          <div class="code code-raw">Form(
+          <div class="code code-raw">Form.LabelBold().OnSubmit(register)(
 	Field("Name", Input(&name).Validate(VRequired, VOnBlur)),
 	Field("Email", Input(&email).Validate(VEmail, VOnBlur)),
 	Field("Role", Radio(&role, "Admin", "User", "Guest")),
 	Field("Terms", Checkbox(&agree, "I accept").Validate(VTrue, VOnSubmit)),
-).LabelBold().OnSubmit(register)</div>
+)</div>
         </div>
       </div>
     </div>
@@ -819,89 +838,87 @@ func main() {
         <div class="battery">
           <div class="battery-label">Layout</div>
           <div class="battery-items">
-            <a href="api.html">VBox</a>
-            <a href="api.html">HBox</a>
-            <a href="api.html">Overlay</a>
-            <a href="api.html">Flex Grow</a>
-            <a href="api.html">Arrange</a>
+            <a href="api.html#VBox">VBox</a>
+            <a href="api.html#HBox">HBox</a>
+            <a href="api.html#Overlay">Overlay</a>
+            <a href="api.html#Flex">Grow</a>
+            <a href="api.html#Spacer">Spacer</a>
           </div>
         </div>
         <div class="battery">
-          <div class="battery-label">Display</div>
+          <div class="battery-label">Input & Forms</div>
           <div class="battery-items">
-            <a href="api.html">Text</a>
-            <a href="api.html">Rich</a>
-            <a href="api.html">Progress</a>
-            <a href="api.html">Spinner</a>
-            <a href="api.html">Sparkline</a>
-            <a href="api.html">Tree</a>
-            <a href="api.html">Log</a>
-            <a href="api.html">TextView</a>
+            <a href="api.html#Input">Input</a>
+            <a href="api.html#Checkbox">Checkbox</a>
+            <a href="api.html#Radio">Radio</a>
+            <a href="api.html#Form">Form</a>
+            <a href="api.html#Form">Validation</a>
+            <a href="api.html#FilterList">FilterList</a>
           </div>
         </div>
         <div class="battery">
-          <div class="battery-label">Tables & Lists</div>
+          <div class="battery-label">Lists & Data</div>
           <div class="battery-items">
-            <a href="api.html">List</a>
-            <a href="api.html">AutoTable</a>
-            <a href="api.html">CheckList</a>
-            <a href="api.html">Tabs</a>
+            <a href="api.html#List">List</a>
+            <a href="api.html#CheckList">CheckList</a>
+            <a href="api.html#AutoTable">AutoTable</a>
+            <a href="api.html#Tabs">Tabs</a>
+            <a href="api.html#TreeView">TreeView</a>
           </div>
         </div>
         <div class="battery">
-          <div class="battery-label">Input</div>
+          <div class="battery-label">Visualisation</div>
           <div class="battery-items">
-            <a href="api.html">Input</a>
-            <a href="api.html">Checkbox</a>
-            <a href="api.html">Radio</a>
-            <a href="api.html">Form</a>
-            <a href="api.html">Validation</a>
-            <a href="api.html">FilterList</a>
-            <a href="api.html">FilterLog</a>
+            <a href="api.html#Progress">Progress</a>
+            <a href="api.html#Sparkline">Sparkline</a>
+            <a href="api.html#Leader">Leader</a>
+            <a href="api.html#Spinner">Spinner</a>
+            <a href="api.html#Scroll">Scrollbar</a>
+          </div>
+        </div>
+        <div class="battery">
+          <div class="battery-label">Text & Streaming</div>
+          <div class="battery-items">
+            <a href="api.html#Rich">Rich Spans</a>
+            <a href="api.html#Log">Log</a>
+            <a href="api.html#FilterLog">FilterLog</a>
+            <a href="api.html#Log">TextView</a>
+            <a href="api.html#FzfQuery">fzf Syntax</a>
           </div>
         </div>
         <div class="battery">
           <div class="battery-label">Navigation</div>
           <div class="battery-items">
-            <a href="api.html">Vim Keys</a>
-            <a href="api.html">Jump Labels</a>
-            <a href="api.html">Focus Manager</a>
-            <a href="api.html">View Routing</a>
+            <a href="api.html#App">Vim Keys</a>
+            <a href="api.html#Jump">Jump Labels</a>
+            <a href="api.html#FocusManager">Focus Manager</a>
+            <a href="api.html#App">Routing</a>
           </div>
         </div>
         <div class="battery">
           <div class="battery-label">Styling</div>
           <div class="battery-items">
-            <a href="api.html">Borders</a>
-            <a href="api.html">Themes</a>
-            <a href="api.html">RGB / 256</a>
-            <a href="api.html">Cascade Styles</a>
+            <a href="api.html#BorderStyle">Borders</a>
+            <a href="api.html#Theme">Themes</a>
+            <a href="api.html#Color">True Colour</a>
+            <a href="api.html#Style">Cascade Styles</a>
           </div>
         </div>
         <div class="battery">
           <div class="battery-label">Control Flow</div>
           <div class="battery-items">
-            <a href="api.html">If / IfOrd</a>
-            <a href="api.html">Switch</a>
-            <a href="api.html">ForEach</a>
+            <a href="api.html#If">If / IfOrd</a>
+            <a href="api.html#Switch">Switch</a>
+            <a href="api.html#ForEach">ForEach</a>
           </div>
         </div>
         <div class="battery">
           <div class="battery-label">Rendering</div>
           <div class="battery-items">
-            <a href="api.html">Double Buffer</a>
-            <a href="api.html">Diff Flush</a>
-            <a href="api.html">Inline Mode</a>
-            <a href="api.html">Layers</a>
-          </div>
-        </div>
-        <div class="battery">
-          <div class="battery-label">Filtering</div>
-          <div class="battery-items">
-            <a href="api.html">fzf Syntax</a>
-            <a href="api.html">Fuzzy / Exact</a>
-            <a href="api.html">Negation</a>
-            <a href="api.html">AND / OR</a>
+            <a href="api.html#Buffer">Double Buffer</a>
+            <a href="api.html#Screen">Diff Flush</a>
+            <a href="api.html#App">Inline Mode</a>
+            <a href="api.html#LayerView">Layers</a>
           </div>
         </div>
       </div>
@@ -985,6 +1002,38 @@ function updateNav() {
 
 window.addEventListener('scroll', updateNav, { passive: true });
 updateNav();
+
+// section indicator in nav
+(function() {
+  const navSection = document.getElementById('nav-section');
+  const sections = document.querySelectorAll('.section-head');
+  if (!sections.length || !navSection) return;
+
+  // build ordered list of section tops + labels
+  const entries = [];
+  sections.forEach(head => {
+    const num = head.querySelector('.section-num');
+    const label = head.querySelector('.section-label');
+    if (num && label) {
+      entries.push({ el: head, num: num.textContent.trim(), label: label.textContent.trim() });
+    }
+  });
+
+  function updateSection() {
+    const scrollY = window.scrollY + 96; // offset for nav + margin
+    let current = null;
+    for (let i = entries.length - 1; i >= 0; i--) {
+      if (scrollY >= entries[i].el.offsetTop) {
+        current = entries[i];
+        break;
+      }
+    }
+    navSection.textContent = current ? current.label : '';
+  }
+
+  window.addEventListener('scroll', updateSection, { passive: true });
+  updateSection();
+})();
 
 // highlight static code blocks
 function esc(s) {
