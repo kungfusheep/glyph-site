@@ -139,8 +139,10 @@
   }
 
   .nav-links a:hover { color: var(--fg0); }
+  .nav-links a.active { color: var(--fg0); }
   nav.in-dark .nav-links a { color: #555; }
   nav.in-dark .nav-links a:hover { color: #e8e4d8; }
+  nav.in-dark .nav-links a.active { color: #e8e4d8; }
 
   /* ============================================================
      LAYOUT
@@ -588,8 +590,10 @@
     <span class="nav-section" id="nav-section"></span>
   </div>
   <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
     <li><a href="concepts.html">Concepts</a></li>
     <li><a href="api.html">API</a></li>
+
     <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
   </ul>
 </nav>

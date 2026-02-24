@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>glyph — Concepts</title>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
+
 <style>
   @font-face {
     font-family: 'Berkeley Mono';
@@ -48,23 +49,37 @@
   }
   .concept:last-child { border-bottom: none; }
 
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s4);
+    margin-bottom: var(--s3);
+  }
+  .section-num {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 200;
+    font-size: 84px;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    flex-shrink: 0;
+    color: #1e1e1c;
+    min-width: 110px;
+  }
+  .section-meta { padding-top: 8px; }
   .concept-label {
-    font-family: var(--akz);
-    font-weight: 700;
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: #444;
-    margin-bottom: var(--s1);
+    margin-bottom: 4px;
   }
   .concept-title {
     font-family: var(--akz);
     font-weight: 700;
-    font-size: 28px;
+    font-size: 34px;
     color: #e8e4d8;
     letter-spacing: -0.02em;
     line-height: 1.1;
-    margin-bottom: var(--s3);
   }
   .concept-prose {
     font-size: 13px;
@@ -247,6 +262,11 @@
     border-color: var(--accent);
     color: #c8c4b8;
     background: rgba(196, 125, 60, 0.04);
+    position: relative;
+    z-index: 1;
+  }
+  .buffer-row.visible + .buffer-row.visible {
+    border-top-color: transparent;
   }
   .buffer-label {
     font-family: var(--akz);
@@ -513,6 +533,8 @@
     list-style: none;
   }
   .global-nav-links a {
+    font-family: var(--mono);
+    font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -536,7 +558,7 @@
     z-index: 100;
   }
   .sidenav-link {
-    font-family: var(--akz);
+    font-family: var(--mono);
     font-weight: 700;
     font-size: 10px;
     text-transform: uppercase;
@@ -587,7 +609,7 @@
     }
     .topnav::-webkit-scrollbar { display: none; }
     .topnav-link {
-      font-family: var(--akz);
+      font-family: var(--mono);
       font-weight: 700;
       font-size: 9px;
       text-transform: uppercase;
@@ -607,8 +629,10 @@
     }
   }
 
-  @media (max-width: 960px) {
+  @media (max-width: 768px) {
     .global-nav { padding: 0 var(--s3); }
+    .section-head { flex-direction: column; gap: var(--s2); }
+    .section-num { font-size: 48px; min-width: auto; }
   }
 
   @media (max-width: 768px) {
@@ -630,6 +654,7 @@
     <li><a href="index.html">Home</a></li>
     <li><a href="concepts.html" class="active">Concepts</a></li>
     <li><a href="api.html">API</a></li>
+
     <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
   </ul>
 </nav>
@@ -664,8 +689,13 @@
      1. BUILD & EXECUTE
      ============================================================ -->
 <div class="concept" id="build">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Build & Execute</div>
+  <div class="section-head">
+    <div class="section-num">01</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Build & Execute</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     Every glyph view goes through two distinct phases. <strong>Build</strong> happens once
@@ -727,8 +757,13 @@
      1b. POINTER SEMANTICS
      ============================================================ -->
 <div class="concept" id="pointers">
-  <div class="concept-label">Core</div>
-  <div class="concept-title">Pointer Semantics</div>
+  <div class="section-head">
+    <div class="section-num">02</div>
+    <div class="section-meta">
+      <div class="concept-label">Core</div>
+      <div class="concept-title">Pointer Semantics</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     There's no reactivity in glyph. No subscriptions, no signals, no observers, no change detection.
@@ -767,8 +802,13 @@ title = "World"               // next render shows "World"</div>
      2. RENDER CYCLE
      ============================================================ -->
 <div class="concept" id="layout">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Render Cycle</div>
+  <div class="section-head">
+    <div class="section-num">03</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Render Cycle</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     Rendering is a four-phase pipeline that runs on every frame, heavily optimised for terminal
@@ -837,8 +877,13 @@ title = "World"               // next render shows "World"</div>
      2b. DYNAMIC CHILDREN
      ============================================================ -->
 <div class="concept" id="dynamic">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Dynamic Children</div>
+  <div class="section-head">
+    <div class="section-num">04</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Dynamic Children</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     ForEach, If, and Switch each compile to <strong>exactly one Op</strong> in the parent's flat array.
@@ -939,8 +984,13 @@ title = "World"               // next render shows "World"</div>
      2c. LAYOUT PROPERTIES
      ============================================================ -->
 <div class="concept" id="properties">
-  <div class="concept-label">Visual</div>
-  <div class="concept-title">Layout Properties</div>
+  <div class="section-head">
+    <div class="section-num">05</div>
+    <div class="section-meta">
+      <div class="concept-label">Visual</div>
+      <div class="concept-title">Layout Properties</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     The spatial properties that control how components are sized and positioned.
@@ -1103,8 +1153,13 @@ title = "World"               // next render shows "World"</div>
      3. INPUT HANDLING
      ============================================================ -->
 <div class="concept" id="input">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Input Handling</div>
+  <div class="section-head">
+    <div class="section-num">06</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Input Handling</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     Input is managed by <strong>riffkey</strong>, a router stack that supports vim-style multi-key
@@ -1165,8 +1220,13 @@ app.Pop()</div>
      3b. JUMP LABELS
      ============================================================ -->
 <div class="concept" id="jump">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Jump Labels</div>
+  <div class="section-head">
+    <div class="section-num">07</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Jump Labels</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     Jump labels bring vim-easymotion to the TUI. Press a trigger key and every jump target
@@ -1220,8 +1280,13 @@ app.SetView(
      4. ROUTING & VIEWS
      ============================================================ -->
 <div class="concept" id="routing">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Routing & Views</div>
+  <div class="section-head">
+    <div class="section-num">08</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Routing & Views</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     Applications with multiple screens use <strong>named views</strong>. Each view has its own
@@ -1286,8 +1351,13 @@ app.RunFrom("list")</div>
      5. LAYERS & SCROLLING
      ============================================================ -->
 <div class="concept" id="layers">
-  <div class="concept-label">System</div>
-  <div class="concept-title">Layers & Scrolling</div>
+  <div class="section-head">
+    <div class="section-num">09</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Layers & Scrolling</div>
+    </div>
+  </div>
 
   <div class="concept-prose">
     When content is taller than the viewport, <strong>Layer</strong> provides a pre-rendered
