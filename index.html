@@ -389,7 +389,7 @@
     display: grid;
     grid-template-columns: 3fr 2fr;
     gap: var(--s5);
-    align-items: start;
+    align-items: center;
   }
 
   .show-grid .code {
@@ -427,13 +427,11 @@
   }
 
   .callout-label {
-    font-family: var(--akz);
-    font-weight: 700;
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: #555;
-    margin-bottom: var(--s2);
+    margin-bottom: 4px;
   }
 
   .callout-title {
@@ -639,10 +637,6 @@
         </div>
       </div>
 
-      <div class="section-desc">
-        A minimal glyph application. Create an app, set a view, run.
-      </div>
-
       <div class="show-grid">
         <div class="code code-raw">package main
 
@@ -650,23 +644,23 @@ import . "github.com/kungfusheep/glyph"
 
 func main() {
 	app, _ := NewApp()
+	count := 0
 
 	app.SetView(
 		VBox(
-			Text("Hello, glyph"),
-			Text("Press q to quit"),
+			Text(&count),
+			Text("↑/↓ to count, q to quit"),
 		),
 	)
 
+	app.Handle("up", func() { count++ })
+	app.Handle("down", func() { count-- })
 	app.Handle("q", app.Stop)
 	app.Run()
 }</div>
         <div class="show-text">
-          <p>Create an app. Set a view. Run.</p>
-          <p>That's the whole thing.</p>
           <div class="show-aside">
-            The view is a tree of composable functions. VBox stacks vertically.
-            Text renders a value. The tree compiles once, then executes every frame.
+            A glyph app is a tree of plain functions. VBox stacks its children, Text renders a value. Pass a pointer and the display stays in sync. Wire up key handlers, call Run, done.
           </div>
         </div>
       </div>
@@ -703,7 +697,7 @@ func main() {
       <div class="section-head">
         <div class="section-num">02</div>
         <div class="section-meta">
-          <div class="section-label">Showcase</div>
+          <div class="section-label">Examples</div>
           <div class="section-title">In Practice</div>
         </div>
       </div>

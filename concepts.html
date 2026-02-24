@@ -790,10 +790,9 @@ title = "World"               // next render shows "World"</div>
   </div>
 
   <div class="concept-prose">
-    This sidesteps an entire category of bugs that reactive frameworks invite — render thrashing,
-    cascading updates, glitchy intermediate states from identity-change confusion. None of that can
-    happen here because there's no propagation mechanism to misfire. Nothing stops you building
-    reactive patterns on top — an observer that calls <code>RequestRender()</code> when a channel
+    This sidesteps an entire category of problems - render thrashing, cascading updates, glitchy intermediate states from identity-change confusion. None of that can happen here because there's no propagation mechanism to misfire.
+
+    Nothing stops you building reactive patterns on top - an observer that calls <code>RequestRender()</code> when a channel
     fires is a few lines of code. glyph just doesn't ship that complexity by default.
   </div>
 </div>
