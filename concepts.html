@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>forme — Concepts</title>
+<title>glyph — Concepts</title>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 <style>
   @font-face {
@@ -625,12 +625,12 @@
 <body>
 
 <nav class="global-nav">
-  <a href="index.html" class="global-nav-brand">forme</a>
+  <a href="index.html" class="global-nav-brand">glyph</a>
   <ul class="global-nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="concepts.html" class="active">Concepts</a></li>
     <li><a href="api.html">API</a></li>
-    <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
+    <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
   </ul>
 </nav>
 
@@ -668,7 +668,7 @@
   <div class="concept-title">Build & Execute</div>
 
   <div class="concept-prose">
-    Every forme view goes through two distinct phases. <strong>Build</strong> happens once
+    Every glyph view goes through two distinct phases. <strong>Build</strong> happens once
     when you call <code>SetView()</code> — the declarative tree is compiled into a flat array
     of operations via reflection and type switches. <strong>Execute</strong> happens every frame —
     it walks the compiled ops and dereferences pointers to read current state. No tree rebuilds,
@@ -731,7 +731,7 @@
   <div class="concept-title">Pointer Semantics</div>
 
   <div class="concept-prose">
-    There's no reactivity in forme. No subscriptions, no signals, no observers, no change detection.
+    There's no reactivity in glyph. No subscriptions, no signals, no observers, no change detection.
     When the framework renders, it dereferences your pointers and reads whatever value is there right now.
     That's it.
   </div>
@@ -759,7 +759,7 @@ title = "World"               // next render shows "World"</div>
     cascading updates, glitchy intermediate states from identity-change confusion. None of that can
     happen here because there's no propagation mechanism to misfire. Nothing stops you building
     reactive patterns on top — an observer that calls <code>RequestRender()</code> when a channel
-    fires is a few lines of code. forme just doesn't ship that complexity by default.
+    fires is a few lines of code. glyph just doesn't ship that complexity by default.
   </div>
 </div>
 
@@ -1301,7 +1301,7 @@ app.RunFrom("list")</div>
       <div class="buffer-label">Buffer</div>
       <div class="buffer-col">
         <div class="buffer-row">line 0: package main</div>
-        <div class="buffer-row">line 1: import . "forme"</div>
+        <div class="buffer-row">line 1: import . "glyph"</div>
         <div class="buffer-row">line 2:</div>
         <div class="buffer-row visible">line 3: func main() {</div>
         <div class="buffer-row visible">line 4:     app, _ := NewApp()</div>

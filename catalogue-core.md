@@ -5,9 +5,9 @@ Now I have everything. Here is the exhaustive catalogue:
 
 ---
 
-# FORME TUI FRAMEWORK — CORE ARCHITECTURE CATALOGUE
+# GLYPH TUI FRAMEWORK — CORE ARCHITECTURE CATALOGUE
 
-Package name: `forme`
+Package name: `glyph`
 
 ---
 

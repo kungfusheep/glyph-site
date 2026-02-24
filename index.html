@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>forme — Go TUI Framework</title>
+<title>glyph — Go TUI Framework</title>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 <style>
   @font-face {
@@ -584,13 +584,13 @@
      ============================================================ -->
 <nav id="nav">
   <div class="nav-left">
-    <a href="#" class="nav-brand">forme</a>
+    <a href="#" class="nav-brand">glyph</a>
     <span class="nav-section" id="nav-section"></span>
   </div>
   <ul class="nav-links">
     <li><a href="concepts.html">Concepts</a></li>
     <li><a href="api.html">API</a></li>
-    <li><a href="https://github.com/kungfusheep/forme">GitHub</a></li>
+    <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
   </ul>
 </nav>
 
@@ -601,19 +601,19 @@
   <div class="zone-inner">
     <div class="hero">
       <div class="hero-label">Go TUI Framework</div>
-      <div class="hero-title">forme</div>
+      <div class="hero-title">glyph</div>
       <div class="hero-headline">Batteries-included terminal apps in Go.</div>
       <div class="hero-desc">
         Declarative composition with a compile-once rendering model. Keyboard-first. Fast by default.      </div>
       <div class="hero-install" onclick="copyInstall(this)">
         <span class="prompt">$</span>
-        go get github.com/kungfusheep/forme@latest
+        go get github.com/kungfusheep/glyph@latest
         <span class="copied">copied</span>
       </div>
       <div class="start-links">
         <a href="concepts.html">Read the concepts &rarr;</a>
         <a href="api.html">Browse the API &rarr;</a>
-        <iframe src="https://ghbtns.com/github-btn.html?user=kungfusheep&repo=forme&type=star&count=false" frameborder="0" scrolling="0" width="70" height="20" title="GitHub Stars" style="vertical-align: middle;"></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=kungfusheep&repo=glyph&type=star&count=false" frameborder="0" scrolling="0" width="70" height="20" title="GitHub Stars" style="vertical-align: middle;"></iframe>
       </div>
     </div>
   </div>
@@ -636,20 +636,20 @@
       </div>
 
       <div class="section-desc">
-        A minimal forme application. Create an app, set a view, run.
+        A minimal glyph application. Create an app, set a view, run.
       </div>
 
       <div class="show-grid">
         <div class="code code-raw">package main
 
-import . "github.com/kungfusheep/forme"
+import . "github.com/kungfusheep/glyph"
 
 func main() {
 	app, _ := NewApp()
 
 	app.SetView(
 		VBox(
-			Text("Hello, forme"),
+			Text("Hello, glyph"),
 			Text("Press q to quit"),
 		),
 	)
@@ -939,7 +939,7 @@ func main() {
 
     <div class="hero-install" onclick="copyInstall(this)">
       <span class="prompt">$</span>
-      go get github.com/kungfusheep/forme@latest
+      go get github.com/kungfusheep/glyph@latest
       <span class="copied">copied</span>
     </div>
 
@@ -953,11 +953,11 @@ func main() {
   <div class="zone-inner">
     <footer>
       <div class="footer-inner">
-        <span>forme &mdash; built by <a href="#">Pete Griffiths</a></span>
+        <span>glyph &mdash; built by <a href="#">Pete Griffiths</a></span>
         <span>
           <a href="api.html">API</a> &middot;
           <a href="concepts.html">Concepts</a> &middot;
-          <a href="https://github.com/kungfusheep/forme">source</a>
+          <a href="https://github.com/kungfusheep/glyph">source</a>
         </span>
       </div>
     </footer>
@@ -1103,7 +1103,7 @@ function highlightGo(raw) {
 
 // click-to-copy install command
 function copyInstall(el) {
-  const cmd = 'go get github.com/kungfusheep/forme@latest';
+  const cmd = 'go get github.com/kungfusheep/glyph@latest';
   navigator.clipboard.writeText(cmd).then(() => {
     const badge = el.querySelector('.copied');
     badge.classList.add('show');

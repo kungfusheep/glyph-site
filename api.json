@@ -1,7 +1,7 @@
 {
-  "name": "forme",
-  "import_path": "github.com/kungfusheep/forme",
-  "doc": "Package forme provides a high-performance terminal UI framework.\n",
+  "name": "glyph",
+  "import_path": "github.com/kungfusheep/glyph",
+  "doc": "Package glyph provides a high-performance terminal UI framework.\n",
   "types": [
     {
       "name": "Align",
@@ -3469,7 +3469,7 @@
     },
     {
       "name": "OverlayNode",
-      "doc": "OverlayNode displays content floating above the main view.\nUse for modals, dialogs, and floating windows.\nControl visibility with forme.If:\n\n\tforme.If(\u0026showModal).Eq(true).Then(forme.Overlay{Child: ...})\n",
+      "doc": "OverlayNode displays content floating above the main view.\nUse for modals, dialogs, and floating windows.\nControl visibility with glyph.If:\n\n\tglyph.If(\u0026showModal).Eq(true).Then(glyph.Overlay{Child: ...})\n",
       "decl": "type OverlayNode struct {\n\tCentered   bool  // true = center on screen (default behavior if X/Y not set)\n\tX, Y       int   // explicit position (used if Centered is false)\n\tWidth      int   // explicit width (0 = auto from content)\n\tHeight     int   // explicit height (0 = auto from content)\n\tBackdrop   bool  // draw dimmed backdrop behind overlay\n\tBackdropFG Color // backdrop dim color (default: BrightBlack)\n\tBG         Color // background color for overlay content area (fills before rendering child)\n\tChild      any   // overlay content\n}"
     },
     {

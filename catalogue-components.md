@@ -1685,7 +1685,7 @@ Now I have comprehensive data. Let me compile the full catalogue.
 ### 253. `CheckListC[T any]` (struct)
 - **File/Line:** components.go:1775
 - **What it is:** Generic struct (pointer type)
-- **What it does:** List with per-item checkboxes. Uses struct tags (`forme:"checked"`, `forme:"render"`) for automatic field inference.
+- **What it does:** List with per-item checkboxes. Uses struct tags (`glyph:"checked"`, `glyph:"render"`) for automatic field inference.
 - **Dependencies:** `SelectionList`, `binding`, `reflect`
 
 **Fields:**
@@ -1726,7 +1726,7 @@ Now I have comprehensive data. Let me compile the full catalogue.
 ### 259. `(*CheckListC[T]).toSelectionList` (method)
 - **File/Line:** components.go:1971
 - **What it is:** Unexported method
-- **What it does:** Creates the internal SelectionList with checkbox-aware rendering. Uses struct tag reflection to auto-detect `forme:"checked"` and `forme:"render"` fields if not explicitly set.
+- **What it does:** Creates the internal SelectionList with checkbox-aware rendering. Uses struct tag reflection to auto-detect `glyph:"checked"` and `glyph:"render"` fields if not explicitly set.
 - **Notable design:** Automatic struct tag inference is a one-time operation at first call. Builds a render function that composes `If(checkedFn(...)).Then(checkedMark).Else(uncheckedMark)` with the render function in an HBox.
 
 ### 260. `InputC` (struct)

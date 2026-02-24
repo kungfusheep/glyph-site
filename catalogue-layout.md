@@ -5,7 +5,7 @@ Now I have all the data. Here is the exhaustive catalogue:
 
 ---
 
-# FORME TUI FRAMEWORK: LAYOUT SYSTEM & TEMPLATE ENGINE CATALOGUE
+# GLYPH TUI FRAMEWORK: LAYOUT SYSTEM & TEMPLATE ENGINE CATALOGUE
 
 ---
 
@@ -965,7 +965,7 @@ Same set as VBoxFn.
 
 **340. CheckList[T]** — line 1793, constructor
 **341. CheckListC methods**: Checked, Render, Marks, Marker, MarkerStyle, Style, SelectedStyle, Margin, Gap, BindNav, BindPageNav, BindFirstLast, BindVimNav, BindToggle, BindDelete, Handle, Ref, Selected, Index, Delete, Up/Down/PageUp/PageDown/First/Last
-**342. CheckListC[T].toSelectionList** — line 1971, **infers checked/render from struct tags** (forme:"checked", forme:"render") if not explicitly set. Builds render function with checkbox marks using `If(checkedFn(item)).Then(Text("☑")).Else(Text("☐"))`.
+**342. CheckListC[T].toSelectionList** — line 1971, **infers checked/render from struct tags** (glyph:"checked", glyph:"render") if not explicitly set. Builds render function with checkbox marks using `If(checkedFn(item)).Then(Text("☑")).Else(Text("☐"))`.
 
 **343. InputC**
 - File: components.go, line 2038

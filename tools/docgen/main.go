@@ -60,7 +60,7 @@ type ValueDoc struct {
 }
 
 func main() {
-	importPath := flag.String("import", "github.com/kungfusheep/forme", "import path for the package")
+	importPath := flag.String("import", "github.com/kungfusheep/glyph", "import path for the package")
 	flag.Parse()
 
 	dir := flag.Arg(0)
