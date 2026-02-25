@@ -50,6 +50,10 @@
 <link rel="preload" href="BerkeleyMonoVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 <style>
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+
   @font-face {
     font-family: 'Berkeley Mono';
     src: url('BerkeleyMonoVariable.woff2') format('woff2');
@@ -1280,6 +1284,15 @@ document.querySelectorAll('.code-raw').forEach(el => {
   el.innerHTML = highlightGo(el.textContent);
   el.classList.remove('code-raw');
 });
+</script>
+<script type="speculationrules">
+{
+	"prerender": [{
+		"source": "list",
+		"urls": ["index.html", "concepts.html", "api.html"],
+		"eagerness": "eager"
+	}]
+}
 </script>
 </body>
 </html>

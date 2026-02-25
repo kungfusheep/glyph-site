@@ -32,6 +32,9 @@
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 
 <style>
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
 
   @font-face {
     font-family: 'Berkeley Mono';
@@ -2171,6 +2174,15 @@ function copyInstall(el) {
   }, { threshold: 0.3 });
   obs.observe(diagram);
 })();
+</script>
+<script type="speculationrules">
+{
+	"prerender": [{
+		"source": "list",
+		"urls": ["index.html", "concepts.html", "api.html"],
+		"eagerness": "eager"
+	}]
+}
 </script>
 </body>
 </html>
