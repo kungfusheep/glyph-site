@@ -127,14 +127,12 @@
     position: sticky;
     top: 48px;
     z-index: 90;
-    background: var(--bg-dark);
-    border-bottom: 1px solid var(--rule-dk);
+    max-width: 1060px;
+    margin: 0 auto;
     padding: 12px var(--s5);
   }
 
   .search-inner {
-    max-width: 1060px;
-    margin: 0 auto;
     position: relative;
   }
 
@@ -182,12 +180,13 @@
      ============================================================ */
   .sidebar {
     position: fixed;
-    top: 96px;
-    left: max(0px, calc(50vw - 770px));
-    bottom: 0;
+    top: 64px;
+    left: max(16px, calc(50vw - 770px));
+    max-height: calc(100vh - 80px);
     width: 240px;
-    background: var(--bg-dark);
-    border-right: 1px solid var(--rule-dk);
+    background: var(--bg-dark2);
+    border: 1px solid var(--rule-dk);
+    border-radius: 8px;
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 80;
@@ -343,8 +342,6 @@
 
   .hamburger:hover svg { stroke: #e8e4d8; }
 
-  .topnav { display: none; }
-
   /* backdrop for mobile sidebar */
   .sidebar-backdrop {
     display: none;
@@ -360,60 +357,25 @@
   @media (min-width: 1000px) {
     .sidebar { display: block; }
     .zone-inner { margin-left: 256px; }
+    .search-bar { margin-left: 256px; }
   }
   @media (min-width: 1540px) {
     .zone-inner { margin-left: auto; }
+    .search-bar { margin-left: auto; }
   }
 
-  /* tablet/mobile: sidebar hidden, topnav visible */
+  /* tablet/mobile: sidebar as hamburger overlay */
   @media (max-width: 999px) {
     .sidebar {
-      left: 0;
+      left: 16px;
+      top: 64px;
       display: block;
-      transform: translateX(-100%);
+      transform: translateX(calc(-100% - 32px));
       transition: transform 0.25s ease;
       z-index: 110;
     }
     .sidebar.open { transform: translateX(0); }
-    .hamburger { display: none; }
-
-    .topnav {
-      display: flex;
-      position: sticky;
-      top: 48px;
-      z-index: 90;
-      background: var(--bg-dark);
-      border-bottom: 1px solid var(--rule-dk);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      gap: 0;
-      padding: 0 var(--s2);
-    }
-    .topnav::-webkit-scrollbar { display: none; }
-    .topnav-link {
-      font-family: var(--mono);
-      font-weight: 700;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #444;
-      text-decoration: none;
-      padding: 12px 12px;
-      white-space: nowrap;
-      border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
-      flex-shrink: 0;
-    }
-    .topnav-link:hover { color: #888; }
-    .topnav-link.active {
-      color: #c8c4b8;
-      border-bottom-color: var(--accent);
-    }
-
-    .search-bar { top: 88px; }
-    .api-type { scroll-margin-top: 152px; }
-    .api-method { scroll-margin-top: 152px; }
+    .hamburger { display: block; }
   }
 
   /* ============================================================
@@ -833,6 +795,18 @@
     to { --angle: 495deg; }
   }
 
+  @keyframes pulse-thicken {
+    0%, 100% { inset: -1px; padding: 1px; border-radius: 7px; }
+    12% { inset: -2px; padding: 2px; border-radius: 8px; }
+    25% { inset: -1px; padding: 1px; border-radius: 7px; }
+  }
+
+  @keyframes pulse-glow-dk {
+    0%, 100% { opacity: 0; }
+    12% { opacity: 0.25; }
+    25% { opacity: 0; }
+  }
+
   .hero-install {
     display: inline-flex;
     align-items: center;
@@ -959,11 +933,15 @@
     .search-bar { padding: 12px var(--s3); }
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
+    .hero-install { font-size: 11px; padding: 10px 14px; max-width: 100%; }
+    .install-section { overflow: hidden; }
+    .start-links { flex-direction: column; gap: var(--s2); }
+    .hero-install::before { animation: pulse-thicken 8s ease-in-out infinite, spin 3s linear infinite; }
+    .hero-install::after { animation: pulse-glow-dk 8s ease-in-out infinite, spin 3s linear infinite; }
   }
 
   /* gradient accent */
   .sidebar-item.active { border-image: var(--grad) 1; }
-  .topnav-link.active { border-image: var(--grad) 1; }
   .api-type.highlighted { border-image: var(--grad) 1; }
   .api-method.highlighted { border-image: var(--grad) 1; }
 
@@ -995,9 +973,6 @@
 <!-- sidebar tree nav (populated by JS) -->
 <aside class="sidebar" id="sidebar"></aside>
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-
-<!-- topnav tab bar (populated by JS, visible below 1320px) -->
-<nav class="topnav" id="topnav"></nav>
 
 <!-- ============================================================
      SEARCH
@@ -1735,47 +1710,6 @@ function copyInstall(el) {
     });
   }
 
-  function buildTopnav() {
-    const topnav = document.getElementById('topnav');
-    topnav.innerHTML = '';
-    const catEls = document.querySelectorAll('.api-category[data-category]');
-    const seen = new Set();
-    catEls.forEach(catEl => {
-      const catName = catEl.dataset.category;
-      if (seen.has(catName)) return;
-      seen.add(catName);
-      const a = document.createElement('a');
-      a.className = 'topnav-link';
-      a.textContent = catName;
-      a.href = '#';
-      a.dataset.category = catName;
-      a.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(`.api-category[data-category="${catName}"]`);
-        if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
-      });
-      topnav.appendChild(a);
-    });
-  }
-
-  let activeTopnavLink = null;
-
-  function syncTopnav(typeName) {
-    const typeEl = document.getElementById(typeName);
-    if (!typeEl) return;
-    const cat = typeEl.closest('.api-category');
-    if (!cat) return;
-    const catName = cat.dataset.category;
-    if (activeTopnavLink) activeTopnavLink.classList.remove('active');
-    const topnav = document.getElementById('topnav');
-    const link = topnav.querySelector(`[data-category="${catName}"]`);
-    if (link) {
-      link.classList.add('active');
-      activeTopnavLink = link;
-      link.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
-    }
-  }
-
   // active state tracking via IntersectionObserver
   let activeItem = null;
   let clickLock = 0;
@@ -1819,8 +1753,6 @@ function copyInstall(el) {
     // sync content highlight
     const target = document.getElementById(id);
     highlightTarget(target || null);
-    // sync topnav
-    syncTopnav(id);
   }
 
   // hamburger toggle
@@ -2003,7 +1935,7 @@ function copyInstall(el) {
 
   fetch('api.json')
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => { renderAPI(data); buildSidebar(); buildTopnav(); setupActiveTracking(); scrollToHash(); })
+    .then(data => { renderAPI(data); buildSidebar(); setupActiveTracking(); scrollToHash(); })
     .catch(err => {
       document.getElementById('api-content').innerHTML =
         `<div class="api-loading">Failed to load API reference: ${esc(err.message)}</div>`;

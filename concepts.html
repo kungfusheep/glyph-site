@@ -663,6 +663,11 @@
     .global-nav-inner { padding: 0 var(--s3); }
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
+    .hero-install { font-size: 11px; padding: 10px 14px; max-width: 100%; }
+    .install-section { overflow: hidden; }
+    .start-links { flex-direction: column; gap: var(--s2); }
+    .hero-install::before { animation: pulse-thicken 8s ease-in-out infinite, spin 3s linear infinite; }
+    .hero-install::after { animation: pulse-glow-dk 8s ease-in-out infinite, spin 3s linear infinite; }
   }
 
   @media (max-width: 768px) {
@@ -720,6 +725,18 @@
   @keyframes spin {
     from { --angle: 135deg; }
     to { --angle: 495deg; }
+  }
+
+  @keyframes pulse-thicken {
+    0%, 100% { inset: -1px; padding: 1px; border-radius: 7px; }
+    12% { inset: -2px; padding: 2px; border-radius: 8px; }
+    25% { inset: -1px; padding: 1px; border-radius: 7px; }
+  }
+
+  @keyframes pulse-glow-dk {
+    0%, 100% { opacity: 0; }
+    12% { opacity: 0.25; }
+    25% { opacity: 0; }
   }
 
   .hero-install {

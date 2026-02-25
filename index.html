@@ -73,6 +73,24 @@
     to { --angle: 495deg; }
   }
 
+  @keyframes pulse-thicken {
+    0%, 100% { inset: -1px; padding: 1px; border-radius: 7px; }
+    12% { inset: -2px; padding: 2px; border-radius: 8px; }
+    25% { inset: -1px; padding: 1px; border-radius: 7px; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0; }
+    12% { opacity: 0.45; }
+    25% { opacity: 0; }
+  }
+
+  @keyframes pulse-glow-dk {
+    0%, 100% { opacity: 0; }
+    12% { opacity: 0.25; }
+    25% { opacity: 0; }
+  }
+
   /* ============================================================
      NAV
      ============================================================ */
@@ -245,16 +263,17 @@
   .hero-install::before {
     content: '';
     position: absolute;
-    inset: -2px;
-    border-radius: 8px;
-    padding: 2px;
+    inset: -1px;
+    border-radius: 7px;
+    padding: 1px;
     background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s, inset 0.4s, padding 0.4s, border-radius 0.4s;
+    opacity: 1;
+    animation: spin 3s linear infinite;
+    transition: inset 0.4s, padding 0.4s, border-radius 0.4s;
     pointer-events: none;
   }
 
@@ -271,32 +290,15 @@
     z-index: -1;
   }
 
-  .hero-install:hover::before,
-  .hero-install:hover::after {
-    animation: spin 3s linear infinite;
-  }
-
   .hero-install:hover::before {
-    opacity: 1;
-  }
-
-  .hero-install:hover::after {
-    opacity: 0.45;
-  }
-
-  /* dark zone: always spinning thin border, thickens + glow on hover */
-  .zone-dark .hero-install::before {
-    opacity: 1;
-    animation: spin 3s linear infinite;
-    inset: -1px;
-    border-radius: 7px;
-    padding: 1px;
-  }
-
-  .zone-dark .hero-install:hover::before {
     inset: -2px;
     border-radius: 8px;
     padding: 2px;
+  }
+
+  .hero-install:hover::after {
+    animation: spin 3s linear infinite;
+    opacity: 0.45;
   }
 
   .zone-dark .hero-install:hover::after {
@@ -669,6 +671,10 @@
     .callout { grid-template-columns: 1fr; gap: var(--s4); }
     .batteries-grid { grid-template-columns: 1fr; }
     .start-links { flex-direction: column; gap: var(--s2); }
+    .hero-install::before { animation: pulse-thicken 8s ease-in-out infinite, spin 3s linear infinite; }
+    .zone-light .hero-install::after { animation: pulse-glow 8s ease-in-out infinite, spin 3s linear infinite; }
+    .zone-dark .hero-install::after { animation: pulse-glow-dk 8s ease-in-out infinite, spin 3s linear infinite; }
+    .hero { overflow: hidden; }
   }
 
   /* gradient accent */
