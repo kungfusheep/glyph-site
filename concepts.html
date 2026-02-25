@@ -710,6 +710,133 @@
 
   .footer-links a:hover { color: #c8c4b8; }
 
+  /* hero install */
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 135deg;
+    inherits: false;
+  }
+
+  @keyframes spin {
+    from { --angle: 135deg; }
+    to { --angle: 495deg; }
+  }
+
+  .hero-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-dark3);
+    color: #c8c4b8;
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .hero-install:hover { background: #111; }
+
+  .hero-install .prompt { color: #555; user-select: none; }
+
+  .hero-install .copied {
+    font-size: 11px;
+    color: #e8e4d8;
+    margin-left: 16px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .hero-install .copied.show { opacity: 1; }
+
+  .hero-install::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 7px;
+    padding: 1px;
+    background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 1;
+    animation: spin 3s linear infinite;
+    transition: opacity 0.4s, inset 0.4s, padding 0.4s, border-radius 0.4s;
+    pointer-events: none;
+  }
+
+  .hero-install::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 14px;
+    background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .hero-install:hover::before,
+  .hero-install:hover::after {
+    animation: spin 3s linear infinite;
+  }
+
+  .hero-install:hover::before {
+    inset: -2px;
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .hero-install:hover::after {
+    opacity: 0.25;
+  }
+
+  .install-section {
+    padding: 48px 0;
+    border-top: 1px solid #1e1e1c;
+    isolation: isolate;
+  }
+
+  .install-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #444;
+    margin-bottom: 4px;
+  }
+
+  .install-title {
+    font-family: var(--akz);
+    font-weight: 700;
+    font-size: 34px;
+    color: #e8e4d8;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+
+  .start-links {
+    display: flex;
+    gap: 48px;
+    padding: 32px 0 0;
+  }
+
+  .start-links a {
+    font-size: 12px;
+    color: #c8c4b8;
+    text-decoration: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    transition: border-color 0.15s;
+  }
+
+  .start-links a:hover { border-color: #c8c4b8; }
+
   /* gradient accent */
   .flow-node.accent {
     border-color: transparent;
@@ -1544,6 +1671,24 @@ app.SetView(VBox(LayerView(layer).Grow(1)))</div>
 
 </div><!-- .page -->
 
+<div class="page">
+  <div class="install-section">
+    <div class="install-label">Install</div>
+    <div class="install-title">Get Started</div>
+
+    <div class="hero-install" onclick="copyInstall(this)">
+      <span class="prompt">$</span>
+      go get github.com/kungfusheep/glyph@latest
+      <span class="copied">copied</span>
+    </div>
+
+    <div class="start-links">
+      <a href="index.html">Home &rarr;</a>
+      <a href="api.html">Browse the API &rarr;</a>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-brand">glyph</div>
   <div class="footer-links">
@@ -1555,6 +1700,15 @@ app.SetView(VBox(LayerView(layer).Grow(1)))</div>
 </footer>
 
 <script>
+function copyInstall(el) {
+  const cmd = 'go get github.com/kungfusheep/glyph@latest';
+  navigator.clipboard.writeText(cmd).then(() => {
+    const badge = el.querySelector('.copied');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 1500);
+  });
+}
+
 // syntax highlighting for code-raw blocks
 (function() {
   function esc(s) {
