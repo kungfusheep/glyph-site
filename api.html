@@ -130,6 +130,7 @@
     max-width: 1060px;
     margin: 0 auto;
     padding: 12px var(--s5);
+    background: var(--bg-dark);
   }
 
   .search-inner {
@@ -168,9 +169,12 @@
   .search-hint.hidden { display: none; }
 
   .search-count {
-    font-size: 11px;
-    color: #444;
-    margin-top: 6px;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #555;
   }
 
   .search-count.hidden { display: none; }
@@ -1771,14 +1775,21 @@ function copyInstall(el) {
   function syncSidebarWithSearch(query) {
     const items = sidebar.querySelectorAll('.sidebar-item');
     if (!query) {
-      items.forEach(a => a.style.display = '');
+      items.forEach(a => {
+        a.style.display = '';
+        const row = a.closest('.sidebar-type-row');
+        if (row) row.style.display = '';
+      });
       sidebar.querySelectorAll('.sidebar-cat').forEach(cat => cat.style.display = '');
       return;
     }
-    // hide sidebar items whose target type is search-hidden
+    // hide sidebar items (and their parent rows) whose target type is search-hidden
     items.forEach(a => {
       const target = document.getElementById(a.dataset.target);
-      a.style.display = (target && !target.classList.contains('search-hidden')) ? '' : 'none';
+      const visible = target && !target.classList.contains('search-hidden');
+      a.style.display = visible ? '' : 'none';
+      const row = a.closest('.sidebar-type-row');
+      if (row) row.style.display = visible ? '' : 'none';
     });
     // hide empty sidebar categories
     sidebar.querySelectorAll('.sidebar-cat').forEach(cat => {
@@ -1789,70 +1800,54 @@ function copyInstall(el) {
   }
 
   // ============================================================
-  // FUZZY SEARCH
+  // SEARCH
   // ============================================================
-
-  function fuzzyScore(query, text) {
-    if (!query) return 1;
-    query = query.toLowerCase();
-    text = text.toLowerCase();
-
-    // exact substring — best score
-    const subIdx = text.indexOf(query);
-    if (subIdx !== -1) {
-      let score = 100 + (query.length / text.length) * 50;
-      if (subIdx === 0) score += 30; // prefix bonus
-      // word-start bonus
-      if (subIdx > 0 && /[\s._\-(]/.test(text[subIdx - 1])) score += 20;
-      return score;
-    }
-
-    // character-sequence match
-    let qi = 0, score = 0, consecutive = 0;
-    for (let ti = 0; ti < text.length && qi < query.length; ti++) {
-      if (text[ti] === query[qi]) {
-        qi++;
-        consecutive++;
-        score += consecutive * 2;
-        if (ti === 0 || /[\s._\-(]/.test(text[ti - 1])) score += 5;
-      } else {
-        consecutive = 0;
-      }
-    }
-
-    return qi === query.length ? score : 0;
-  }
 
   const searchInput = document.getElementById('search');
   const searchHint = document.getElementById('search-hint');
   const searchCount = document.getElementById('search-count');
+  const sectionHead = document.querySelector('.section-head');
+  const sectionDesc = document.querySelector('.section-desc');
+  const apiShowcase = document.querySelector('.api-showcase');
+  const apiContent = document.getElementById('api-content');
 
   function doSearch() {
-    const query = searchInput.value.trim();
+    const query = searchInput.value.trim().toLowerCase();
 
     if (!query) {
-      // show everything, restore original state
+      // restore everything
       typeElements.forEach(el => el.classList.remove('search-hidden'));
       document.querySelectorAll('.api-category').forEach(cat => {
         cat.style.display = '';
+        cat.querySelector('.api-category-head').style.display = '';
       });
+      if (sectionHead) sectionHead.style.display = '';
+      if (sectionDesc) sectionDesc.style.display = '';
+      if (apiShowcase) apiShowcase.style.display = '';
+      if (apiContent) apiContent.style.paddingTop = '';
       syncSidebarWithSearch('');
       searchCount.classList.add('hidden');
       return;
     }
 
+    // hide page chrome when searching, pad content below sticky search bar
+    if (sectionHead) sectionHead.style.display = 'none';
+    if (sectionDesc) sectionDesc.style.display = 'none';
+    if (apiShowcase) apiShowcase.style.display = 'none';
+    if (apiContent) apiContent.style.paddingTop = '64px';
+
     let visible = 0;
 
-    // score each type
-    const scores = typeElements.map(el => {
-      // higher weight for display name match
-      const nameScore = fuzzyScore(query, el._displayName) * 3;
-      const textScore = fuzzyScore(query, el._searchText);
-      return { el, score: Math.max(nameScore, textScore) };
-    });
+    typeElements.forEach(el => {
+      const name = el._displayName;
+      const methods = el._methods || [];
 
-    scores.forEach(({ el, score }) => {
-      if (score > 0) {
+      // exact substring match on type name
+      const nameMatch = name.includes(query);
+      // exact substring match on any method name
+      const methodMatch = methods.some(m => m.toLowerCase().includes(query));
+
+      if (nameMatch || methodMatch) {
         el.classList.remove('search-hidden');
         visible++;
       } else {
@@ -1860,17 +1855,16 @@ function copyInstall(el) {
       }
     });
 
-    // hide empty categories
+    // hide empty categories, hide category headers during search
     document.querySelectorAll('.api-category').forEach(cat => {
       const types = cat.querySelector('.api-category-types');
       if (!types) return;
       const hasVisible = types.querySelector('.api-type:not(.search-hidden)');
       cat.style.display = hasVisible ? '' : 'none';
-      // expand matching categories during search
+      cat.querySelector('.api-category-head').style.display = 'none';
       if (hasVisible) cat.classList.remove('collapsed');
     });
 
-    // sync sidebar with search results
     syncSidebarWithSearch(query);
 
     searchCount.textContent = `${visible} result${visible !== 1 ? 's' : ''}`;

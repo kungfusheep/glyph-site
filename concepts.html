@@ -902,10 +902,10 @@
 
 <nav class="sidenav">
   <a href="#build" class="sidenav-link">Build & Execute</a>
+  <a href="#render" class="sidenav-link">Render Cycle</a>
+  <a href="#layout" class="sidenav-link">Layout Properties</a>
   <a href="#pointers" class="sidenav-link">Pointer Semantics</a>
-  <a href="#layout" class="sidenav-link">Render Cycle</a>
   <a href="#dynamic" class="sidenav-link">Dynamic Children</a>
-  <a href="#properties" class="sidenav-link">Layout Properties</a>
   <a href="#input" class="sidenav-link">Input Handling</a>
   <a href="#jump" class="sidenav-link">Jump Labels</a>
   <a href="#routing" class="sidenav-link">Routing & Views</a>
@@ -914,10 +914,10 @@
 
 <nav class="topnav">
   <a href="#build" class="topnav-link">Build</a>
-  <a href="#pointers" class="topnav-link">Pointers</a>
+  <a href="#render" class="topnav-link">Render</a>
   <a href="#layout" class="topnav-link">Layout</a>
+  <a href="#pointers" class="topnav-link">Pointers</a>
   <a href="#dynamic" class="topnav-link">Dynamic</a>
-  <a href="#properties" class="topnav-link">Properties</a>
   <a href="#input" class="topnav-link">Input</a>
   <a href="#jump" class="topnav-link">Jump</a>
   <a href="#routing" class="topnav-link">Routing</a>
@@ -995,55 +995,11 @@
 </div>
 
 <!-- ============================================================
-     1b. POINTER SEMANTICS
-     ============================================================ -->
-<div class="concept" id="pointers">
-  <div class="section-head">
-    <div class="section-num">02</div>
-    <div class="section-meta">
-      <div class="concept-label">Core</div>
-      <div class="concept-title">Pointer Semantics</div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    There's no reactivity in glyph. No subscriptions, no signals, no observers, no change detection.
-    When the framework renders, it dereferences your pointers and reads whatever value is there right now.
-    That's it.
-  </div>
-
-  <div class="code code-raw">title := "Hello"
-
-app.SetView(Text(&title))    // captures the pointer, not the value
-
-title = "World"               // next render shows "World"</div>
-
-  <div class="concept-prose">
-    Pass a <code>*string</code> and the text updates when the string changes. Pass a <code>string</code>
-    literal and it's static forever. Same pattern for <code>*int</code>, <code>*bool</code>,
-    <code>*[]T</code> — anything behind a pointer is live, anything without one is baked in at compile.
-  </div>
-
-  <div class="concept-prose">
-    There's no state diffing, no change detection. You mutate your variables directly, and the
-    next render reads current values through pointers. Renders happen when you return from a key
-    handler, or when you call <code>RequestRender()</code> from a goroutine. That's the whole model.
-  </div>
-
-  <div class="concept-prose">
-    This sidesteps an entire category of problems - render thrashing, cascading updates, glitchy intermediate states from identity-change confusion. None of that can happen here because there's no propagation mechanism to misfire.
-
-    Nothing stops you building reactive patterns on top - an observer that calls <code>RequestRender()</code> when a channel
-    fires is a few lines of code. glyph just doesn't ship that complexity by default.
-  </div>
-</div>
-
-<!-- ============================================================
      2. RENDER CYCLE
      ============================================================ -->
-<div class="concept" id="layout">
+<div class="concept" id="render">
   <div class="section-head">
-    <div class="section-num">03</div>
+    <div class="section-num">02</div>
     <div class="section-meta">
       <div class="concept-label">System</div>
       <div class="concept-title">Render Cycle</div>
@@ -1114,118 +1070,11 @@ title = "World"               // next render shows "World"</div>
 </div>
 
 <!-- ============================================================
-     2b. DYNAMIC CHILDREN
+     3. LAYOUT PROPERTIES
      ============================================================ -->
-<div class="concept" id="dynamic">
+<div class="concept" id="layout">
   <div class="section-head">
-    <div class="section-num">04</div>
-    <div class="section-meta">
-      <div class="concept-label">System</div>
-      <div class="concept-title">Dynamic Children</div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    ForEach, If, and Switch each compile to <strong>exactly one Op</strong> in the parent's flat array.
-    Their content lives in separate sub-templates — self-contained <code>*Template</code> instances
-    with their own <code>ops</code>, <code>geom</code>, and <code>byDepth</code> arrays.
-    From the parent's perspective, they're opaque single-slot ops.
-  </div>
-
-  <div class="flow">
-    <div class="flow-node accent">
-      <div class="flow-node-label">Parent ops[]</div>
-      <div class="flow-node-name">... OpText OpForEach OpText ...</div>
-      <div class="flow-node-detail">one slot per dynamic node</div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-label">Sub-template</div>
-      <div class="flow-node-name">own ops[] + geom[] + byDepth</div>
-      <div class="flow-node-detail">self-contained mini-template</div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    <strong>ForEach</strong> is the most interesting. The render function is called once at compile time
-    against a <strong>dummy element</strong>. Any pointers into that dummy get converted to offset-based
-    ops via <code>unsafe.Pointer</code> arithmetic — the offset from the element base address to the
-    field pointer is stored instead of the pointer itself.
-  </div>
-
-  <div class="cascade">
-    <div class="cascade-step">
-      <div class="cascade-phase">
-        <div class="cascade-phase-dir">compile</div>
-        <div class="cascade-phase-name">Dummy element</div>
-      </div>
-      <div class="cascade-body">
-        Create a temp <code>T</code>, call render function once. Pointers within the dummy's
-        memory range become <code>OpTextOff</code> with offset = <code>ptr - dummyBase</code>.
-        One sub-template compiled, shared across all items.
-      </div>
-    </div>
-    <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
-      <div class="cascade-phase">
-        <div class="cascade-phase-dir">each frame</div>
-        <div class="cascade-phase-name">Layout per item</div>
-      </div>
-      <div class="cascade-body">
-        Read live slice header (<code>Data</code>, <code>Len</code>) via <code>unsafe.Pointer</code>.
-        For each item: swap <code>elemBase</code> to the real element, run
-        <code>distributeWidths</code> + <code>layout</code> on the sub-template.
-        Store position in <code>iterGeoms[i]</code> — the sub-template's geom is scratch.
-      </div>
-    </div>
-    <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
-      <div class="cascade-phase">
-        <div class="cascade-phase-dir">render</div>
-        <div class="cascade-phase-name">Offset resolve</div>
-      </div>
-      <div class="cascade-body">
-        <code>OpTextOff</code> resolves to <code>(*string)(elemBase + offset)</code>
-        for each element. Same compiled template, different data. Per-item positions
-        read from <code>iterGeoms</code>.
-      </div>
-    </div>
-  </div>
-
-  <div class="concept-prose">
-    <strong>If</strong> compiles both branches into separate sub-templates at build time. At runtime
-    the condition is evaluated and only the active branch is laid out and rendered. The inactive branch
-    costs nothing — it's not even visited.
-  </div>
-
-  <div class="concept-prose">
-    <strong>Switch</strong> creates N+1 sub-templates (one per case + default).
-    <code>getMatchIndex()</code> linear-scans to find the matching case. Only the winner
-    is laid out.
-  </div>
-
-  <div class="concept-prose">
-    None of these participate in the parent's <code>byDepth</code> layout pass directly.
-    They're measured inline by their parent container when it encounters them during the child scan
-    in <code>layoutContainer</code>. The sub-templates run their own complete layout pipeline
-    internally — <code>distributeWidths</code> + <code>layout</code> — but this is scoped
-    to the sub-template's own ops array, not the parent's.
-  </div>
-
-  <div class="code code-raw">ForEach(&items, func(item *Item) any {
-    return HBox.Gap(2)(
-        Text(&item.Name),
-        Text(&item.Status),
-    )
-})</div>
-</div>
-
-<!-- ============================================================
-     2c. LAYOUT PROPERTIES
-     ============================================================ -->
-<div class="concept" id="properties">
-  <div class="section-head">
-    <div class="section-num">05</div>
+    <div class="section-num">03</div>
     <div class="section-meta">
       <div class="concept-label">Visual</div>
       <div class="concept-title">Layout Properties</div>
@@ -1392,7 +1241,158 @@ title = "World"               // next render shows "World"</div>
 </div>
 
 <!-- ============================================================
-     3. INPUT HANDLING
+     4. POINTER SEMANTICS
+     ============================================================ -->
+<div class="concept" id="pointers">
+  <div class="section-head">
+    <div class="section-num">04</div>
+    <div class="section-meta">
+      <div class="concept-label">Core</div>
+      <div class="concept-title">Pointer Semantics</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    There's no reactivity in glyph. No subscriptions, no signals, no observers, no change detection.
+    When the framework renders, it dereferences your pointers and reads whatever value is there right now.
+    That's it.
+  </div>
+
+  <div class="code code-raw">title := "Hello"
+
+app.SetView(Text(&title))    // captures the pointer, not the value
+
+title = "World"               // next render shows "World"</div>
+
+  <div class="concept-prose">
+    Pass a <code>*string</code> and the text updates when the string changes. Pass a <code>string</code>
+    literal and it's static forever. Same pattern for <code>*int</code>, <code>*bool</code>,
+    <code>*[]T</code> — anything behind a pointer is live, anything without one is baked in at compile.
+  </div>
+
+  <div class="concept-prose">
+    There's no state diffing, no change detection. You mutate your variables directly, and the
+    next render reads current values through pointers. Renders happen when you return from a key
+    handler, or when you call <code>RequestRender()</code> from a goroutine. That's the whole model.
+  </div>
+
+  <div class="concept-prose">
+    This sidesteps an entire category of problems - render thrashing, cascading updates, glitchy intermediate states from identity-change confusion. None of that can happen here because there's no propagation mechanism to misfire.
+
+    Nothing stops you building reactive patterns on top - an observer that calls <code>RequestRender()</code> when a channel
+    fires is a few lines of code. glyph just doesn't ship that complexity by default.
+  </div>
+</div>
+
+<!-- ============================================================
+     5. DYNAMIC CHILDREN
+     ============================================================ -->
+<div class="concept" id="dynamic">
+  <div class="section-head">
+    <div class="section-num">05</div>
+    <div class="section-meta">
+      <div class="concept-label">System</div>
+      <div class="concept-title">Dynamic Children</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    ForEach, If, and Switch each compile to <strong>exactly one Op</strong> in the parent's flat array.
+    Their content lives in separate sub-templates — self-contained <code>*Template</code> instances
+    with their own <code>ops</code>, <code>geom</code>, and <code>byDepth</code> arrays.
+    From the parent's perspective, they're opaque single-slot ops.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node accent">
+      <div class="flow-node-label">Parent ops[]</div>
+      <div class="flow-node-name">... OpText OpForEach OpText ...</div>
+      <div class="flow-node-detail">one slot per dynamic node</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-label">Sub-template</div>
+      <div class="flow-node-name">own ops[] + geom[] + byDepth</div>
+      <div class="flow-node-detail">self-contained mini-template</div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    <strong>ForEach</strong> is the most interesting. The render function is called once at compile time
+    against a <strong>dummy element</strong>. Any pointers into that dummy get converted to offset-based
+    ops via <code>unsafe.Pointer</code> arithmetic — the offset from the element base address to the
+    field pointer is stored instead of the pointer itself.
+  </div>
+
+  <div class="cascade">
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">compile</div>
+        <div class="cascade-phase-name">Dummy element</div>
+      </div>
+      <div class="cascade-body">
+        Create a temp <code>T</code>, call render function once. Pointers within the dummy's
+        memory range become <code>OpTextOff</code> with offset = <code>ptr - dummyBase</code>.
+        One sub-template compiled, shared across all items.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">each frame</div>
+        <div class="cascade-phase-name">Layout per item</div>
+      </div>
+      <div class="cascade-body">
+        Read live slice header (<code>Data</code>, <code>Len</code>) via <code>unsafe.Pointer</code>.
+        For each item: swap <code>elemBase</code> to the real element, run
+        <code>distributeWidths</code> + <code>layout</code> on the sub-template.
+        Store position in <code>iterGeoms[i]</code> — the sub-template's geom is scratch.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-step">
+      <div class="cascade-phase">
+        <div class="cascade-phase-dir">render</div>
+        <div class="cascade-phase-name">Offset resolve</div>
+      </div>
+      <div class="cascade-body">
+        <code>OpTextOff</code> resolves to <code>(*string)(elemBase + offset)</code>
+        for each element. Same compiled template, different data. Per-item positions
+        read from <code>iterGeoms</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-prose">
+    <strong>If</strong> compiles both branches into separate sub-templates at build time. At runtime
+    the condition is evaluated and only the active branch is laid out and rendered. The inactive branch
+    costs nothing — it's not even visited.
+  </div>
+
+  <div class="concept-prose">
+    <strong>Switch</strong> creates N+1 sub-templates (one per case + default).
+    <code>getMatchIndex()</code> linear-scans to find the matching case. Only the winner
+    is laid out.
+  </div>
+
+  <div class="concept-prose">
+    None of these participate in the parent's <code>byDepth</code> layout pass directly.
+    They're measured inline by their parent container when it encounters them during the child scan
+    in <code>layoutContainer</code>. The sub-templates run their own complete layout pipeline
+    internally — <code>distributeWidths</code> + <code>layout</code> — but this is scoped
+    to the sub-template's own ops array, not the parent's.
+  </div>
+
+  <div class="code code-raw">ForEach(&items, func(item *Item) any {
+    return HBox.Gap(2)(
+        Text(&item.Name),
+        Text(&item.Status),
+    )
+})</div>
+</div>
+
+<!-- ============================================================
+     6. INPUT HANDLING
      ============================================================ -->
 <div class="concept" id="input">
   <div class="section-head">
@@ -1459,7 +1459,7 @@ app.Pop()</div>
 </div>
 
 <!-- ============================================================
-     3b. JUMP LABELS
+     7. JUMP LABELS
      ============================================================ -->
 <div class="concept" id="jump">
   <div class="section-head">
@@ -1519,7 +1519,7 @@ app.SetView(
 </div>
 
 <!-- ============================================================
-     4. ROUTING & VIEWS
+     8. ROUTING & VIEWS
      ============================================================ -->
 <div class="concept" id="routing">
   <div class="section-head">
@@ -1590,7 +1590,7 @@ app.RunFrom("list")</div>
 </div>
 
 <!-- ============================================================
-     5. LAYERS & SCROLLING
+     9. LAYERS & SCROLLING
      ============================================================ -->
 <div class="concept" id="layers">
   <div class="section-head">
