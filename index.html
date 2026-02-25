@@ -64,12 +64,13 @@
 
   @property --angle {
     syntax: '<angle>';
-    initial-value: 0deg;
+    initial-value: 135deg;
     inherits: false;
   }
 
   @keyframes spin {
-    to { --angle: 360deg; }
+    from { --angle: 135deg; }
+    to { --angle: 495deg; }
   }
 
   /* ============================================================
@@ -252,9 +253,8 @@
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
-    animation: spin 3s linear infinite;
     opacity: 0;
-    transition: opacity 0.4s;
+    transition: opacity 0.4s, inset 0.4s, padding 0.4s, border-radius 0.4s;
     pointer-events: none;
   }
 
@@ -265,11 +265,15 @@
     border-radius: 14px;
     background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
     filter: blur(20px);
-    animation: spin 3s linear infinite;
     opacity: 0;
     transition: opacity 0.4s;
     pointer-events: none;
     z-index: -1;
+  }
+
+  .hero-install:hover::before,
+  .hero-install:hover::after {
+    animation: spin 3s linear infinite;
   }
 
   .hero-install:hover::before {
@@ -278,6 +282,21 @@
 
   .hero-install:hover::after {
     opacity: 0.45;
+  }
+
+  /* dark zone: always spinning thin border, thickens + glow on hover */
+  .zone-dark .hero-install::before {
+    opacity: 1;
+    animation: spin 3s linear infinite;
+    inset: -1px;
+    border-radius: 7px;
+    padding: 1px;
+  }
+
+  .zone-dark .hero-install:hover::before {
+    inset: -2px;
+    border-radius: 8px;
+    padding: 2px;
   }
 
   .zone-dark .hero-install:hover::after {
@@ -298,7 +317,6 @@
 
   .zone-dark .hero-install {
     background: var(--bg-dark3);
-    border: 1px solid var(--rule-dk);
   }
 
   .zone-dark .hero-install:hover { background: #111; }
@@ -654,15 +672,6 @@
   }
 
   /* gradient accent */
-  .zone-dark .hero-install {
-    border-color: transparent;
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    background-image: linear-gradient(var(--bg-dark3), var(--bg-dark3)), var(--grad);
-  }
-  .zone-dark .hero-install:hover {
-    background-image: linear-gradient(#111, #111), var(--grad);
-  }
   .zone-dark .callout-label {
     background: var(--grad);
     -webkit-background-clip: text;
