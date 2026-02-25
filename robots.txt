@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kungfusheep.github.io/glyph-site/sitemap.xml
