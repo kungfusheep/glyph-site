@@ -210,6 +210,137 @@
     padding: 2px 0;
   }
 
+  /* cascade sweep animation — render cycle only */
+  .cascade-render {
+    isolation: isolate;
+  }
+  .cascade-render .cascade-step {
+    position: relative;
+    overflow: visible;
+    background: var(--bg-dark);
+  }
+
+  /* border ring — masked gradient blob */
+  .cascade-render .cascade-step::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 7px;
+    padding: 1px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: var(--sweep-vis);
+  }
+  /* glow — unmasked blurred blob that follows the same position */
+  .cascade-render .cascade-step::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 12px;
+    filter: blur(12px);
+    pointer-events: none;
+    z-index: -1;
+    opacity: var(--sweep-vis);
+  }
+
+  /* direction label gradient overlay — scaled to match step-relative --sweep */
+  .cascade-render .cascade-phase-dir {
+    position: relative;
+  }
+  .cascade-render .cascade-phase-dir::after {
+    content: attr(data-dir);
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 300% 800% at 50% calc(var(--sweep) * 4),
+      #e85050 0%, #c44040 8%, #983848 14%, #682850 20%, transparent 28%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: var(--sweep-vis);
+  }
+
+  /* downward comet: tight head, exaggerated trailing tail above */
+  .cascade-render .sweep-down {
+    animation: sweep-down 7s ease-in-out infinite;
+  }
+  .cascade-render .sweep-down::before {
+    background:
+      radial-gradient(ellipse 140% 35% at 50% var(--sweep),
+        #e85050 0%, #c44040 18%, #983848 35%, transparent 55%),
+      radial-gradient(ellipse 110% 100% at 50% calc(var(--sweep) - 35%),
+        rgba(152, 56, 72, 0.55) 0%, rgba(104, 40, 80, 0.28) 40%, transparent 65%),
+      radial-gradient(ellipse 80% 200% at 50% calc(var(--sweep) - 85%),
+        rgba(104, 40, 80, 0.28) 0%, rgba(80, 30, 60, 0.1) 35%, transparent 55%),
+      radial-gradient(ellipse 60% 280% at 50% calc(var(--sweep) - 140%),
+        rgba(80, 30, 60, 0.15) 0%, rgba(60, 20, 50, 0.05) 30%, transparent 50%),
+      radial-gradient(ellipse 45% 350% at 50% calc(var(--sweep) - 200%),
+        rgba(60, 20, 50, 0.08) 0%, rgba(40, 15, 40, 0.02) 30%, transparent 45%);
+  }
+  .cascade-render .sweep-down::after {
+    background:
+      radial-gradient(ellipse 140% 40% at 50% var(--sweep),
+        rgba(232, 80, 80, 0.3) 0%, rgba(196, 64, 64, 0.12) 35%, transparent 60%),
+      radial-gradient(ellipse 110% 120% at 50% calc(var(--sweep) - 45%),
+        rgba(104, 40, 80, 0.2) 0%, transparent 50%),
+      radial-gradient(ellipse 75% 220% at 50% calc(var(--sweep) - 95%),
+        rgba(80, 30, 60, 0.12) 0%, transparent 45%),
+      radial-gradient(ellipse 55% 300% at 50% calc(var(--sweep) - 150%),
+        rgba(60, 20, 50, 0.06) 0%, transparent 40%);
+  }
+
+  /* upward comet: tight head, exaggerated trailing tail below */
+  .cascade-render .sweep-up {
+    animation: sweep-up 7s ease-in-out infinite;
+  }
+  .cascade-render .sweep-up::before {
+    background:
+      radial-gradient(ellipse 140% 35% at 50% var(--sweep),
+        #e85050 0%, #c44040 18%, #983848 35%, transparent 55%),
+      radial-gradient(ellipse 110% 100% at 50% calc(var(--sweep) + 35%),
+        rgba(152, 56, 72, 0.55) 0%, rgba(104, 40, 80, 0.28) 40%, transparent 65%),
+      radial-gradient(ellipse 80% 200% at 50% calc(var(--sweep) + 85%),
+        rgba(104, 40, 80, 0.28) 0%, rgba(80, 30, 60, 0.1) 35%, transparent 55%),
+      radial-gradient(ellipse 60% 280% at 50% calc(var(--sweep) + 140%),
+        rgba(80, 30, 60, 0.15) 0%, rgba(60, 20, 50, 0.05) 30%, transparent 50%),
+      radial-gradient(ellipse 45% 350% at 50% calc(var(--sweep) + 200%),
+        rgba(60, 20, 50, 0.08) 0%, rgba(40, 15, 40, 0.02) 30%, transparent 45%);
+  }
+  .cascade-render .sweep-up::after {
+    background:
+      radial-gradient(ellipse 140% 40% at 50% var(--sweep),
+        rgba(232, 80, 80, 0.3) 0%, rgba(196, 64, 64, 0.12) 35%, transparent 60%),
+      radial-gradient(ellipse 110% 120% at 50% calc(var(--sweep) + 45%),
+        rgba(104, 40, 80, 0.2) 0%, transparent 50%),
+      radial-gradient(ellipse 75% 220% at 50% calc(var(--sweep) + 95%),
+        rgba(80, 30, 60, 0.12) 0%, transparent 45%),
+      radial-gradient(ellipse 55% 300% at 50% calc(var(--sweep) + 150%),
+        rgba(60, 20, 50, 0.06) 0%, transparent 40%);
+  }
+
+  /* stagger each box: 1s apart */
+  .cascade-render .cascade-step:nth-child(1) { animation-delay: 0s; }
+  .cascade-render .cascade-step:nth-child(3) { animation-delay: 1s; }
+  .cascade-render .cascade-step:nth-child(5) { animation-delay: 2s; }
+  .cascade-render .cascade-step:nth-child(7) { animation-delay: 3s; }
+
+  @keyframes sweep-down {
+    0%        { --sweep: -30%; --sweep-vis: 0; }
+    3%        { --sweep-vis: 1; }
+    16%       { --sweep-vis: 1; }
+    20%       { --sweep: 130%; --sweep-vis: 0; }
+    21%, 100% { --sweep: 130%; --sweep-vis: 0; }
+  }
+  @keyframes sweep-up {
+    0%        { --sweep: 130%; --sweep-vis: 0; }
+    3%        { --sweep-vis: 1; }
+    16%       { --sweep-vis: 1; }
+    20%       { --sweep: -30%; --sweep-vis: 0; }
+    21%, 100% { --sweep: -30%; --sweep-vis: 0; }
+  }
+
   /* stack diagram */
   .stack {
     display: flex;
@@ -722,6 +853,18 @@
     inherits: false;
   }
 
+  @property --sweep {
+    syntax: '<percentage>';
+    initial-value: -30%;
+    inherits: true;
+  }
+
+  @property --sweep-vis {
+    syntax: '<number>';
+    initial-value: 0;
+    inherits: true;
+  }
+
   @keyframes spin {
     from { --angle: 135deg; }
     to { --angle: 495deg; }
@@ -1014,10 +1157,10 @@
     cells that actually changed.
   </div>
 
-  <div class="cascade">
-    <div class="cascade-step">
+  <div class="cascade cascade-render">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-dir" data-dir="↓ top-down">↓ top-down</div>
         <div class="cascade-phase-name">Width Distribution</div>
       </div>
       <div class="cascade-body">
@@ -1026,9 +1169,9 @@
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
+    <div class="cascade-step sweep-up">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">↑ bottom-up</div>
+        <div class="cascade-phase-dir" data-dir="↑ bottom-up">↑ bottom-up</div>
         <div class="cascade-phase-name">Layout</div>
       </div>
       <div class="cascade-body">
@@ -1038,9 +1181,9 @@
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-dir" data-dir="↓ top-down">↓ top-down</div>
         <div class="cascade-phase-name">Flex Grow</div>
       </div>
       <div class="cascade-body">
@@ -1050,9 +1193,9 @@
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">↓ top-down</div>
+        <div class="cascade-phase-dir" data-dir="↓ top-down">↓ top-down</div>
         <div class="cascade-phase-name">Render</div>
       </div>
       <div class="cascade-body">
