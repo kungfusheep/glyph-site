@@ -210,18 +210,21 @@
     padding: 2px 0;
   }
 
-  /* cascade sweep animation — render cycle only */
-  .cascade-render {
+  /* cascade sweep animation — shared base styles */
+  .cascade-render,
+  .cascade-dynamic {
     isolation: isolate;
   }
-  .cascade-render .cascade-step {
+  .cascade-render .cascade-step,
+  .cascade-dynamic .cascade-step {
     position: relative;
     overflow: visible;
     background: var(--bg-dark);
   }
 
   /* border ring — masked gradient blob */
-  .cascade-render .cascade-step::before {
+  .cascade-render .cascade-step::before,
+  .cascade-dynamic .cascade-step::before {
     content: '';
     position: absolute;
     inset: -1px;
@@ -235,7 +238,8 @@
     opacity: var(--sweep-vis);
   }
   /* glow — unmasked blurred blob that follows the same position */
-  .cascade-render .cascade-step::after {
+  .cascade-render .cascade-step::after,
+  .cascade-dynamic .cascade-step::after {
     content: '';
     position: absolute;
     inset: -8px;
@@ -247,10 +251,12 @@
   }
 
   /* direction label gradient overlay — scaled to match step-relative --sweep */
-  .cascade-render .cascade-phase-dir {
+  .cascade-render .cascade-phase-dir,
+  .cascade-dynamic .cascade-phase-dir {
     position: relative;
   }
-  .cascade-render .cascade-phase-dir::after {
+  .cascade-render .cascade-phase-dir::after,
+  .cascade-dynamic .cascade-phase-dir::after {
     content: attr(data-dir);
     position: absolute;
     inset: 0;
@@ -262,11 +268,15 @@
     opacity: var(--sweep-vis);
   }
 
+  /* ---- render cycle animations ---- */
+
   /* downward comet: tight head, exaggerated trailing tail above */
   .cascade-render .sweep-down {
     animation: sweep-down 7s ease-in-out infinite;
   }
-  .cascade-render .sweep-down::before {
+  /* shared downward comet gradients */
+  .cascade-render .sweep-down::before,
+  .cascade-dynamic .sweep-down::before {
     background:
       radial-gradient(ellipse 140% 35% at 50% var(--sweep),
         #e85050 0%, #c44040 18%, #983848 35%, transparent 55%),
@@ -279,7 +289,8 @@
       radial-gradient(ellipse 45% 350% at 50% calc(var(--sweep) - 200%),
         rgba(60, 20, 50, 0.08) 0%, rgba(40, 15, 40, 0.02) 30%, transparent 45%);
   }
-  .cascade-render .sweep-down::after {
+  .cascade-render .sweep-down::after,
+  .cascade-dynamic .sweep-down::after {
     background:
       radial-gradient(ellipse 140% 40% at 50% var(--sweep),
         rgba(232, 80, 80, 0.3) 0%, rgba(196, 64, 64, 0.12) 35%, transparent 60%),
@@ -320,7 +331,10 @@
         rgba(60, 20, 50, 0.06) 0%, transparent 40%);
   }
 
-  /* stagger each box: 1s apart */
+  /* ---- render cycle stagger ---- */
+  .cascade-render .sweep-down {
+    animation: sweep-down 7s ease-in-out infinite;
+  }
   .cascade-render .cascade-step:nth-child(1) { animation-delay: 0s; }
   .cascade-render .cascade-step:nth-child(3) { animation-delay: 1s; }
   .cascade-render .cascade-step:nth-child(5) { animation-delay: 2s; }
@@ -339,6 +353,74 @@
     16%       { --sweep-vis: 1; }
     20%       { --sweep: -30%; --sweep-vis: 0; }
     21%, 100% { --sweep: -30%; --sweep-vis: 0; }
+  }
+
+  /* ---- dynamic children: 1-2-3-2-3-2-3 pattern ----
+     14s cycle, each sweep ~10% = 1.4s (matching render cycle)
+     1: 0-10%  2: 10-20%  3: 20-30%
+                2: 30-40%  3: 40-50%
+                2: 50-60%  3: 60-70%  rest: 70-100% */
+
+  .cascade-dynamic .cascade-step:nth-child(1) {
+    animation: dyn-compile 14s ease-in-out infinite;
+  }
+  .cascade-dynamic .cascade-step:nth-child(3) {
+    animation: dyn-frame 14s ease-in-out infinite;
+  }
+  .cascade-dynamic .cascade-step:nth-child(5) {
+    animation: dyn-render 14s ease-in-out infinite;
+  }
+
+  @keyframes dyn-compile {
+    0%        { --sweep: -30%; --sweep-vis: 0; }
+    2%        { --sweep-vis: 1; }
+    8%        { --sweep-vis: 1; }
+    10%       { --sweep: 130%; --sweep-vis: 0; }
+    11%, 100% { --sweep: 130%; --sweep-vis: 0; }
+  }
+
+  @keyframes dyn-frame {
+    0%, 9%    { --sweep: -30%; --sweep-vis: 0; }
+    10%       { --sweep: -30%; --sweep-vis: 0; }
+    12%       { --sweep-vis: 1; }
+    18%       { --sweep-vis: 1; }
+    20%       { --sweep: 130%; --sweep-vis: 0; }
+
+    29%       { --sweep: -30%; --sweep-vis: 0; }
+    30%       { --sweep: -30%; --sweep-vis: 0; }
+    32%       { --sweep-vis: 1; }
+    38%       { --sweep-vis: 1; }
+    40%       { --sweep: 130%; --sweep-vis: 0; }
+
+    49%       { --sweep: -30%; --sweep-vis: 0; }
+    50%       { --sweep: -30%; --sweep-vis: 0; }
+    52%       { --sweep-vis: 1; }
+    58%       { --sweep-vis: 1; }
+    60%       { --sweep: 130%; --sweep-vis: 0; }
+
+    61%, 100% { --sweep: 130%; --sweep-vis: 0; }
+  }
+
+  @keyframes dyn-render {
+    0%, 19%   { --sweep: -30%; --sweep-vis: 0; }
+    20%       { --sweep: -30%; --sweep-vis: 0; }
+    22%       { --sweep-vis: 1; }
+    28%       { --sweep-vis: 1; }
+    30%       { --sweep: 130%; --sweep-vis: 0; }
+
+    39%       { --sweep: -30%; --sweep-vis: 0; }
+    40%       { --sweep: -30%; --sweep-vis: 0; }
+    42%       { --sweep-vis: 1; }
+    48%       { --sweep-vis: 1; }
+    50%       { --sweep: 130%; --sweep-vis: 0; }
+
+    59%       { --sweep: -30%; --sweep-vis: 0; }
+    60%       { --sweep: -30%; --sweep-vis: 0; }
+    62%       { --sweep-vis: 1; }
+    68%       { --sweep-vis: 1; }
+    70%       { --sweep: 130%; --sweep-vis: 0; }
+
+    71%, 100% { --sweep: 130%; --sweep-vis: 0; }
   }
 
   /* stack diagram */
@@ -1467,10 +1549,10 @@ title = "World"               // next render shows "World"</div>
     field pointer is stored instead of the pointer itself.
   </div>
 
-  <div class="cascade">
-    <div class="cascade-step">
+  <div class="cascade cascade-dynamic">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">compile</div>
+        <div class="cascade-phase-dir" data-dir="compile">compile</div>
         <div class="cascade-phase-name">Dummy element</div>
       </div>
       <div class="cascade-body">
@@ -1480,9 +1562,9 @@ title = "World"               // next render shows "World"</div>
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">each frame</div>
+        <div class="cascade-phase-dir" data-dir="each frame">each frame</div>
         <div class="cascade-phase-name">Layout per item</div>
       </div>
       <div class="cascade-body">
@@ -1493,9 +1575,9 @@ title = "World"               // next render shows "World"</div>
       </div>
     </div>
     <div class="cascade-arrow">↓</div>
-    <div class="cascade-step">
+    <div class="cascade-step sweep-down">
       <div class="cascade-phase">
-        <div class="cascade-phase-dir">render</div>
+        <div class="cascade-phase-dir" data-dir="render">render</div>
         <div class="cascade-phase-name">Offset resolve</div>
       </div>
       <div class="cascade-body">
