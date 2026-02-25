@@ -675,7 +675,8 @@
     margin-bottom: var(--s4);
     max-width: 360px;
     height: 220px;
-    border: 1px solid #1e1e1c;
+    background: var(--bg-dark3);
+    border: 1px solid var(--rule-dk);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -684,27 +685,27 @@
     align-items: center;
     padding: 0 12px;
     font-size: 11px;
-    border-bottom: 1px solid #1e1e1c;
+    border-bottom: 1px solid var(--rule-dk);
     min-height: 0;
   }
   .grow-slot:last-child { border-bottom: none; }
   .grow-slot.fixed {
     flex: 0 0 auto;
     padding: 6px 12px;
-    background: rgba(255,255,255,0.03);
-    color: #666;
+    background: rgba(0, 0, 0, 0.2);
+    color: #555;
   }
   .grow-slot.flex {
     flex: 1;
-    background: rgba(196, 64, 64, 0.06);
-    color: var(--accent);
+    border-left: 2px solid var(--accent);
+    color: #c8c4b8;
   }
   .grow-slot-name {
     flex: 1;
   }
   .grow-slot-hint {
     font-size: 9px;
-    color: #444;
+    color: var(--accent);
     margin-left: 8px;
   }
   .grow-hbox {
@@ -717,7 +718,9 @@
     align-items: flex-start;
     justify-content: center;
     border-bottom: none;
-    border-right: 1px solid #1e1e1c;
+    border-left: none;
+    border-top: 2px solid var(--accent);
+    border-right: 1px solid var(--rule-dk);
   }
   .grow-hbox .grow-slot:last-child { border-right: none; }
   .grow-hbox .grow-slot-hint {
