@@ -1099,11 +1099,24 @@
 <script>
 function copyInstall(el) {
   const cmd = 'go get github.com/kungfusheep/glyph@latest';
-  navigator.clipboard.writeText(cmd).then(() => {
-    const badge = el.querySelector('.copied');
+  const badge = el.querySelector('.copied');
+  function flash() {
     badge.classList.add('show');
     setTimeout(() => badge.classList.remove('show'), 1500);
-  });
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cmd).then(flash).catch(flash);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = cmd;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flash();
+  }
 }
 
 // ============================================================

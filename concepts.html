@@ -1220,7 +1220,7 @@
     <div class="flow-node accent">
       <div class="flow-node-label">Compile</div>
       <div class="flow-node-name">compile()</div>
-      <div class="flow-node-detail">~50 type switch, reflection</div>
+      <div class="flow-node-detail">type switch (~50 cases), reflection</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-node">
@@ -1271,7 +1271,7 @@
   </div>
 
   <div class="concept-prose">
-    Rendering is a four-phase pipeline that runs on every frame, heavily optimised for terminal
+    Rendering is a four-phase pipeline that runs on every frame, designed for terminal
     workloads. Each phase operates directly on flat <strong>Op</strong> and <strong>Geom</strong>
     arrays — no tree rebuilds, no node allocation. Components outside the viewport are culled
     before rendering, and the final flush diffs against the previous frame to emit only the
@@ -1517,7 +1517,7 @@
   </div>
 
   <div class="concept-prose">
-    There's no reactivity in glyph. No subscriptions, no signals, no observers, no change detection.
+    There's no reactivity in glyph. No subscriptions, no change detection.
     When the framework renders, it dereferences your pointers and reads whatever value is there right now.
     That's it.
   </div>
@@ -1531,7 +1531,7 @@ title = "World"               // next render shows "World"</div>
   <div class="concept-prose">
     Pass a <code>*string</code> and the text updates when the string changes. Pass a <code>string</code>
     literal and it's static forever. Same pattern for <code>*int</code>, <code>*bool</code>,
-    <code>*[]T</code> — anything behind a pointer is live, anything without one is baked in at compile.
+    <code>*[]T</code> — anything behind a pointer is live, anything without one is baked in at compile time.
   </div>
 
   <div class="concept-prose">
@@ -1541,7 +1541,7 @@ title = "World"               // next render shows "World"</div>
   </div>
 
   <div class="concept-prose">
-    This sidesteps an entire category of problems - render thrashing, cascading updates, glitchy intermediate states from identity-change confusion. None of that can happen here because there's no propagation mechanism to misfire.
+    Because there is no propagation mechanism, problems like render thrashing, cascading updates, and stale intermediate states do not apply.
 
     Nothing stops you building reactive patterns on top - an observer that calls <code>RequestRender()</code> when a channel
     fires is a few lines of code. glyph just doesn't ship that complexity by default.
@@ -1714,7 +1714,7 @@ title = "World"               // next render shows "World"</div>
   <div class="code code-raw">app.Handle("q", app.Stop)          // single key
 app.Handle("gg", goToTop)          // multi-key sequence
 app.Handle("<C-w>j", focusDown)    // chord + key
-app.Handle("dd", deleteItem)       // vim-style with count: 3dd
+app.Handle("dd", deleteItem)
 
 // modal: push router for confirm dialog
 app.Push(confirmRouter)
@@ -1737,7 +1737,7 @@ app.Pop()</div>
   <div class="concept-prose">
     Jump labels bring vim-easymotion to the TUI. Press a trigger key and every jump target
     in the view gets a short label overlay. Type the label and the target's
-    <code>onSelect</code> fires. It's a first-class feature — any component can be a target.
+    callback fires. Any component can be a target.
   </div>
 
   <div class="flow">
@@ -1755,7 +1755,7 @@ app.Pop()</div>
     <div class="flow-arrow">→</div>
     <div class="flow-node">
       <div class="flow-node-label">Select</div>
-      <div class="flow-node-name">type "a" → onSelect()</div>
+      <div class="flow-node-name">type "a" → callback()</div>
       <div class="flow-node-detail">exit jump mode</div>
     </div>
   </div>
@@ -1777,7 +1777,7 @@ app.SetView(
 
   <div class="concept-prose">
     <code>app.SetJumpStyle()</code> controls how labels look. For dynamic targets that aren't
-    wrapped with <code>Jump()</code>, use <code>app.AddJumpTarget(x, y, onSelect, style)</code>
+    wrapped with <code>Jump()</code>, use <code>app.AddJumpTarget()</code> with coordinates, a callback, and a style
     during a render callback.
   </div>
 </div>
@@ -1797,7 +1797,7 @@ app.SetView(
   <div class="concept-prose">
     Applications with multiple screens use <strong>named views</strong>. Each view has its own
     compiled template and its own riffkey router — switching views swaps both atomically.
-    No recompilation, no handler cleanup.
+    The compiled template and key handlers swap atomically.
   </div>
 
   <div class="flow">
@@ -1907,7 +1907,7 @@ app.RunFrom("list")</div>
   </div>
 
   <div class="concept-prose">
-    <strong>LogC</strong> extends Layer with an <code>io.Reader</code> that ingests lines in the
+    <strong>LogC</strong> extends Layer by reading lines from an <code>io.Reader</code> in the
     background. Auto-scroll follows new content by default. <strong>FilterLogC</strong> adds
     live fzf-style filtering on top. Both re-render lazily — only when content changes or
     the viewport width changes.
@@ -1983,11 +1983,24 @@ app.SetView(VBox(LayerView(layer).Grow(1)))</div>
 <script>
 function copyInstall(el) {
   const cmd = 'go get github.com/kungfusheep/glyph@latest';
-  navigator.clipboard.writeText(cmd).then(() => {
-    const badge = el.querySelector('.copied');
+  const badge = el.querySelector('.copied');
+  function flash() {
     badge.classList.add('show');
     setTimeout(() => badge.classList.remove('show'), 1500);
-  });
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cmd).then(flash).catch(flash);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = cmd;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flash();
+  }
 }
 
 // syntax highlighting for code-raw blocks

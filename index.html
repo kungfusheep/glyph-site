@@ -777,9 +777,9 @@
     <div class="hero">
       <div class="hero-label">Go TUI Framework</div>
       <div class="hero-title">glyph</div>
-      <div class="hero-headline">Batteries-included terminal apps in Go.</div>
+      <div class="hero-headline">Batteries-included terminal UI framework for Go.</div>
       <div class="hero-desc">
-        Declarative composition with a compile-once rendering model. Keyboard-first. Fast.      </div>
+        Declarative composition with a compile-once rendering model. Keyboard-first. Fast.</div>
       <div class="hero-install" onclick="copyInstall(this)">
         <span class="prompt">$</span>
         go get github.com/kungfusheep/glyph@latest
@@ -854,7 +854,7 @@ func main() {
           <div class="callout-title">Execute</div>
           <div class="callout-body">
             Rendering walks the compiled ops and dereferences pointers to read current
-            state. No tree rebuilds, no diffing, no allocation. Just pointer reads into
+            state. No tree rebuilds, no virtual-DOM diffing, no allocation. Just pointer reads into
             a cell buffer, then a diff-based flush to the terminal.
           </div>
         </div>
@@ -919,7 +919,7 @@ func main() {
             <div class="feature-title">Deploy log</div>
             <div class="feature-desc">
               Spinner, status text, and progress in a single row.
-              Log streams output live. If shows the result when done.
+              Log streams output live. Result appears conditionally when done.
             </div>
           </div>
           <div class="code code-raw">VBox.Border(BorderRounded).Title("deploy")(
@@ -978,7 +978,7 @@ func main() {
             <div class="feature-title">Registration form</div>
             <div class="feature-desc">
               Form auto-aligns labels, manages focus, and wires
-              validation. Errors appear when you configure them to.
+              validation. Errors surface on blur or submit, as configured.
             </div>
           </div>
           <div class="code code-raw">Form.LabelBold().OnSubmit(register)(
@@ -1274,11 +1274,24 @@ function highlightGo(raw) {
 // click-to-copy install command
 function copyInstall(el) {
   const cmd = 'go get github.com/kungfusheep/glyph@latest';
-  navigator.clipboard.writeText(cmd).then(() => {
-    const badge = el.querySelector('.copied');
+  const badge = el.querySelector('.copied');
+  function flash() {
     badge.classList.add('show');
     setTimeout(() => badge.classList.remove('show'), 1500);
-  });
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cmd).then(flash).catch(flash);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = cmd;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flash();
+  }
 }
 
 document.querySelectorAll('.code-raw').forEach(el => {
