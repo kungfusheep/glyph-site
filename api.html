@@ -71,7 +71,6 @@
     height: 48px;
     display: flex;
     align-items: center;
-    justify-content: center;
     background: rgba(19, 19, 17, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -84,6 +83,7 @@
     justify-content: space-between;
     width: 100%;
     max-width: 1060px;
+    margin: 0 auto;
     padding: 0 var(--s5);
   }
 
@@ -362,10 +362,12 @@
     .sidebar { display: block; }
     .zone-inner { margin-left: 256px; }
     .search-bar { margin-left: 256px; }
+    .nav-inner { margin-left: 256px; }
   }
   @media (min-width: 1540px) {
     .zone-inner { margin-left: auto; }
     .search-bar { margin-left: auto; }
+    .nav-inner { margin-left: auto; }
   }
 
   /* tablet/mobile: sidebar as hamburger overlay */
@@ -938,7 +940,7 @@
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
     .hero-install { font-size: 11px; padding: 10px 14px; max-width: 100%; }
-    .install-section { overflow: hidden; }
+    .install-section { overflow: visible; }
     .start-links { flex-direction: column; gap: var(--s2); }
     .hero-install::before { animation: pulse-thicken 8s ease-in-out infinite, spin 3s linear infinite; }
     .hero-install::after { animation: pulse-glow-dk 8s ease-in-out infinite, spin 3s linear infinite; }

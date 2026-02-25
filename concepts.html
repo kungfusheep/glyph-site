@@ -44,9 +44,11 @@
 
   @media (min-width: 960px) {
     .page { margin-left: 216px; }
+    .global-nav-inner { margin-left: 216px; }
   }
   @media (min-width: 1492px) {
     .page { margin-left: auto; }
+    .global-nav-inner { margin-left: auto; }
   }
 
   /* ============================================================
@@ -278,15 +280,15 @@
   .cascade-render .sweep-down::before,
   .cascade-dynamic .sweep-down::before {
     background:
-      radial-gradient(ellipse 140% 35% at 50% var(--sweep),
+      radial-gradient(ellipse 140% 50% at 50% var(--sweep),
         #e85050 0%, #c44040 18%, #983848 35%, transparent 55%),
-      radial-gradient(ellipse 110% 100% at 50% calc(var(--sweep) - 35%),
+      radial-gradient(ellipse 110% 130% at 50% calc(var(--sweep) - 35%),
         rgba(152, 56, 72, 0.55) 0%, rgba(104, 40, 80, 0.28) 40%, transparent 65%),
-      radial-gradient(ellipse 80% 200% at 50% calc(var(--sweep) - 85%),
+      radial-gradient(ellipse 80% 260% at 50% calc(var(--sweep) - 85%),
         rgba(104, 40, 80, 0.28) 0%, rgba(80, 30, 60, 0.1) 35%, transparent 55%),
-      radial-gradient(ellipse 60% 280% at 50% calc(var(--sweep) - 140%),
+      radial-gradient(ellipse 60% 360% at 50% calc(var(--sweep) - 140%),
         rgba(80, 30, 60, 0.15) 0%, rgba(60, 20, 50, 0.05) 30%, transparent 50%),
-      radial-gradient(ellipse 45% 350% at 50% calc(var(--sweep) - 200%),
+      radial-gradient(ellipse 45% 450% at 50% calc(var(--sweep) - 200%),
         rgba(60, 20, 50, 0.08) 0%, rgba(40, 15, 40, 0.02) 30%, transparent 45%);
   }
   .cascade-render .sweep-down::after,
@@ -758,7 +760,6 @@
     height: 48px;
     display: flex;
     align-items: center;
-    justify-content: center;
     background: rgba(19, 19, 17, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -770,6 +771,7 @@
     justify-content: space-between;
     width: 100%;
     max-width: 1060px;
+    margin: 0 auto;
     padding: 0 var(--s5);
   }
   .global-nav-brand {
@@ -882,7 +884,7 @@
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
     .hero-install { font-size: 11px; padding: 10px 14px; max-width: 100%; }
-    .install-section { overflow: hidden; }
+    .install-section { overflow: visible; }
     .start-links { flex-direction: column; gap: var(--s2); }
     .hero-install::before { animation: pulse-thicken 8s ease-in-out infinite, spin 3s linear infinite; }
     .hero-install::after { animation: pulse-glow-dk 8s ease-in-out infinite, spin 3s linear infinite; }
