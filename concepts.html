@@ -482,14 +482,19 @@
     white-space: nowrap;
   }
   .buffer-row.visible {
-    border-color: var(--accent);
     color: #c8c4b8;
     background: rgba(152, 56, 72, 0.04);
     position: relative;
     z-index: 1;
   }
-  .buffer-row.visible + .buffer-row.visible {
-    border-top-color: transparent;
+  #vp-viewport .buffer-row {
+    margin-bottom: 0;
+  }
+  #vp-viewport .buffer-row + .buffer-row {
+    border-top: none;
+  }
+  .buffer-row:empty::after {
+    content: '\00a0';
   }
   .buffer-label {
     font-family: var(--akz);
@@ -1103,8 +1108,9 @@
     position: relative;
     z-index: 1;
   }
-  .buffer-row.visible { border-image: var(--grad) 1; }
-  .buffer-row.visible + .buffer-row.visible { border-image: var(--grad) 1; border-top: none; }
+  .buffer-row.visible {
+    border-color: var(--accent);
+  }
   .sidenav-link.active { border-image: var(--grad) 1; }
   .topnav-link.active { border-image: var(--grad) 1; }
 
@@ -1833,17 +1839,17 @@ app.RunFrom("list")</div>
     when the viewport width changes.
   </div>
 
-  <div class="viewport-diagram">
+  <div class="viewport-diagram" id="vp-diagram">
     <div>
       <div class="buffer-label">Buffer</div>
-      <div class="buffer-col">
-        <div class="buffer-row">line 0: package main</div>
-        <div class="buffer-row">line 1: import . "glyph"</div>
-        <div class="buffer-row">line 2:</div>
+      <div class="buffer-col" id="vp-buffer">
+        <div class="buffer-row visible">line 0: package main</div>
+        <div class="buffer-row visible">line 1: import . "glyph"</div>
+        <div class="buffer-row visible">line 2:</div>
         <div class="buffer-row visible">line 3: func main() {</div>
-        <div class="buffer-row visible">line 4:     app, _ := NewApp()</div>
-        <div class="buffer-row visible">line 5:     app.SetView(</div>
-        <div class="buffer-row visible">line 6:         VBox(</div>
+        <div class="buffer-row">line 4:     app, _ := NewApp()</div>
+        <div class="buffer-row">line 5:     app.SetView(</div>
+        <div class="buffer-row">line 6:         VBox(</div>
         <div class="buffer-row">line 7:             Text("hello"),</div>
         <div class="buffer-row">line 8:         ),</div>
         <div class="buffer-row">line 9:     )</div>
@@ -1851,12 +1857,12 @@ app.RunFrom("list")</div>
       </div>
     </div>
     <div>
-      <div class="buffer-label accent">Viewport (scroll=3, height=4)</div>
-      <div class="buffer-col">
+      <div class="buffer-label accent" id="vp-label">Viewport (scroll=0, height=4)</div>
+      <div class="buffer-col" id="vp-viewport">
+        <div class="buffer-row visible">package main</div>
+        <div class="buffer-row visible">import . "glyph"</div>
+        <div class="buffer-row visible"></div>
         <div class="buffer-row visible">func main() {</div>
-        <div class="buffer-row visible">    app, _ := NewApp()</div>
-        <div class="buffer-row visible">    app.SetView(</div>
-        <div class="buffer-row visible">        VBox(</div>
       </div>
       <div style="margin-top: var(--s3);">
         <div class="concept-prose" style="margin:0; max-width: none;">
@@ -2077,6 +2083,63 @@ function copyInstall(el) {
 
   // activate first on load
   setActive(sections[0]?.id || '');
+})();
+
+// viewport scroll animation
+(function() {
+  const lines = [
+    'package main',
+    'import . "glyph"',
+    '',
+    'func main() {',
+    '    app, _ := NewApp()',
+    '    app.SetView(',
+    '        VBox(',
+    '            Text("hello"),',
+    '        ),',
+    '    )',
+    '}'
+  ];
+  const height = 4;
+  const maxScroll = lines.length - height;
+  const bufferRows = document.querySelectorAll('#vp-buffer .buffer-row');
+  const viewport = document.getElementById('vp-viewport');
+  const vpRows = viewport.querySelectorAll('.buffer-row');
+  const vpLabel = document.getElementById('vp-label');
+  let scroll = 0;
+  let dir = 1;
+  let pause = 0;
+
+  function apply(s) {
+    bufferRows.forEach((row, i) => {
+      row.classList.toggle('visible', i >= s && i < s + height);
+    });
+    vpLabel.textContent = 'Viewport (scroll=' + s + ', height=' + height + ')';
+    vpRows.forEach((row, i) => {
+      row.textContent = lines[s + i];
+    });
+  }
+
+  function step() {
+    if (pause > 0) { pause--; return; }
+    scroll += dir;
+    if (scroll >= maxScroll) { scroll = maxScroll; dir = -1; pause = 2; }
+    if (scroll <= 0) { scroll = 0; dir = 1; pause = 2; }
+    apply(scroll);
+  }
+
+  // only animate when visible
+  const diagram = document.getElementById('vp-diagram');
+  let timer = null;
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!timer) timer = setInterval(step, 900);
+    } else {
+      clearInterval(timer);
+      timer = null;
+    }
+  }, { threshold: 0.3 });
+  obs.observe(diagram);
 })();
 </script>
 </body>
