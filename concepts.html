@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
 
 <style>
+
   @font-face {
     font-family: 'Berkeley Mono';
     src: url('BerkeleyMonoVariable.woff2') format('woff2');
@@ -19,7 +20,8 @@
     --bg-dark2: #1a1a18;
     --bg-dark3: #0e0e0c;
     --rule-dk:  #262624;
-    --accent:   #c47d3c;
+    --accent:   #c44040;
+    --grad:     linear-gradient(135deg, #c44040 0%, #983848 50%, #682850 100%);
     --mono:  'Berkeley Mono', monospace;
     --akz:   'akzidenz-grotesk-next-pro', sans-serif;
     --din-r: 'din-2014-rounded-variable', sans-serif;
@@ -39,6 +41,13 @@
   ::selection { background: #c8c4b8; color: var(--bg-dark); }
 
   .page { max-width: 1060px; margin: 0 auto; padding: 48px var(--s5) 0; }
+
+  @media (min-width: 960px) {
+    .page { margin-left: 216px; }
+  }
+  @media (min-width: 1492px) {
+    .page { margin-left: auto; }
+  }
 
   /* ============================================================
      SECTION
@@ -208,6 +217,7 @@
     gap: 0;
     margin-bottom: var(--s4);
     max-width: 400px;
+    padding-bottom: 1px;
   }
   .stack-frame {
     border: 1px solid #1e1e1c;
@@ -261,7 +271,7 @@
   .buffer-row.visible {
     border-color: var(--accent);
     color: #c8c4b8;
-    background: rgba(196, 125, 60, 0.04);
+    background: rgba(152, 56, 72, 0.04);
     position: relative;
     z-index: 1;
   }
@@ -294,12 +304,12 @@
     tab-size: 4;
     border-radius: 8px;
   }
-  .code .kw  { color: #9abf8a; }
+  .code .kw  { color: #d47080; }
   .code .fn  { color: #eeeee4; }
-  .code .str { color: #c4a06a; }
+  .code .str { color: #d4887a; }
   .code .cm  { color: #444; }
-  .code .tp  { color: #7a9aba; }
-  .code .nr  { color: #c4a06a; }
+  .code .tp  { color: #a088b8; }
+  .code .nr  { color: #c488a8; }
 
   /* key path diagram — horizontal flow with key labels */
   .keypath {
@@ -351,10 +361,10 @@
     color: #555;
   }
   .boxmodel-margin {
-    background: rgba(196, 125, 60, 0.06);
-    border: 1px solid rgba(196, 125, 60, 0.15);
+    background: rgba(196, 64, 64, 0.06);
+    border: 1px solid rgba(196, 64, 64, 0.15);
     border-radius: 4px;
-    padding: 16px;
+    padding: 28px 16px 16px;
     position: relative;
   }
   .boxmodel-margin > .bm-label {
@@ -409,7 +419,7 @@
   }
   .boxmodel-gap-line {
     font-size: 9px;
-    color: #9abf8a;
+    color: #d47080;
     letter-spacing: 0.04em;
   }
 
@@ -417,39 +427,57 @@
   .grow-diagram {
     display: flex;
     flex-direction: column;
-    gap: 0;
     margin-bottom: var(--s4);
-    max-width: 560px;
+    max-width: 360px;
+    height: 220px;
     border: 1px solid #1e1e1c;
     border-radius: 6px;
     overflow: hidden;
   }
-  .grow-row {
+  .grow-slot {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #1e1e1c;
-  }
-  .grow-row:last-child { border-bottom: none; }
-  .grow-bar {
-    padding: 8px 12px;
+    padding: 0 12px;
     font-size: 11px;
-    white-space: nowrap;
+    border-bottom: 1px solid #1e1e1c;
+    min-height: 0;
   }
-  .grow-bar.fixed {
+  .grow-slot:last-child { border-bottom: none; }
+  .grow-slot.fixed {
+    flex: 0 0 auto;
+    padding: 6px 12px;
     background: rgba(255,255,255,0.03);
-    color: #888;
-    border-right: 1px solid #1e1e1c;
+    color: #666;
   }
-  .grow-bar.flex {
-    background: rgba(196, 125, 60, 0.06);
+  .grow-slot.flex {
+    flex: 1;
+    background: rgba(196, 64, 64, 0.06);
     color: var(--accent);
+  }
+  .grow-slot-name {
     flex: 1;
   }
-  .grow-label {
+  .grow-slot-hint {
     font-size: 9px;
     color: #444;
-    padding: 0 8px;
-    white-space: nowrap;
+    margin-left: 8px;
+  }
+  .grow-hbox {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .grow-hbox .grow-slot {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    border-bottom: none;
+    border-right: 1px solid #1e1e1c;
+  }
+  .grow-hbox .grow-slot:last-child { border-right: none; }
+  .grow-hbox .grow-slot-hint {
+    margin-left: 0;
+    margin-top: 4px;
   }
 
   /* hbox vs vbox side-by-side */
@@ -512,12 +540,19 @@
     height: 48px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--s5);
+    justify-content: center;
     background: rgba(19, 19, 17, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--rule-dk);
+  }
+  .global-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1060px;
+    padding: 0 var(--s5);
   }
   .global-nav-brand {
     font-family: var(--din-r);
@@ -548,7 +583,7 @@
   .sidenav {
     position: fixed;
     top: 48px;
-    left: 0;
+    left: max(0px, calc(50vw - 746px));
     width: 200px;
     height: calc(100vh - 48px);
     padding: var(--s5) var(--s3) var(--s3) var(--s3);
@@ -578,10 +613,6 @@
     border-left-color: var(--accent);
   }
 
-  /* offset page content for sidenav */
-  .page {
-    margin-left: 200px;
-  }
 
   /* ============================================================
      TOP NAV — mobile
@@ -590,9 +621,8 @@
     display: none;
   }
 
-  @media (max-width: 960px) {
+  @media (max-width: 959px) {
     .sidenav { display: none; }
-    .page { margin-left: 0; }
 
     .topnav {
       display: flex;
@@ -630,7 +660,7 @@
   }
 
   @media (max-width: 768px) {
-    .global-nav { padding: 0 var(--s3); }
+    .global-nav-inner { padding: 0 var(--s3); }
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
   }
@@ -644,19 +674,86 @@
     .viewport-diagram { grid-template-columns: 1fr; }
     .layout-compare { grid-template-columns: 1fr; }
   }
+
+  /* footer */
+  footer {
+    padding: var(--s7) 0 var(--s5);
+    border-top: 1px solid #1e1e1c;
+    text-align: center;
+  }
+
+  .footer-brand {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 400;
+    font-size: 18px;
+    color: #c8c4b8;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s2);
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: var(--s3);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .footer-links a {
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: #c8c4b8; }
+
+  /* gradient accent */
+  .flow-node.accent {
+    border-color: transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image: linear-gradient(var(--bg-dark), var(--bg-dark)), var(--grad);
+  }
+  .flow-node.accent .flow-node-label,
+  .stack-frame:first-child .stack-frame-hint,
+  .buffer-label.accent,
+  .boxmodel-margin > .bm-label {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stack-frame:first-child {
+    border-color: transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image: linear-gradient(var(--bg-dark), var(--bg-dark)), var(--grad);
+    position: relative;
+    z-index: 1;
+  }
+  .buffer-row.visible { border-image: var(--grad) 1; }
+  .buffer-row.visible + .buffer-row.visible { border-image: var(--grad) 1; border-top: none; }
+  .sidenav-link.active { border-image: var(--grad) 1; }
+  .topnav-link.active { border-image: var(--grad) 1; }
+
 </style>
 </head>
 <body>
 
 <nav class="global-nav">
-  <a href="index.html" class="global-nav-brand">glyph</a>
-  <ul class="global-nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="concepts.html" class="active">Concepts</a></li>
-    <li><a href="api.html">API</a></li>
+  <div class="global-nav-inner">
+    <a href="index.html" class="global-nav-brand">glyph</a>
+    <ul class="global-nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="concepts.html" class="active">Concepts</a></li>
+      <li><a href="api.html">API</a></li>
 
-    <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
-  </ul>
+      <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
+    </ul>
+  </div>
 </nav>
 
 <nav class="sidenav">
@@ -1061,17 +1158,17 @@ title = "World"               // next render shows "World"</div>
   </div>
 
   <div class="grow-diagram">
-    <div class="grow-row">
-      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
-      <div class="grow-label">1 row</div>
+    <div class="grow-slot fixed">
+      <span class="grow-slot-name">Text("header")</span>
+      <span class="grow-slot-hint">1 row</span>
     </div>
-    <div class="grow-row">
-      <div class="grow-bar flex">List(&amp;items).Grow(1)</div>
-      <div class="grow-label">← all remaining space</div>
+    <div class="grow-slot flex">
+      <span class="grow-slot-name">List(&amp;items).Grow(1)</span>
+      <span class="grow-slot-hint">all remaining</span>
     </div>
-    <div class="grow-row">
-      <div class="grow-bar fixed" style="width: 100px;">Text("footer")</div>
-      <div class="grow-label">1 row</div>
+    <div class="grow-slot fixed">
+      <span class="grow-slot-name">Text("footer")</span>
+      <span class="grow-slot-hint">1 row</span>
     </div>
   </div>
 
@@ -1086,17 +1183,17 @@ title = "World"               // next render shows "World"</div>
   </div>
 
   <div class="grow-diagram">
-    <div class="grow-row">
-      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
-      <div class="grow-label">1 row</div>
+    <div class="grow-slot fixed">
+      <span class="grow-slot-name">Text("header")</span>
+      <span class="grow-slot-hint">1 row</span>
     </div>
-    <div class="grow-row">
-      <div class="grow-bar flex" style="flex: 1;">List(&amp;items).Grow(1)</div>
-      <div class="grow-label">← 50%</div>
+    <div class="grow-slot flex" style="flex: 1;">
+      <span class="grow-slot-name">List(&amp;items).Grow(1)</span>
+      <span class="grow-slot-hint">50%</span>
     </div>
-    <div class="grow-row">
-      <div class="grow-bar flex" style="flex: 1;">LayerView(&amp;log).Grow(1)</div>
-      <div class="grow-label">← 50%</div>
+    <div class="grow-slot flex" style="flex: 1;">
+      <span class="grow-slot-name">LayerView(&amp;log).Grow(1)</span>
+      <span class="grow-slot-hint">50%</span>
     </div>
   </div>
 
@@ -1111,18 +1208,20 @@ title = "World"               // next render shows "World"</div>
     Grow(2) gets twice as much of the remaining space as Grow(1):
   </div>
 
-  <div class="grow-diagram">
-    <div class="grow-row">
-      <div class="grow-bar fixed" style="width: 100px;">Text("header")</div>
-      <div class="grow-label">1 row</div>
+  <div class="grow-diagram grow-diagram-split">
+    <div class="grow-slot fixed">
+      <span class="grow-slot-name">Text("header")</span>
+      <span class="grow-slot-hint">1 row</span>
     </div>
-    <div class="grow-row">
-      <div class="grow-bar flex" style="flex: 1;">sidebar.Grow(1)</div>
-      <div class="grow-label">← ⅓ remaining</div>
-    </div>
-    <div class="grow-row">
-      <div class="grow-bar flex" style="flex: 2;">content.Grow(2)</div>
-      <div class="grow-label">← ⅔ remaining</div>
+    <div class="grow-hbox">
+      <div class="grow-slot flex" style="flex: 1;">
+        <span class="grow-slot-name">sidebar.Grow(1)</span>
+        <span class="grow-slot-hint">⅓</span>
+      </div>
+      <div class="grow-slot flex" style="flex: 2;">
+        <span class="grow-slot-name">content.Grow(2)</span>
+        <span class="grow-slot-hint">⅔</span>
+      </div>
     </div>
   </div>
 
@@ -1444,6 +1543,16 @@ app.SetView(VBox(LayerView(layer).Grow(1)))</div>
 </div>
 
 </div><!-- .page -->
+
+<footer>
+  <div class="footer-brand">glyph</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="api.html">API</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="https://github.com/kungfusheep/glyph">Source</a>
+  </div>
+</footer>
 
 <script>
 // syntax highlighting for code-raw blocks

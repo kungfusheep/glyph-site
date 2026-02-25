@@ -30,7 +30,8 @@
     --fg4:  #b0aba0;
     --rule:    #d4d0c8;
     --rule-dk: #262624;
-    --accent:  #c47d3c;
+    --accent:  #c44040;
+    --grad:    linear-gradient(135deg, #c44040 0%, #983848 50%, #682850 100%);
     --mono:  'Berkeley Mono', monospace;
     --akz:   'akzidenz-grotesk-next-pro', sans-serif;
     --akz-c: 'akzidenz-grotesk-next-conden', sans-serif;
@@ -61,6 +62,16 @@
 
   ::selection { background: var(--fg0); color: var(--bg); }
 
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes spin {
+    to { --angle: 360deg; }
+  }
+
   /* ============================================================
      NAV
      ============================================================ */
@@ -71,10 +82,18 @@
     height: 48px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--s5);
+    justify-content: center;
     transition: background 0.3s, border-color 0.3s;
     border-bottom: 1px solid transparent;
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1060px;
+    padding: 0 var(--s5);
   }
 
   nav.scrolled {
@@ -148,7 +167,7 @@
      LAYOUT
      ============================================================ */
   .zone-light { background: var(--bg); color: var(--fg); }
-  .zone-dark  { background: var(--bg-dark); color: #c8c4b8; }
+  .zone-dark  { background: var(--bg-dark); color: #c8c4b8; isolation: isolate; }
   .zone-inner { max-width: 1060px; margin: 0 auto; padding: 0 var(--s5); }
 
   .section-rule {
@@ -168,6 +187,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 48px 0 var(--s5);
+    isolation: isolate;
   }
 
   .hero-label {
@@ -221,11 +241,54 @@
 
   .hero-install:hover { background: #1a1a18; }
 
+  .hero-install::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 8px;
+    padding: 2px;
+    background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+
+  .hero-install::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 14px;
+    background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
+    filter: blur(20px);
+    animation: spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .hero-install:hover::before {
+    opacity: 1;
+  }
+
+  .hero-install:hover::after {
+    opacity: 0.45;
+  }
+
+  .zone-dark .hero-install:hover::after {
+    opacity: 0.25;
+  }
+
   .hero-install .prompt { color: #555; user-select: none; }
 
   .hero-install .copied {
     font-size: 11px;
-    color: #9abf8a;
+    color: #e8e4d8;
     margin-left: var(--s2);
     opacity: 0;
     transition: opacity 0.15s;
@@ -321,12 +384,12 @@
     border: 1px solid var(--rule-dk);
   }
 
-  .code .kw  { color: #9abf8a; }
+  .code .kw  { color: #d47080; }
   .code .fn  { color: #eeeee4; }
-  .code .str { color: #c4a06a; }
+  .code .str { color: #d4887a; }
   .code .cm  { color: #555; }
-  .code .tp  { color: #7a9aba; }
-  .code .nr  { color: #c4a06a; }
+  .code .tp  { color: #a088b8; }
+  .code .nr  { color: #c488a8; }
 
   /* ============================================================
      FEATURE CARDS — explanation left, code right
@@ -536,24 +599,38 @@
      FOOTER
      ============================================================ */
   footer {
-    padding: var(--s5) 0;
+    padding: var(--s7) 0 var(--s5);
     border-top: 1px solid var(--rule-dk);
-    font-size: 11px;
-    color: #444;
+    text-align: center;
   }
 
-  footer a {
-    color: #666;
-    text-decoration: none;
+  .footer-brand {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 400;
+    font-size: 18px;
+    color: #c8c4b8;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s2);
   }
 
-  footer a:hover { color: #e8e4d8; }
-
-  .footer-inner {
+  .footer-links {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center;
+    gap: var(--s3);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
+
+  .footer-links a {
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: #c8c4b8; }
 
   @media (max-width: 1024px) {
     .code { font-stretch: 87%; }
@@ -561,7 +638,7 @@
   }
 
   @media (max-width: 768px) {
-    nav { padding: 0 var(--s3); }
+    .nav-inner { padding: 0 var(--s3); }
     .zone-inner { padding: 0 var(--s3); }
     .hero { min-height: calc(100vh - 200px); padding: 48px 0 var(--s4); }
     .hero-title { font-size: 64px; }
@@ -575,6 +652,24 @@
     .batteries-grid { grid-template-columns: 1fr; }
     .start-links { flex-direction: column; gap: var(--s2); }
   }
+
+  /* gradient accent */
+  .zone-dark .hero-install {
+    border-color: transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image: linear-gradient(var(--bg-dark3), var(--bg-dark3)), var(--grad);
+  }
+  .zone-dark .hero-install:hover {
+    background-image: linear-gradient(#111, #111), var(--grad);
+  }
+  .zone-dark .callout-label {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
 </style>
 </head>
 <body>
@@ -583,17 +678,19 @@
      NAV
      ============================================================ -->
 <nav id="nav">
-  <div class="nav-left">
-    <a href="#" class="nav-brand">glyph</a>
-    <span class="nav-section" id="nav-section"></span>
-  </div>
-  <ul class="nav-links">
-    <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="concepts.html">Concepts</a></li>
-    <li><a href="api.html">API</a></li>
+  <div class="nav-inner">
+    <div class="nav-left">
+      <a href="#" class="nav-brand">glyph</a>
+      <span class="nav-section" id="nav-section"></span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="concepts.html">Concepts</a></li>
+      <li><a href="api.html">API</a></li>
 
-    <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
-  </ul>
+      <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
+    </ul>
+  </div>
 </nav>
 
 <!-- ============================================================
@@ -950,13 +1047,12 @@ func main() {
   <!-- FOOTER -->
   <div class="zone-inner">
     <footer>
-      <div class="footer-inner">
-        <span>glyph &mdash; built by <a href="#">Pete Griffiths</a></span>
-        <span>
-          <a href="api.html">API</a> &middot;
-          <a href="concepts.html">Concepts</a> &middot;
-          <a href="https://github.com/kungfusheep/glyph">source</a>
-        </span>
+      <div class="footer-brand">glyph</div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="api.html">API</a>
+        <a href="concepts.html">Concepts</a>
+        <a href="https://github.com/kungfusheep/glyph">Source</a>
       </div>
     </footer>
   </div>

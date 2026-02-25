@@ -30,7 +30,8 @@
     --fg4:  #b0aba0;
     --rule:    #d4d0c8;
     --rule-dk: #262624;
-    --accent:  #c47d3c;
+    --accent:  #c44040;
+    --grad:    linear-gradient(135deg, #c44040 0%, #983848 50%, #682850 100%);
     --mono:  'Berkeley Mono', monospace;
     --akz:   'akzidenz-grotesk-next-pro', sans-serif;
     --akz-c: 'akzidenz-grotesk-next-conden', sans-serif;
@@ -70,12 +71,20 @@
     height: 48px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--s5);
+    justify-content: center;
     background: rgba(19, 19, 17, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--rule-dk);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1060px;
+    padding: 0 var(--s5);
   }
 
   .nav-brand {
@@ -174,7 +183,7 @@
   .sidebar {
     position: fixed;
     top: 96px;
-    left: 0;
+    left: max(0px, calc(50vw - 770px));
     bottom: 0;
     width: 240px;
     background: var(--bg-dark);
@@ -186,6 +195,7 @@
     scrollbar-width: thin;
     scrollbar-color: #262624 transparent;
     overscroll-behavior: contain;
+    display: none;
   }
 
   .sidebar::-webkit-scrollbar { width: 4px; }
@@ -333,6 +343,8 @@
 
   .hamburger:hover svg { stroke: #e8e4d8; }
 
+  .topnav { display: none; }
+
   /* backdrop for mobile sidebar */
   .sidebar-backdrop {
     display: none;
@@ -344,24 +356,64 @@
 
   .sidebar-backdrop.visible { display: block; }
 
-  /* desktop: sidebar visible, content shifted */
-  @media (min-width: 1061px) {
+  /* desktop: sidebar visible in margin */
+  @media (min-width: 1000px) {
     .sidebar { display: block; }
-    .zone-inner { margin-left: 240px; margin-right: auto; }
-    .footer-wrap .zone-inner { margin-left: 240px; }
-    .search-bar { padding-left: calc(240px + var(--s5)); }
-    .search-inner { margin-left: 0; }
+    .zone-inner { margin-left: 256px; }
+  }
+  @media (min-width: 1540px) {
+    .zone-inner { margin-left: auto; }
   }
 
-  /* tablet/mobile: sidebar hidden behind hamburger */
-  @media (max-width: 1060px) {
+  /* tablet/mobile: sidebar hidden, topnav visible */
+  @media (max-width: 999px) {
     .sidebar {
+      left: 0;
+      display: block;
       transform: translateX(-100%);
       transition: transform 0.25s ease;
       z-index: 110;
     }
     .sidebar.open { transform: translateX(0); }
-    .hamburger { display: block; }
+    .hamburger { display: none; }
+
+    .topnav {
+      display: flex;
+      position: sticky;
+      top: 48px;
+      z-index: 90;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--rule-dk);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 0;
+      padding: 0 var(--s2);
+    }
+    .topnav::-webkit-scrollbar { display: none; }
+    .topnav-link {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #444;
+      text-decoration: none;
+      padding: 12px 12px;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .topnav-link:hover { color: #888; }
+    .topnav-link.active {
+      color: #c8c4b8;
+      border-bottom-color: var(--accent);
+    }
+
+    .search-bar { top: 88px; }
+    .api-type { scroll-margin-top: 152px; }
+    .api-method { scroll-margin-top: 152px; }
   }
 
   /* ============================================================
@@ -432,11 +484,11 @@
     tab-size: 4;
   }
 
-  .code .kw  { color: #9abf8a; }
+  .code .kw  { color: #d47080; }
   .code .fn  { color: #eeeee4; }
-  .code .str { color: #c4a06a; }
+  .code .str { color: #d4887a; }
   .code .cm  { color: #555; }
-  .code .tp  { color: #7a9aba; }
+  .code .tp  { color: #a088b8; }
 
   /* ============================================================
      API REFERENCE
@@ -704,11 +756,11 @@
     margin: 0;
   }
   .api-example-code .cm  { color: #444; }
-  .api-example-code .kw  { color: #9abf8a; }
+  .api-example-code .kw  { color: #d47080; }
   .api-example-code .fn  { color: #eeeee4; }
-  .api-example-code .str { color: #c4a06a; }
-  .api-example-code .tp  { color: #7a9aba; }
-  .api-example-code .nr  { color: #c4a06a; }
+  .api-example-code .str { color: #d4887a; }
+  .api-example-code .tp  { color: #a088b8; }
+  .api-example-code .nr  { color: #c488a8; }
 
   @media (max-width: 768px) {
     .api-example-row {
@@ -736,24 +788,38 @@
      FOOTER
      ============================================================ */
   footer {
-    padding: var(--s5) 0;
+    padding: var(--s7) 0 var(--s5);
     border-top: 1px solid var(--rule-dk);
-    font-size: 11px;
-    color: #444;
+    text-align: center;
   }
 
-  footer a {
-    color: #666;
-    text-decoration: none;
+  .footer-brand {
+    font-family: var(--din-r);
+    font-variation-settings: 'wght' 400;
+    font-size: 18px;
+    color: #c8c4b8;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s2);
   }
 
-  footer a:hover { color: #e8e4d8; }
-
-  .footer-inner {
+  .footer-links {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center;
+    gap: var(--s3);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
+
+  .footer-links a {
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: #c8c4b8; }
 
   @media (max-width: 1024px) {
     .code,
@@ -761,12 +827,19 @@
   }
 
   @media (max-width: 768px) {
-    nav { padding: 0 var(--s3); }
+    .nav-inner { padding: 0 var(--s3); }
     .zone-inner { padding: 0 var(--s3); }
     .search-bar { padding: 12px var(--s3); }
     .section-head { flex-direction: column; gap: var(--s2); }
     .section-num { font-size: 48px; min-width: auto; }
   }
+
+  /* gradient accent */
+  .sidebar-item.active { border-image: var(--grad) 1; }
+  .topnav-link.active { border-image: var(--grad) 1; }
+  .api-type.highlighted { border-image: var(--grad) 1; }
+  .api-method.highlighted { border-image: var(--grad) 1; }
+
 </style>
 </head>
 <body>
@@ -775,24 +848,29 @@
      NAV
      ============================================================ -->
 <nav>
-  <div style="display:flex;align-items:center;">
-    <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
-      <svg viewBox="0 0 18 18" fill="none"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
-    </button>
-    <a href="index.html" class="nav-brand">glyph</a>
-  </div>
-  <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="concepts.html">Concepts</a></li>
-    <li><a href="api.html" class="active">API</a></li>
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center;">
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <svg viewBox="0 0 18 18" fill="none"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="14" x2="16" y2="14"/></svg>
+      </button>
+      <a href="index.html" class="nav-brand">glyph</a>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="concepts.html">Concepts</a></li>
+      <li><a href="api.html" class="active">API</a></li>
 
-    <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
-  </ul>
+      <li><a href="https://github.com/kungfusheep/glyph">GitHub</a></li>
+    </ul>
+  </div>
 </nav>
 
 <!-- sidebar tree nav (populated by JS) -->
 <aside class="sidebar" id="sidebar"></aside>
 <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<!-- topnav tab bar (populated by JS, visible below 1320px) -->
+<nav class="topnav" id="topnav"></nav>
 
 <!-- ============================================================
      SEARCH
@@ -851,9 +929,12 @@
 <div class="zone-dark footer-wrap">
   <div class="zone-inner">
     <footer>
-      <div class="footer-inner">
-        <span>glyph — built by <a href="#">Pete Griffiths</a></span>
-        <span><a href="https://github.com/kungfusheep/glyph">source</a></span>
+      <div class="footer-brand">glyph</div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="api.html">API</a>
+        <a href="concepts.html">Concepts</a>
+        <a href="https://github.com/kungfusheep/glyph">Source</a>
       </div>
     </footer>
   </div>
@@ -1504,6 +1585,47 @@
     });
   }
 
+  function buildTopnav() {
+    const topnav = document.getElementById('topnav');
+    topnav.innerHTML = '';
+    const catEls = document.querySelectorAll('.api-category[data-category]');
+    const seen = new Set();
+    catEls.forEach(catEl => {
+      const catName = catEl.dataset.category;
+      if (seen.has(catName)) return;
+      seen.add(catName);
+      const a = document.createElement('a');
+      a.className = 'topnav-link';
+      a.textContent = catName;
+      a.href = '#';
+      a.dataset.category = catName;
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(`.api-category[data-category="${catName}"]`);
+        if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      });
+      topnav.appendChild(a);
+    });
+  }
+
+  let activeTopnavLink = null;
+
+  function syncTopnav(typeName) {
+    const typeEl = document.getElementById(typeName);
+    if (!typeEl) return;
+    const cat = typeEl.closest('.api-category');
+    if (!cat) return;
+    const catName = cat.dataset.category;
+    if (activeTopnavLink) activeTopnavLink.classList.remove('active');
+    const topnav = document.getElementById('topnav');
+    const link = topnav.querySelector(`[data-category="${catName}"]`);
+    if (link) {
+      link.classList.add('active');
+      activeTopnavLink = link;
+      link.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+  }
+
   // active state tracking via IntersectionObserver
   let activeItem = null;
   let clickLock = 0;
@@ -1547,6 +1669,8 @@
     // sync content highlight
     const target = document.getElementById(id);
     highlightTarget(target || null);
+    // sync topnav
+    syncTopnav(id);
   }
 
   // hamburger toggle
@@ -1729,7 +1853,7 @@
 
   fetch('api.json')
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => { renderAPI(data); buildSidebar(); setupActiveTracking(); scrollToHash(); })
+    .then(data => { renderAPI(data); buildSidebar(); buildTopnav(); setupActiveTracking(); scrollToHash(); })
     .catch(err => {
       document.getElementById('api-content').innerHTML =
         `<div class="api-loading">Failed to load API reference: ${esc(err.message)}</div>`;
