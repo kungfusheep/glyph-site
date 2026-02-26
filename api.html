@@ -8,15 +8,15 @@
 <meta name="keywords" content="go,golang,tui,terminal,ui,framework,api,reference,documentation">
 <meta name="author" content="Pete Griffiths">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://kungfusheep.github.io/glyph-site/api.html">
-<link rel="sitemap" type="application/xml" href="https://kungfusheep.github.io/glyph-site/sitemap.xml">
+<link rel="canonical" href="https://useglyph.sh/api.html">
+<link rel="sitemap" type="application/xml" href="https://useglyph.sh/sitemap.xml">
 <meta name="theme-color" content="#131311">
 
 <!-- open graph -->
 <meta property="og:type" content="article">
 <meta property="og:title" content="API Reference — glyph">
 <meta property="og:description" content="Complete API reference for glyph: types, constructors, methods, and usage examples for every component in the framework.">
-<meta property="og:url" content="https://kungfusheep.github.io/glyph-site/api.html">
+<meta property="og:url" content="https://useglyph.sh/api.html">
 <meta property="og:site_name" content="glyph">
 <meta property="og:locale" content="en_GB">
 
@@ -542,7 +542,9 @@
     padding-left: var(--s2);
     border-left: 3px solid transparent;
   }
-  .api-type.highlighted { border-left-color: var(--accent); }
+  .api-type.highlighted {
+    border-image: linear-gradient(to bottom, transparent 0%, #c44040 30%, #e85050 42%, #c44040 50%, #983848 58%, #682850 70%, transparent 100%) 1;
+  }
   .api-type.search-hidden { display: none; }
   .api-type-head {
     display: flex;
@@ -636,7 +638,9 @@
     scroll-margin-top: 112px;
     border-left: 3px solid transparent;
   }
-  .api-method.highlighted { border-left-color: var(--accent); }
+  .api-method.highlighted {
+    border-image: linear-gradient(to bottom, transparent 0%, #c44040 30%, #e85050 42%, #c44040 50%, #983848 58%, #682850 70%, transparent 100%) 1;
+  }
   .api-method:last-child { border-bottom: none; }
   .api-method-name {
     font-family: var(--mono);
@@ -977,9 +981,6 @@
   }
 
   /* gradient accent */
-  .sidebar-item.active { border-image: var(--grad) 1; }
-  .api-type.highlighted { border-image: var(--grad) 1; }
-  .api-method.highlighted { border-image: var(--grad) 1; }
 
 </style>
 </head>
