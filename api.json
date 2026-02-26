@@ -1,7 +1,7 @@
 {
   "name": "glyph",
   "import_path": "github.com/kungfusheep/glyph",
-  "doc": "Package glyph provides a high-performance terminal UI framework.\n",
+  "doc": "Package glyph provides a terminal UI framework for Go.\n",
   "types": [
     {
       "name": "Align",
@@ -61,8 +61,14 @@
           "recv": "*App"
         },
         {
+          "name": "AddPostProcess",
+          "doc": "AddPostProcess appends a post-processing pass to the pipeline.\nPasses run in order after template rendering, before screen flush.\nClosures captured by the pass act as shader uniforms — mutate them to\nchange behaviour next frame.\n",
+          "signature": "func (a *App) AddPostProcess(pp PostProcess) *App",
+          "recv": "*App"
+        },
+        {
           "name": "Back",
-          "doc": "Back returns to the previous view.\nCurrently an alias for Pop() - may add history later.\n",
+          "doc": "Back returns to the previous view.\nCurrently an alias for Pop().\n",
           "signature": "func (a *App) Back()",
           "recv": "*App"
         },
@@ -277,6 +283,12 @@
           "recv": "*App"
         },
         {
+          "name": "SetPostProcess",
+          "doc": "SetPostProcess replaces the entire post-processing pipeline.\nCall with no arguments to clear all passes.\n",
+          "signature": "func (a *App) SetPostProcess(passes ...PostProcess) *App",
+          "recv": "*App"
+        },
+        {
           "name": "SetView",
           "doc": "SetView sets a declarative view for fast rendering.\nPointers in the view are captured at compile time - just mutate your state.\n\nExample:\n\n\tstate := \u0026MyState{Title: \"Hello\", Progress: 50}\n\tapp.SetView(\n\t    Col{Children: []any{\n\t        Text{Content: \u0026state.Title},\n\t        Progress{Value: \u0026state.Progress},\n\t    }},\n\t)\n",
           "signature": "func (a *App) SetView(view any) *App",
@@ -346,7 +358,7 @@
         {
           "name": "multiView",
           "doc": "Multi-view routing.\nNamed views with per-view key bindings. Go switches between views; each view is compiled independently.\n",
-          "code": "app, _ := NewApp()\n\napp.View(\"home\", VBox(\n\tText(\"Welcome\"),\n\tText(\"press n for next\"),\n)).Handle(\"n\", func() { app.Go(\"detail\") })\n\napp.View(\"detail\", VBox(\n\tText(\"Detail view\"),\n\tText(\"press b for back\"),\n)).Handle(\"b\", func() { app.Go(\"home\") })\n\napp.Run()"
+          "code": "app, _ := NewApp()\n\napp.View(\"home\", VBox(\n\tText(\"Welcome\"),\n\tText(\"press n for next\"),\n)).Handle(\"n\", func() { app.Go(\"detail\") })\n\napp.View(\"detail\", VBox(\n\tText(\"Detail view\"),\n\tText(\"press b for back\"),\n)).Handle(\"b\", func() { app.Go(\"home\") })\n\napp.RunFrom(\"home\")"
         }
       ]
     },
@@ -505,10 +517,37 @@
           "recv": "AutoTableC"
         },
         {
+          "name": "SortBy",
+          "doc": "SortBy sets the default sort column and direction. implies Sortable().\nfield is the struct field name (e.g. \"CPU\"). asc true = ascending.\n",
+          "signature": "func (t AutoTableC) SortBy(field string, asc bool) AutoTableC",
+          "recv": "AutoTableC"
+        },
+        {
           "name": "Sortable",
           "doc": "Sortable enables column sorting via jump labels.\nwhen the app's jump key is pressed, each column header becomes a jump target.\nselecting a column sorts ascending; selecting the same column again toggles direction.\n",
           "signature": "func (t AutoTableC) Sortable() AutoTableC",
           "recv": "AutoTableC"
+        }
+      ]
+    },
+    {
+      "name": "BlendMode",
+      "doc": "",
+      "decl": "type BlendMode int",
+      "consts": [
+        {
+          "doc": "",
+          "names": [
+            "BlendNormal",
+            "BlendMultiply",
+            "BlendScreen",
+            "BlendOverlay",
+            "BlendAdd",
+            "BlendSoftLight",
+            "BlendColorDodge",
+            "BlendColorBurn"
+          ],
+          "decl": "const (\n\tBlendNormal     BlendMode = iota\n\tBlendMultiply             // darkens: a * b / 255\n\tBlendScreen               // lightens: 255 - (255-a)(255-b)/255\n\tBlendOverlay              // multiply if dark, screen if light\n\tBlendAdd                  // clipped addition\n\tBlendSoftLight            // gentle contrast\n\tBlendColorDodge           // dramatic brighten\n\tBlendColorBurn            // dramatic darken\n)"
         }
       ]
     },
@@ -552,19 +591,19 @@
       "methods": [
         {
           "name": "Blit",
-          "doc": "Blit copies a rectangular region from src buffer to this buffer.\nsrcX, srcY: top-left corner in source buffer (for scrolling)\ndstX, dstY: top-left corner in destination buffer\nwidth, height: size of region to copy\nUses optimized row-by-row copy() for speed.\n",
+          "doc": "Blit copies a rectangular region from src buffer to this buffer.\nsrcX, srcY: top-left corner in source buffer (for scrolling)\ndstX, dstY: top-left corner in destination buffer\nwidth, height: size of region to copy\nCopies row-by-row using copy().\n",
           "signature": "func (b *Buffer) Blit(src *Buffer, srcX, srcY, dstX, dstY, width, height int)",
           "recv": "*Buffer"
         },
         {
           "name": "Clear",
-          "doc": "Clear clears the buffer to empty cells with default style.\nUses copy() from a cached empty buffer for speed (memmove vs scalar loop).\n",
+          "doc": "Clear clears the buffer to empty cells with default style.\nUses copy() from a cached empty buffer.\n",
           "signature": "func (b *Buffer) Clear()",
           "recv": "*Buffer"
         },
         {
           "name": "ClearDirty",
-          "doc": "ClearDirty clears only the rows that were written to since last clear.\nMuch faster than Clear() when content doesn't fill the buffer.\n",
+          "doc": "ClearDirty clears only the rows that were written to since last clear.\nUseful when content doesn't fill the buffer.\n",
           "signature": "func (b *Buffer) ClearDirty()",
           "recv": "*Buffer"
         },
@@ -594,7 +633,7 @@
         },
         {
           "name": "CopyFrom",
-          "doc": "CopyFrom copies all cells from src to b using a single bulk copy.\nRequires both buffers to have identical dimensions.\nThis is much faster than cell-by-cell copy for full-buffer transfers.\n",
+          "doc": "CopyFrom copies all cells from src to b using a single bulk copy.\nRequires both buffers to have identical dimensions.\nUses a single bulk copy of the cell slice.\n",
           "signature": "func (b *Buffer) CopyFrom(src *Buffer)",
           "recv": "*Buffer"
         },
@@ -756,7 +795,7 @@
         },
         {
           "name": "WriteProgressBar",
-          "doc": "WriteProgressBar writes a progress bar directly to the buffer.\nUses partial block characters for smooth sub-character precision.\nBackground color fills the empty space for seamless appearance.\nBatch write - much faster than per-cell Set calls.\n",
+          "doc": "WriteProgressBar writes a progress bar directly to the buffer.\nUses partial block characters for smooth sub-character precision.\nBackground color fills the empty space for seamless appearance.\nWrites all cells in a single pass.\n",
           "signature": "func (b *Buffer) WriteProgressBar(x, y, width int, ratio float32, style Style)",
           "recv": "*Buffer"
         },
@@ -786,7 +825,7 @@
         },
         {
           "name": "WriteStringFast",
-          "doc": "WriteStringFast writes a string without border merging.\nDirect slice access for maximum speed.\n",
+          "doc": "WriteStringFast writes a string without border merging.\nWrites directly to the cell slice without border merging.\n",
           "signature": "func (b *Buffer) WriteStringFast(x, y int, s string, style Style, maxWidth int)",
           "recv": "*Buffer"
         },
@@ -1007,7 +1046,7 @@
         },
         {
           "name": "MarkerStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "MarkerStyle sets the style for the selection marker.\n",
           "signature": "func (c *CheckListC[T]) MarkerStyle(s Style) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -1049,7 +1088,7 @@
         },
         {
           "name": "SelectedStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "SelectedStyle sets the style for the selected row.\n",
           "signature": "func (c *CheckListC[T]) SelectedStyle(s Style) *CheckListC[T]",
           "recv": "*CheckListC[T]"
         },
@@ -1176,7 +1215,7 @@
       "constructors": [
         {
           "name": "BasicColor",
-          "doc": "BasicColor returns one of the 16 basic terminal colours.\n",
+          "doc": "BasicColor returns one of the 16 basic terminal colours.\nRGB values are pre-populated for colour math (post-processing, lerp, etc.).\n",
           "signature": "func BasicColor(index uint8) Color",
           "examples": [
             {
@@ -1186,13 +1225,18 @@
           ]
         },
         {
+          "name": "BlendColor",
+          "doc": "BlendColor combines two RGB colours using the specified blend mode.\n",
+          "signature": "func BlendColor(base, top Color, mode BlendMode) Color"
+        },
+        {
           "name": "DefaultColor",
           "doc": "DefaultColor returns the terminal's default color.\n",
           "signature": "func DefaultColor() Color"
         },
         {
           "name": "Hex",
-          "doc": "Hex returns a 24-bit true color from a hex value (e.g., 0xFF5500).\n",
+          "doc": "Hex returns a 24-bit true color from a hex value (e.g., 0xFF5500).\nIf the value matches a basic-16 colour, the more efficient Color16 mode\nis used automatically.\n",
           "signature": "func Hex(hex uint32) Color",
           "examples": [
             {
@@ -1214,7 +1258,7 @@
         },
         {
           "name": "PaletteColor",
-          "doc": "PaletteColor returns one of the 256 palette colours.\n",
+          "doc": "PaletteColor returns one of the 256 palette colours.\nRGB values are pre-populated for colour math (post-processing, lerp, etc.).\n",
           "signature": "func PaletteColor(index uint8) Color",
           "examples": [
             {
@@ -1225,7 +1269,7 @@
         },
         {
           "name": "RGB",
-          "doc": "RGB returns a 24-bit true color.\n",
+          "doc": "RGB returns a 24-bit true color. If the value matches a basic-16 colour,\nthe more efficient Color16 mode is used automatically.\n",
           "signature": "func RGB(r, g, b uint8) Color",
           "examples": [
             {
@@ -1482,7 +1526,7 @@
     },
     {
       "name": "Filter",
-      "doc": "Filter provides fzf-style filtering mechanics for a slice of items.\nit handles query parsing, scoring, filtering and index mapping back to the\noriginal source slice. no UI opinions — bring your own rendering.\n\nusage:\n\n\tf := NewFilter(\u0026items, func(item *Item) string { return item.Name })\n\tf.Update(\"query\")           // re-filter when query changes\n\tf.Items                     // filtered+ranked subset — point a ListC at \u0026f.Items\n\tf.Original(selectedIndex)   // map filtered index back to source item\n",
+      "doc": "Filter provides fzf-style filtering mechanics for a slice of items.\nIt handles query parsing, scoring, filtering and index mapping back to the\noriginal source slice. No UI opinions — bring your own rendering.\n\nusage:\n\n\tf := NewFilter(\u0026items, func(item *Item) string { return item.Name })\n\tf.Update(\"query\")           // re-filter when query changes\n\tf.Items                     // filtered+ranked subset — point a ListC at \u0026f.Items\n\tf.Original(selectedIndex)   // map filtered index back to source item\n",
       "decl": "type Filter[T any] struct {\n\tItems []T // filtered+ranked subset, safe to point a ListC at \u0026f.Items\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
@@ -1506,13 +1550,13 @@
         },
         {
           "name": "Original",
-          "doc": "Original maps a filtered index back to a pointer into the source slice.\nreturns nil if the index is out of bounds.\n",
+          "doc": "Original maps a filtered index back to a pointer into the source slice.\nReturns nil if the index is out of bounds.\n",
           "signature": "func (f *Filter[T]) Original(filteredIndex int) *T",
           "recv": "*Filter[T]"
         },
         {
           "name": "OriginalIndex",
-          "doc": "OriginalIndex maps a filtered index back to the index in the source slice.\nreturns -1 if the index is out of bounds.\n",
+          "doc": "OriginalIndex maps a filtered index back to the index in the source slice.\nReturns -1 if the index is out of bounds.\n",
           "signature": "func (f *Filter[T]) OriginalIndex(filteredIndex int) int",
           "recv": "*Filter[T]"
         },
@@ -1530,7 +1574,7 @@
         },
         {
           "name": "Update",
-          "doc": "Update re-filters the source slice with a new query string.\nno-op if the query hasn't changed.\n",
+          "doc": "Update re-filters the source slice with a new query string.\nNo-op if the query hasn't changed.\n",
           "signature": "func (f *Filter[T]) Update(query string)",
           "recv": "*Filter[T]"
         }
@@ -1646,13 +1690,13 @@
         },
         {
           "name": "Selected",
-          "doc": "Selected returns a pointer to the original source item corresponding\nto the current list selection. returns nil if nothing is selected.\n",
+          "doc": "Selected returns a pointer to the original source item corresponding\nto the current list selection. Returns nil if nothing is selected.\n",
           "signature": "func (fl *FilterListC[T]) Selected() *T",
           "recv": "*FilterListC[T]"
         },
         {
           "name": "SelectedIndex",
-          "doc": "SelectedIndex returns the index into the original source slice.\nreturns -1 if nothing is selected.\n",
+          "doc": "SelectedIndex returns the index into the original source slice.\nReturns -1 if nothing is selected.\n",
           "signature": "func (fl *FilterListC[T]) SelectedIndex() int",
           "recv": "*FilterListC[T]"
         },
@@ -1907,7 +1951,7 @@
       ],
       "examples": [
         {
-          "doc": "Focu cycling.\nFocusManager coordinates focus between multiple inputs. Tab/Shift-Tab cycles through ManagedBy components.\n",
+          "doc": "Focus cycling.\nFocusManager coordinates focus between multiple inputs. Tab/Shift-Tab cycles through ManagedBy components.\n",
           "code": "fm := NewFocusManager()\n\nVBox(\n\tInput().Placeholder(\"Name\").ManagedBy(fm),\n\tInput().Placeholder(\"Email\").ManagedBy(fm),\n)"
         }
       ]
@@ -2090,7 +2134,7 @@
         },
         {
           "name": "Score",
-          "doc": "Score scores a single candidate against the parsed query.\nreturns (score, matched). higher score = better match.\n",
+          "doc": "Score scores a single candidate against the parsed query.\nReturns (score, matched). Higher score = better match.\n",
           "signature": "func (q *FzfQuery) Score(candidate string) (int, bool)",
           "recv": "*FzfQuery"
         }
@@ -2119,13 +2163,13 @@
         },
         {
           "name": "BorderBG",
-          "doc": "BG sets the background color.\n",
+          "doc": "BorderBG sets the border background color.\n",
           "signature": "func (f HBoxFn) BorderBG(c Color) HBoxFn",
           "recv": "HBoxFn"
         },
         {
           "name": "BorderFG",
-          "doc": "FG sets the foreground color.\n",
+          "doc": "BorderFG sets the border foreground color.\n",
           "signature": "func (f HBoxFn) BorderFG(c Color) HBoxFn",
           "recv": "HBoxFn"
         },
@@ -2225,7 +2269,7 @@
         {
           "name": "widths",
           "doc": "Sidebar pattern.\nCombine WidthPct and Grow for a fixed sidebar with a flexible main area.\n",
-          "code": "HBox(\n\tVBox.WidthPct(30)(Text(\"sidebar\")),\n\tVBox.Grow(1)(Text(\"main content\")),\n)"
+          "code": "HBox(\n\tVBox.WidthPct(0.3)(Text(\"sidebar\")),\n\tVBox.Grow(1)(Text(\"main content\")),\n)"
         }
       ]
     },
@@ -3274,7 +3318,7 @@
     {
       "name": "Op",
       "doc": "Op represents a single instruction.\n",
-      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span  // for static spans\n\tSpansPtr    *[]Span // for pointer to spans\n\tSpansOff    uintptr // for ForEach offset\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\tMarkerSpaces     string         // pre-computed spaces matching marker width\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *InputState // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\t// contains filtered or unexported fields\n}"
+      "decl": "type Op struct {\n\tKind   OpKind\n\tDepth  int8  // tree depth (root children = 0)\n\tParent int16 // parent op index, -1 for root children\n\n\t// Value access - one used based on Kind\n\tStaticStr string\n\tStrPtr    *string\n\tStrOff    uintptr // offset from element base (for ForEach)\n\tTextStyle Style   // style for text rendering\n\n\tStaticInt int\n\tIntPtr    *int\n\tIntOff    uintptr\n\n\t// Layout hints\n\tWidth        int16   // explicit width\n\tHeight       int16   // explicit height\n\tPercentWidth float32 // 0.0-1.0\n\tFlexGrow     float32 // share of remaining space\n\tGap          int8    // gap between children\n\tContentSized bool    // has fixed-width children (don't implicit flex)\n\tFitContent   bool    // size to content instead of filling available space\n\n\t// Container\n\tIsRow        bool        // true=HBox, false=VBox\n\tBorder       BorderStyle // border style\n\tBorderFG     *Color      // border foreground color\n\tBorderBG     *Color      // border background color\n\tTitle        string      // border title\n\tChildStart   int16       // first child op index\n\tChildEnd     int16       // last child op index (exclusive)\n\tCascadeStyle *Style      // style inherited by children (pointer for dynamic themes)\n\tFill         Color       // container fill color (fills entire area)\n\tMargin       [4]int16    // outer margin: top, right, bottom, left\n\n\t// Control flow\n\tCondPtr  *bool         // for If (simple bool pointer)\n\tCondNode conditionNode // for If (builder-style conditions)\n\tThenTmpl *Template     // for If\n\tElseTmpl *Template     // for If/Else\n\tIterTmpl *Template     // for ForEach\n\tSlicePtr unsafe.Pointer\n\tElemSize uintptr\n\n\t// Switch\n\tSwitchNode  switchNodeInterface\n\tSwitchCases []*Template\n\tSwitchDef   *Template\n\n\t// Custom renderer\n\tCustomRenderer Renderer\n\n\t// Custom layout\n\tCustomLayout LayoutFunc\n\n\t// Layer\n\tLayerPtr    *Layer // pointer to Layer\n\tLayerWidth  int16  // viewport width (0 = fill available)\n\tLayerHeight int16  // viewport height (0 = fill available)\n\n\t// RichText\n\tStaticSpans []Span    // for static spans\n\tSpansPtr    *[]Span   // for pointer to spans\n\tSpansOff    uintptr   // for ForEach offset\n\tSpanStrOffs []uintptr // per-span *string offsets for Textf (^0 = static)\n\n\t// SelectionList\n\tSelectionListPtr *SelectionList // pointer to the list for len/offset updates\n\tSelectedPtr      *int           // pointer to selected index\n\tMarker           string         // selection marker (e.g., \"\u003e \")\n\tMarkerWidth      int16          // cached rune count of marker\n\tMarkerSpaces     string         // pre-computed spaces matching marker width\n\n\t// Leader\n\tLeaderLabel    string   // static label\n\tLeaderValue    string   // static value (OpLeader)\n\tLeaderValuePtr *string  // pointer value (OpLeaderPtr)\n\tLeaderIntPtr   *int     // pointer to int (OpLeaderIntPtr)\n\tLeaderFloatPtr *float64 // pointer to float64 (OpLeaderFloatPtr)\n\tLeaderFill     rune     // fill character (default '.')\n\tLeaderStyle    Style    // styling\n\n\t// Table\n\tTableColumns     []TableColumn // column definitions\n\tTableRowsPtr     *[][]string   // pointer to row data\n\tTableShowHeader  bool          // show header row\n\tTableHeaderStyle Style         // style for header\n\tTableRowStyle    Style         // style for rows\n\tTableAltStyle    Style         // alternating row style\n\n\t// AutoTable (reactive pointer-backed)\n\tAutoTableSlicePtr any                 // *[]T -- pointer to slice of structs\n\tAutoTableFields   []int               // field indices into the struct\n\tAutoTableHeaders  []string            // header labels\n\tAutoTableHdrStyle Style               // header style\n\tAutoTableRowStyle Style               // row style\n\tAutoTableAltStyle *Style              // alternating row style\n\tAutoTableGap      int8                // gap between columns\n\tAutoTableFill     Color               // row fill for alt rows\n\tAutoTableColCfgs  []*ColumnConfig     // per-column config (parallel to Fields, nil = no config)\n\tAutoTableSort     *autoTableSortState // nil unless sorting enabled\n\tAutoTableScroll   *autoTableScroll    // nil unless scrolling enabled\n\n\t// Sparkline\n\tSparkValues    []float64  // static values\n\tSparkValuesPtr *[]float64 // pointer values\n\tSparkMin       float64    // min value (0 = auto)\n\tSparkMax       float64    // max value (0 = auto)\n\tSparkStyle     Style      // styling\n\n\t// HRule/VRule\n\tRuleChar  rune  // line character\n\tRuleStyle Style // styling\n\n\t// Spinner\n\tSpinnerFramePtr *int     // pointer to frame index\n\tSpinnerFrames   []string // animation frames\n\tSpinnerStyle    Style    // styling\n\n\t// Scrollbar\n\tScrollContentSize int   // total content size\n\tScrollViewSize    int   // visible viewport size\n\tScrollPosPtr      *int  // pointer to scroll position\n\tScrollHorizontal  bool  // true for horizontal scrollbar\n\tScrollTrackChar   rune  // track character\n\tScrollThumbChar   rune  // thumb character\n\tScrollTrackStyle  Style // track styling\n\tScrollThumbStyle  Style // thumb styling\n\n\t// Tabs\n\tTabsLabels        []string  // tab labels\n\tTabsSelectedPtr   *int      // pointer to selected tab index\n\tTabsStyleType     TabsStyle // visual style\n\tTabsGap           int       // gap between tabs\n\tTabsActiveStyle   Style     // style for active tab\n\tTabsInactiveStyle Style     // style for inactive tabs\n\n\t// TreeView\n\tTreeRoot          *TreeNode // root node\n\tTreeShowRoot      bool      // whether to display root\n\tTreeIndent        int       // indentation per level\n\tTreeShowLines     bool      // show connecting lines\n\tTreeExpandedChar  rune      // expanded indicator\n\tTreeCollapsedChar rune      // collapsed indicator\n\tTreeLeafChar      rune      // leaf indicator\n\tTreeStyle         Style     // styling\n\n\t// Jump (jump target wrapper) - just marks a position, child is inline\n\tJumpOnSelect func() // callback when target is selected\n\tJumpStyle    Style  // label style override (zero = use app default)\n\n\t// TextInput\n\tTextInputFieldPtr       *InputState // Field-based API (bundles Value+Cursor)\n\tTextInputFocusGroupPtr  *FocusGroup // shared focus tracker\n\tTextInputFocusIndex     int         // this field's index in focus group\n\tTextInputValuePtr       *string     // bound text value (legacy)\n\tTextInputCursorPtr      *int        // bound cursor position (legacy)\n\tTextInputFocusedPtr     *bool       // show cursor only when true (legacy)\n\tTextInputPlaceholder    string      // placeholder text\n\tTextInputMask           rune        // password mask (0 = none)\n\tTextInputStyle          Style       // text style\n\tTextInputPlaceholderSty Style       // placeholder style\n\tTextInputCursorStyle    Style       // cursor style\n\n\t// Overlay\n\tOverlayCentered    bool      // center on screen\n\tOverlayX, OverlayY int16     // explicit position\n\tOverlayBackdrop    bool      // draw backdrop\n\tOverlayBackdropFG  Color     // backdrop color\n\tOverlayBG          Color     // background fill for overlay content area\n\tOverlayChildTmpl   *Template // compiled child content\n\n\t// ScreenEffect\n\tScreenEffectFn PostProcess // full-screen post-process function\n\t// contains filtered or unexported fields\n}"
     },
     {
       "name": "OpKind",
@@ -3318,9 +3362,10 @@
             "OpTreeView",
             "OpJump",
             "OpTextInput",
-            "OpOverlay"
+            "OpOverlay",
+            "OpScreenEffect"
           ],
-          "decl": "const (\n\tOpText OpKind = iota\n\tOpTextPtr\n\tOpTextOff\n\n\tOpProgress\n\tOpProgressPtr\n\tOpProgressOff\n\n\tOpContainer // VBox or HBox (determined by IsRow)\n\n\tOpIf\n\tOpForEach\n\tOpSwitch\n\n\tOpCustom // Custom renderer\n\tOpLayout // Custom layout\n\tOpLayer  // LayerView (scrollable off-screen buffer)\n\n\tOpRichText    // RichText with static spans\n\tOpRichTextPtr // RichText with pointer to spans\n\tOpRichTextOff // RichText with offset (ForEach)\n\n\tOpSelectionList // SelectionList with marker and windowing\n\n\tOpLeader         // Leader with static label and value\n\tOpLeaderPtr      // Leader with pointer value\n\tOpLeaderIntPtr   // Leader with int pointer value\n\tOpLeaderFloatPtr // Leader with float64 pointer value\n\n\tOpTable     // Table with columns and rows\n\tOpAutoTable // AutoTable with pointer to slice of structs (reactive)\n\n\tOpSparkline    // Sparkline with static values\n\tOpSparklinePtr // Sparkline with pointer values\n\n\tOpHRule     // Horizontal line\n\tOpVRule     // Vertical line\n\tOpSpacer    // Empty space\n\tOpSpinner   // Animated spinner\n\tOpScrollbar // Scroll indicator\n\tOpTabs      // Tab headers\n\tOpTreeView  // Hierarchical tree\n\tOpJump      // Jump target wrapper\n\tOpTextInput // Single-line text input\n\tOpOverlay   // Floating overlay/modal\n)"
+          "decl": "const (\n\tOpText OpKind = iota\n\tOpTextPtr\n\tOpTextOff\n\n\tOpProgress\n\tOpProgressPtr\n\tOpProgressOff\n\n\tOpContainer // VBox or HBox (determined by IsRow)\n\n\tOpIf\n\tOpForEach\n\tOpSwitch\n\n\tOpCustom // Custom renderer\n\tOpLayout // Custom layout\n\tOpLayer  // LayerView (scrollable off-screen buffer)\n\n\tOpRichText    // RichText with static spans\n\tOpRichTextPtr // RichText with pointer to spans\n\tOpRichTextOff // RichText with offset (ForEach)\n\n\tOpSelectionList // SelectionList with marker and windowing\n\n\tOpLeader         // Leader with static label and value\n\tOpLeaderPtr      // Leader with pointer value\n\tOpLeaderIntPtr   // Leader with int pointer value\n\tOpLeaderFloatPtr // Leader with float64 pointer value\n\n\tOpTable     // Table with columns and rows\n\tOpAutoTable // AutoTable with pointer to slice of structs (reactive)\n\n\tOpSparkline    // Sparkline with static values\n\tOpSparklinePtr // Sparkline with pointer values\n\n\tOpHRule        // Horizontal line\n\tOpVRule        // Vertical line\n\tOpSpacer       // Empty space\n\tOpSpinner      // Animated spinner\n\tOpScrollbar    // Scroll indicator\n\tOpTabs         // Tab headers\n\tOpTreeView     // Hierarchical tree\n\tOpJump         // Jump target wrapper\n\tOpTextInput    // Single-line text input\n\tOpOverlay      // Floating overlay/modal\n\tOpScreenEffect // Full-screen post-processing effect\n)"
         }
       ]
     },
@@ -3429,7 +3474,7 @@
         },
         {
           "name": "BackdropFG",
-          "doc": "FG sets the foreground color.\n",
+          "doc": "BackdropFG sets the backdrop foreground color.\n",
           "signature": "func (f OverlayFn) BackdropFG(c Color) OverlayFn",
           "recv": "OverlayFn"
         },
@@ -3473,18 +3518,135 @@
       "decl": "type OverlayNode struct {\n\tCentered   bool  // true = center on screen (default behavior if X/Y not set)\n\tX, Y       int   // explicit position (used if Centered is false)\n\tWidth      int   // explicit width (0 = auto from content)\n\tHeight     int   // explicit height (0 = auto from content)\n\tBackdrop   bool  // draw dimmed backdrop behind overlay\n\tBackdropFG Color // backdrop dim color (default: BrightBlack)\n\tBG         Color // background color for overlay content area (fills before rendering child)\n\tChild      any   // overlay content\n}"
     },
     {
+      "name": "PostContext",
+      "doc": "PostContext provides frame metadata to post-processing passes.\n",
+      "decl": "type PostContext struct {\n\tWidth  int\n\tHeight int\n\tFrame  uint64\n\tDelta  time.Duration // time since last frame\n\tTime   time.Duration // total elapsed since first render\n\n\t// terminal's default FG/BG detected via OSC 10/11 at startup.\n\t// Mode == ColorRGB when detected, ColorDefault when unknown.\n\tDefaultFG Color\n\tDefaultBG Color\n}"
+    },
+    {
+      "name": "PostProcess",
+      "doc": "PostProcess transforms the buffer after rendering, before flush.\nLike a GPU shader pass — receives the full cell buffer and frame context.\nMutate cells in-place. Chain multiple passes for layered effects.\n",
+      "decl": "type PostProcess func(buf *Buffer, ctx PostContext)",
+      "constructors": [
+        {
+          "name": "EachCell",
+          "doc": "EachCell wraps a per-cell transform into a PostProcess.\nThe fragment shader equivalent — you define the per-cell logic,\niteration is handled for you. Splits work across four quadrants\nusing a persistent worker pool — zero allocations in the hot path.\n",
+          "signature": "func EachCell(fn func(x, y int, cell Cell, ctx PostContext) Cell) PostProcess"
+        },
+        {
+          "name": "PPBloom",
+          "doc": "PPBloom creates a coloured glow around bright cells.\nradius controls spread in cells (2-4 recommended).\nthreshold 0.0-1.0 sets minimum brightness that blooms.\nintensity controls glow strength (0.3 = subtle, 1.0 = vivid).\nBleeds bright colours into both FG and BG of surrounding cells.\n",
+          "signature": "func PPBloom(radius int, threshold, intensity float64) PostProcess"
+        },
+        {
+          "name": "PPCRT",
+          "doc": "PPCRT simulates a CRT monitor — scanlines, vignette, and warm phosphor\ntint in a single pass.\n",
+          "signature": "func PPCRT() PostProcess"
+        },
+        {
+          "name": "PPDesaturate",
+          "doc": "PPDesaturate removes colour saturation from all RGB cells.\namount 0.0 = full colour, 1.0 = fully monochrome.\nUses perceptual luminance weights (BT.601).\n",
+          "signature": "func PPDesaturate(amount float64) PostProcess"
+        },
+        {
+          "name": "PPDimAll",
+          "doc": "PPDimAll applies the dim attribute to every cell on screen.\nSimple building block for focus patterns and background dimming.\n",
+          "signature": "func PPDimAll() PostProcess"
+        },
+        {
+          "name": "PPDissolve",
+          "doc": "PPDissolve randomly hides cells based on progress.\nprogress 0.0 = fully visible, 1.0 = fully dissolved.\nDeterministic per-cell — same cells always dissolve at the same progress point.\n",
+          "signature": "func PPDissolve(progress *float64) PostProcess"
+        },
+        {
+          "name": "PPDropShadow",
+          "doc": "PPDropShadow projects a shadow behind non-empty cells.\noffsetX/offsetY control direction (1,1 = light from top-left).\nopacity controls shadow darkness (0.3 = subtle, 1.0 = solid).\n",
+          "signature": "func PPDropShadow(offsetX, offsetY int, opacity float64) PostProcess"
+        },
+        {
+          "name": "PPFadeRows",
+          "doc": "PPFadeRows fades the top and bottom N rows toward a colour.\nCreates a natural scroll-hint or edge-softening effect.\n",
+          "signature": "func PPFadeRows(topRows, bottomRows int, target Color) PostProcess"
+        },
+        {
+          "name": "PPFire",
+          "doc": "PPFire simulates a rising fire effect using cellular automaton heat propagation.\nThe fire burns from the bottom of the screen upward, overlaying content with\nfire colours and shade block characters.\n",
+          "signature": "func PPFire() PostProcess"
+        },
+        {
+          "name": "PPFocusDim",
+          "doc": "PPFocusDim dims everything outside a rectangular focus area.\nUses pointers for reactivity — move the focus rect, next frame adapts.\n",
+          "signature": "func PPFocusDim(fx, fy, fw, fh *int) PostProcess"
+        },
+        {
+          "name": "PPFrost",
+          "doc": "PPFrost replaces characters with shade blocks and tints toward a frosted\nwhite. Simulates frosted glass — ideal behind modals and overlays.\nopacity 0.0 = clear, 1.0 = fully frosted.\n",
+          "signature": "func PPFrost(opacity float64) PostProcess"
+        },
+        {
+          "name": "PPGradientMap",
+          "doc": "PPGradientMap remaps all colour luminance through a three-stop gradient.\nComputes perceptual luminance, then maps dark→mid→bright.\nUse for dramatic colour themes: cyberpunk, matrix, sunset, etc.\n",
+          "signature": "func PPGradientMap(dark, mid, bright Color) PostProcess"
+        },
+        {
+          "name": "PPHighContrast",
+          "doc": "PPHighContrast boosts contrast by pushing colour channels toward extremes.\namount 1.0 = noticeable punch, 3.0+ = stark black/white.\nUseful for accessibility or just making content pop.\n",
+          "signature": "func PPHighContrast(amount float64) PostProcess"
+        },
+        {
+          "name": "PPMatrix",
+          "doc": "PPMatrix overlays falling green code rain using half-width Katakana and\nsymbols to replicate the look of the Matrix films.\ndensity controls how many drops per column (1 = sparse, 3 = dense).\nUses sparse column iteration — only touches cells within drop trails.\n",
+          "signature": "func PPMatrix(density int) PostProcess"
+        },
+        {
+          "name": "PPMonochrome",
+          "doc": "PPMonochrome converts all colours to a single-tint monochrome.\nPass RGB(0, 255, 0) for green phosphor, RGB(255, 180, 0) for amber.\n",
+          "signature": "func PPMonochrome(tint Color) PostProcess"
+        },
+        {
+          "name": "PPPlasma",
+          "doc": "PPPlasma overlays a classic 4-oscillator sine plasma on cell colours.\nintensity 0.0 = no effect, 1.0 = full plasma replacement.\n",
+          "signature": "func PPPlasma(intensity float64) PostProcess"
+        },
+        {
+          "name": "PPPulse",
+          "doc": "PPPulse oscillates screen brightness over time using a sine wave.\nspeed controls frequency (1.0 = one cycle per second).\namount controls how much it dims at the trough (0.3 = subtle, 0.8 = dramatic).\n",
+          "signature": "func PPPulse(speed, amount float64) PostProcess"
+        },
+        {
+          "name": "PPScreenShake",
+          "doc": "PPScreenShake displaces the entire buffer horizontally with a sine wave.\namplitude controls max displacement in cells.\nOscillates each frame for a continuous shake — set amplitude via pointer\nand decay it yourself for a triggered one-shot shake.\n",
+          "signature": "func PPScreenShake(amplitude float64) PostProcess"
+        },
+        {
+          "name": "PPTint",
+          "doc": "PPTint shifts all RGB colours toward a target colour.\namount 0.0 = no change, 1.0 = fully tinted.\nThink colour grading — warm/cool/moody tones in one line.\n",
+          "signature": "func PPTint(target Color, amount float64) PostProcess"
+        },
+        {
+          "name": "PPVignette",
+          "doc": "PPVignette darkens cells near the screen edges.\nstrength 0.0 = no effect, 1.0 = full darkening at edges.\nQuadratic falloff for a natural cinematic feel.\n",
+          "signature": "func PPVignette(strength float64) PostProcess"
+        },
+        {
+          "name": "WithBlend",
+          "doc": "WithBlend wraps any PostProcess with a blend mode. Snapshots the buffer\nbefore the effect runs, then blends the effect's output with the original\nusing the specified mode. Works with any effect — plasma through multiply,\nfire through screen, etc.\n",
+          "signature": "func WithBlend(mode BlendMode, pp PostProcess) PostProcess"
+        }
+      ]
+    },
+    {
       "name": "ProgressC",
       "doc": "",
       "decl": "type ProgressC struct {\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "Progress",
-          "doc": "Progress creates a progress bar bound to a value (0-100).\n",
+          "doc": "Progress creates a progress bar bound to an int pointer (0-100).\n",
           "signature": "func Progress(value any) ProgressC",
           "examples": [
             {
               "doc": "Progress bar.\nBound to a float64 pointer (0.0–1.0). Width sets the bar length in cells.\n",
-              "code": "var pct float64\n\nProgress(\u0026pct).Width(30).FG(Green)"
+              "code": "var pct int\n\nProgress(\u0026pct).Width(30).FG(Green)"
             }
           ]
         }
@@ -3543,7 +3705,7 @@
     {
       "name": "ProgressNode",
       "doc": "ProgressNode displays a progress bar.\n",
-      "decl": "type ProgressNode struct {\n\tFlex\n\tValue    any   // int or *int (0-100)\n\tBarWidth int16 // width of the bar in characters (distinct from Flex.Width layout width)\n}"
+      "decl": "type ProgressNode struct {\n\tFlex\n\tValue    any   // *int (0-100)\n\tBarWidth int16 // width of the bar in characters (distinct from Flex.Width layout width)\n}"
     },
     {
       "name": "RadioC",
@@ -3588,7 +3750,7 @@
         },
         {
           "name": "Horizontal",
-          "doc": "Horizontal renders the scrollbar horizontally instead of vertically.\n",
+          "doc": "Horizontal renders the radio group horizontally instead of vertically.\n",
           "signature": "func (r *RadioC) Horizontal() *RadioC",
           "recv": "*RadioC"
         },
@@ -3734,7 +3896,7 @@
     {
       "name": "RichTextNode",
       "doc": "RichTextNode displays text with mixed inline styles.\nSpans can be []Span (static) or *[]Span (dynamic binding).\n",
-      "decl": "type RichTextNode struct {\n\tFlex\n\tSpans any // []Span or *[]Span\n}",
+      "decl": "type RichTextNode struct {\n\tFlex\n\tSpans any // []Span or *[]Span\n\t// contains filtered or unexported fields\n}",
       "constructors": [
         {
           "name": "Rich",
@@ -3746,6 +3908,11 @@
               "code": "Rich(\n\tBold(\"Important: \"),\n\tDim(\"supporting detail\"),\n\tFG(\"error\", Red),\n)"
             }
           ]
+        },
+        {
+          "name": "Textf",
+          "doc": "Textf composes inline formatted text from mixed parts.\nAccepts string, *string, Span, TextC (from Bold/Italic with *string), and styled helpers.\nWorks with ForEach via per-span pointer offset rewriting.\n\nusage:\n\n\tTextf(\"Hello \", Bold(\"world\"), \"!\")\n\tTextf(\"Name: \", Bold(\u0026it.Name), \" Status: \", \u0026it.Status)  // ForEach compatible\n",
+          "signature": "func Textf(parts ...any) RichTextNode"
         }
       ]
     },
@@ -3858,6 +4025,12 @@
           "recv": "*Screen"
         },
         {
+          "name": "QueryDefaultColors",
+          "doc": "QueryDefaultColors queries the terminal for its default foreground and\nbackground colours using OSC 10 (FG) and OSC 11 (BG), and the basic-16\npalette using OSC 4;N;?. Must be called after entering raw mode.\nReturns zero-value Colors on failure (unsupported terminal, timeout, etc.)\n— callers should check Mode != ColorDefault.\n",
+          "signature": "func (s *Screen) QueryDefaultColors() (fg, bg Color)",
+          "recv": "*Screen"
+        },
+        {
           "name": "ResizeChan",
           "doc": "ResizeChan returns a channel that receives size updates on terminal resize.\n",
           "signature": "func (s *Screen) ResizeChan() \u003c-chan Size",
@@ -3886,6 +4059,18 @@
           "doc": "Width returns the screen width.\n",
           "signature": "func (s *Screen) Width() int",
           "recv": "*Screen"
+        }
+      ]
+    },
+    {
+      "name": "ScreenEffectNode",
+      "doc": "ScreenEffectNode is a declarative node that registers a full-screen\npost-processing effect. Place it anywhere in the view tree — it takes\nzero layout space and applies to the entire screen. Works with If()\nfor reactive toggling.\n",
+      "decl": "type ScreenEffectNode struct {\n\tEffect PostProcess\n}",
+      "constructors": [
+        {
+          "name": "ScreenEffect",
+          "doc": "ScreenEffect creates a declarative full-screen post-processing node.\n",
+          "signature": "func ScreenEffect(pp PostProcess) ScreenEffectNode"
         }
       ]
     },
@@ -3939,25 +4124,25 @@
         },
         {
           "name": "ThumbChar",
-          "doc": "Char sets the display character.\n",
+          "doc": "ThumbChar sets the thumb display character.\n",
           "signature": "func (s ScrollbarC) ThumbChar(c rune) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "ThumbStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "ThumbStyle sets the style for the thumb.\n",
           "signature": "func (s ScrollbarC) ThumbStyle(st Style) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "TrackChar",
-          "doc": "Char sets the display character.\n",
+          "doc": "TrackChar sets the track display character.\n",
           "signature": "func (s ScrollbarC) TrackChar(c rune) ScrollbarC",
           "recv": "ScrollbarC"
         },
         {
           "name": "TrackStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "TrackStyle sets the style for the track.\n",
           "signature": "func (s ScrollbarC) TrackStyle(st Style) ScrollbarC",
           "recv": "ScrollbarC"
         }
@@ -4129,48 +4314,6 @@
       "name": "Span",
       "doc": "Span represents a styled segment of text within RichText.\n",
       "decl": "type Span struct {\n\tText  string\n\tStyle Style\n}",
-      "constructors": [
-        {
-          "name": "BG",
-          "doc": "BG creates a span with background color.\n",
-          "signature": "func BG(text string, color Color) Span"
-        },
-        {
-          "name": "Bold",
-          "doc": "Bold creates a bold text span.\n",
-          "signature": "func Bold(text string) Span"
-        },
-        {
-          "name": "Dim",
-          "doc": "Dim creates a dim text span.\n",
-          "signature": "func Dim(text string) Span"
-        },
-        {
-          "name": "FG",
-          "doc": "FG creates a span with foreground color.\n",
-          "signature": "func FG(text string, color Color) Span"
-        },
-        {
-          "name": "Inverse",
-          "doc": "Inverse creates an inverse text span.\n",
-          "signature": "func Inverse(text string) Span"
-        },
-        {
-          "name": "Italic",
-          "doc": "Italic creates an italic text span.\n",
-          "signature": "func Italic(text string) Span"
-        },
-        {
-          "name": "Styled",
-          "doc": "Styled creates a span with the given style.\n",
-          "signature": "func Styled(text string, style Style) Span"
-        },
-        {
-          "name": "Underline",
-          "doc": "Underline creates an underlined text span.\n",
-          "signature": "func Underline(text string) Span"
-        }
-      ],
       "examples": [
         {
           "doc": "Custom span styles.\nStyled creates a span with a full Style struct for fine-grained control.\n",
@@ -4268,7 +4411,7 @@
           "signature": "func Spinner(frame *int) SpinnerC",
           "examples": [
             {
-              "doc": "Animated spinner.\nThe frame pointer is advanced by the framework on each render tick.\n",
+              "doc": "Animated spinner.\nThe frame pointer must be incremented by the caller (e.g. via a ticker goroutine).\n",
               "code": "var frame int\n\nSpinner(\u0026frame).Frames(SpinnerBraille)"
             }
           ]
@@ -4475,7 +4618,7 @@
         {
           "name": "margin",
           "doc": "Style margin.\nMargin is part of Style. Values are top, right, bottom, left (CSS order).\n",
-          "code": "padded := DefaultStyle().MarginTRBL(1, 2, 1, 2)\n\nText(\"padded text\").Style(padded)"
+          "code": "s := DefaultStyle().MarginTRBL(1, 2, 1, 2)\n\nText(\"margined text\").Style(s)"
         }
       ]
     },
@@ -4557,7 +4700,7 @@
       "methods": [
         {
           "name": "ActiveStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "ActiveStyle sets the style for the active tab.\n",
           "signature": "func (t TabsC) ActiveStyle(s Style) TabsC",
           "recv": "TabsC"
         },
@@ -4569,7 +4712,7 @@
         },
         {
           "name": "InactiveStyle",
-          "doc": "Style sets the component style.\n",
+          "doc": "InactiveStyle sets the style for inactive tabs.\n",
           "signature": "func (t TabsC) InactiveStyle(s Style) TabsC",
           "recv": "TabsC"
         },
@@ -4660,6 +4803,12 @@
           "name": "Height",
           "doc": "Height returns the computed height after layout.\nMust call Execute first.\n",
           "signature": "func (t *Template) Height() int16",
+          "recv": "*Template"
+        },
+        {
+          "name": "ScreenEffects",
+          "doc": "ScreenEffects returns the post-processing passes collected from the tree\nduring the most recent Execute. The returned slice is reused between frames.\n",
+          "signature": "func (t *Template) ScreenEffects() []PostProcess",
           "recv": "*Template"
         },
         {
@@ -4924,13 +5073,13 @@
         },
         {
           "name": "BorderBG",
-          "doc": "BG sets the background color.\n",
+          "doc": "BorderBG sets the border background color.\n",
           "signature": "func (f VBoxFn) BorderBG(c Color) VBoxFn",
           "recv": "VBoxFn"
         },
         {
           "name": "BorderFG",
-          "doc": "FG sets the foreground color.\n",
+          "doc": "BorderFG sets the border foreground color.\n",
           "signature": "func (f VBoxFn) BorderFG(c Color) VBoxFn",
           "recv": "VBoxFn"
         },
@@ -5246,6 +5395,11 @@
       ]
     },
     {
+      "name": "BG",
+      "doc": "BG creates a background-colored styled part.\nAccepts string or *string as text. Returns Span for string, TextC for *string.\n",
+      "signature": "func BG(text any, color Color) any"
+    },
+    {
       "name": "Bar",
       "doc": "Bar returns a segmented bar: ▮▮▮▯▯\n",
       "signature": "func Bar(filled, total int) string"
@@ -5254,6 +5408,11 @@
       "name": "BarBracket",
       "doc": "BarBracket returns a bracketed bar: [▮▮▮▯▯]\n",
       "signature": "func BarBracket(filled, total int) string"
+    },
+    {
+      "name": "Bold",
+      "doc": "Bold creates a bold styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Bold(text any) any"
     },
     {
       "name": "Define",
@@ -5267,9 +5426,29 @@
       ]
     },
     {
+      "name": "Dim",
+      "doc": "Dim creates a dim styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Dim(text any) any"
+    },
+    {
+      "name": "FG",
+      "doc": "FG creates a foreground-colored styled part.\nAccepts string or *string as text. Returns Span for string, TextC for *string.\n",
+      "signature": "func FG(text any, color Color) any"
+    },
+    {
       "name": "GenerateLabels",
       "doc": "GenerateLabels creates n unique labels for jump targets.\nFor small sets (\u003c=27): single chars (a, s, d, f, ...)\nFor larger sets: two chars (aa, as, ad, ...)\n",
       "signature": "func GenerateLabels(n int) []string"
+    },
+    {
+      "name": "Inverse",
+      "doc": "Inverse creates an inverse styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Inverse(text any) any"
+    },
+    {
+      "name": "Italic",
+      "doc": "Italic creates an italic styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Italic(text any) any"
     },
     {
       "name": "LED",
@@ -5302,9 +5481,19 @@
       "signature": "func Meter(value, max, width int) string"
     },
     {
+      "name": "Styled",
+      "doc": "Styled creates a span with the given style.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Styled(text any, style Style) any"
+    },
+    {
       "name": "TimingString",
       "doc": "TimingString returns a formatted timing string.\n",
       "signature": "func TimingString() string"
+    },
+    {
+      "name": "Underline",
+      "doc": "Underline creates an underlined styled part.\nAccepts string or *string. Returns Span for string, TextC for *string.\n",
+      "signature": "func Underline(text any) any"
     },
     {
       "name": "VEmail",
