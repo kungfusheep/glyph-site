@@ -371,9 +371,13 @@
     border-radius: 8px;
     padding: 2px;
   }
+  .zone-light .hero-install:hover::before {
+    inset: -3px;
+    border-radius: 9px;
+    padding: 3px;
+  }
   .zone-light .hero-install::after {
-    filter: blur(16px);
-    background: conic-gradient(from var(--angle), #a02020, #c03030, #702840, #401848, #c03030, #a02020);
+    display: none;
   }
 
   .zone-dark .hero-install {
