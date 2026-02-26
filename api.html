@@ -28,6 +28,9 @@
 <meta name="twitter:description" content="Complete API reference for glyph: types, constructors, methods, and usage examples for every component in the framework.">
 
 <!-- preload -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preload" href="BerkeleyMonoVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="api.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="https://use.typekit.net/rgt4idh.css">
@@ -1437,7 +1440,7 @@ function copyInstall(el) {
     if (type.methods?.length) {
       const label = document.createElement('div');
       label.className = 'api-methods-label';
-      label.innerHTML = `<span class="chevron">&#9654;</span> Methods`;
+      label.innerHTML = `<span class="chevron">&#9654;&#xFE0E;</span> Methods`;
       el.appendChild(label);
 
       const list = document.createElement('div');
@@ -1489,7 +1492,7 @@ function copyInstall(el) {
 
     const head = document.createElement('div');
     head.className = 'api-category-head api-category-toggle';
-    head.innerHTML = `Functions <span class="cat-chevron">&#9654;</span>`;
+    head.innerHTML = `Functions <span class="cat-chevron">&#9654;&#xFE0E;</span>`;
     head.addEventListener('click', () => cat.classList.toggle('collapsed'));
     cat.appendChild(head);
 
@@ -1523,7 +1526,7 @@ function copyInstall(el) {
 
     const head = document.createElement('div');
     head.className = 'api-category-head api-category-toggle';
-    head.innerHTML = `${esc(title)} <span class="cat-chevron">&#9654;</span>`;
+    head.innerHTML = `${esc(title)} <span class="cat-chevron">&#9654;&#xFE0E;</span>`;
     head.addEventListener('click', () => cat.classList.toggle('collapsed'));
     cat.appendChild(head);
 
@@ -1584,7 +1587,7 @@ function copyInstall(el) {
 
       const head = document.createElement('div');
       head.className = 'api-category-head api-category-toggle';
-      head.innerHTML = `${esc(catName)} <span class="cat-chevron">&#9654;</span>`;
+      head.innerHTML = `${esc(catName)} <span class="cat-chevron">&#9654;&#xFE0E;</span>`;
       head.addEventListener('click', () => cat.classList.toggle('collapsed'));
       cat.appendChild(head);
 
