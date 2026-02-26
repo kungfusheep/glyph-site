@@ -607,50 +607,78 @@
   .batteries-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
+    gap: var(--s2);
     margin-top: var(--s3);
   }
 
   .battery {
     background: var(--bg3);
     padding: var(--s3);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+  .battery:hover {
+    border-color: var(--rule-dk);
+  }
+  .battery::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 10px;
+    background: conic-gradient(from var(--angle), #c44040, #e85050, #983848, #682850, #e85050, #c44040);
+    filter: blur(16px);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .battery:hover::after {
+    animation: spin 3s linear infinite;
+    opacity: 0.15;
   }
 
-  .zone-dark .battery { background: var(--bg-dark2); }
+  .zone-dark .battery {
+    background:
+      linear-gradient(to right, transparent 0%, #c44040 15%, #e85050 35%, #983848 65%, #682850 85%, transparent 100%) top / 100% 1px no-repeat,
+      #1a1a18;
+  }
 
   .battery-label {
     font-family: var(--akz);
     font-weight: 700;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 13px;
     color: var(--fg4);
     margin-bottom: 8px;
   }
 
-  .zone-dark .battery-label { color: #444; }
+  .zone-dark .battery-label { color: #c8c4b8; }
 
   .battery-items {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 12px;
-    font-size: 12px;
+    gap: 6px 6px;
+    font-family: var(--mono);
+    font-size: 11px;
     color: var(--fg2);
     line-height: 1.6;
   }
 
-  .zone-dark .battery-items { color: #777; }
+  .zone-dark .battery-items { color: #999; }
 
   .battery-items a {
     color: var(--fg2);
     text-decoration: none;
     transition: color 0.15s;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.03);
   }
-
-  .battery-items a:hover { color: var(--fg0); }
+  .battery-items a:hover { color: var(--fg0); background: rgba(255, 255, 255, 0.06); }
 
   .zone-dark .battery-items a { color: #777; }
-  .zone-dark .battery-items a:hover { color: #e8e4d8; }
+  .zone-dark .battery-items a:hover { color: #c8c4b8; background: rgba(255, 255, 255, 0.05); }
 
   /* ============================================================
      START LINKS
